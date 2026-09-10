@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CheckCircle2, CircleAlert, ExternalLink, Github, LoaderCircle, RefreshCw } from "lucide-react";
+import { Check, CircleAlert, RefreshCw } from "lucide-react";
 
 const REPOSITORY = "RodrigoRosaDantas/tjdft-dashboard";
 const WORKFLOW_URL = "https://github.com/" + REPOSITORY + "/actions/workflows/sync-notion.yml";
@@ -138,14 +138,14 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
   };
 
   const status = describeRun(run, publishedAt);
-  const StatusIcon = status.tone === "success" ? CheckCircle2 : status.tone === "warning" || status.tone === "error" ? CircleAlert : checking ? LoaderCircle : RefreshCw;
+  const StatusIcon = status.tone === "success" ? Check : status.tone === "warning" || status.tone === "error" ? CircleAlert : RefreshCw;
   const runUrl = run?.html_url && run.html_url.startsWith("https://github.com/") ? run.html_url : WORKFLOW_URL;
 
   return (
     <section className="sync-panel" aria-labelledby="tjdft-sync-title">
       <div className="sync-panel-head">
         <div className="sync-panel-title">
-          <span className="sync-panel-icon" aria-hidden="true"><Github size={21} /></span>
+          <span className="sync-panel-icon" aria-hidden="true"><RefreshCw size={21} /></span>
           <div>
             <p className="eyebrow">PUBLICAÇÃO DOS DADOS</p>
             <h2 id="tjdft-sync-title">Atualização oficial do TJDFT</h2>
@@ -153,7 +153,7 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
           </div>
         </div>
         <a className="sync-workflow-link" href={WORKFLOW_URL} target="_blank" rel="noreferrer">
-          GitHub Actions <ExternalLink size={14} />
+          GitHub Actions <span aria-hidden="true">↗</span>
         </a>
       </div>
       <div className={"sync-panel-status sync-tone-" + status.tone} data-tone={status.tone} aria-live="polite">
@@ -162,7 +162,7 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
           <strong>{status.title}</strong>
           <span>{requestError ? "Não foi possível consultar o GitHub agora." : status.detail}</span>
         </div>
-        {run && <a href={runUrl} target="_blank" rel="noreferrer">Ver execução <ExternalLink size={13} /></a>}
+        {run && <a href={runUrl} target="_blank" rel="noreferrer">Ver execução <span aria-hidden="true">↗</span></a>}
       </div>
       <div className="sync-panel-actions">
         <button className="secondary-button" type="button" onClick={() => void check()} disabled={checking}>
