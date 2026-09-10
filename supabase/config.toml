@@ -1,0 +1,4 @@
+project_id = "ugxdmvlynyzfmmgshvyq"
+
+[functions.tjdft-notion]
+verify_jwt = false
