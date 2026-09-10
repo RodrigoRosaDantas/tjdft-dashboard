@@ -160,9 +160,9 @@ type DashboardSnapshot = {
   notice?: string;
 };
 
-const LIVE_NOTION_API_URL = "./data/tjdft-snapshot.json";
+const LIVE_NOTION_API_URL = "https://ugxdmvlynyzfmmgshvyq.supabase.co/functions/v1/tjdft-notion";
 // Public Supabase anon key: it gates the read-only function; the Notion token never reaches the browser.
-const LIVE_NOTION_API_KEY = "";
+const LIVE_NOTION_API_KEY = "sb_publishable_acJ3KnWmZLidHTFhtTGYUw_RkYu39ca";
 let activeDashboardSnapshot: DashboardSnapshot | null = null;
 
 function isDashboardSnapshot(value: unknown): value is DashboardSnapshot {
