@@ -30,7 +30,11 @@ jobs:
           cache: npm
       - name: Instalar dependências
         run: npm ci
+      - name: Configurar Deno para o validador do snapshot
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Compilar aplicação e validar snapshot
         run: |
           npm run test
-          node scripts/validate-tjdft-snapshot.mjs
+          deno run --allow-read scripts/validate-tjdft-snapshot.mjs
