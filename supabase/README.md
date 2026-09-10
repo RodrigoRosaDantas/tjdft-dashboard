@@ -8,32 +8,34 @@ O backend do dashboard é um projeto Supabase independente do SEEDF:
 - Edge Function: `tjdft-notion`
 - Tabela: `public.tjdft_dashboard_snapshots`
 
-## Fluxo GitHub → Supabase
+## Fluxo oficial
 
-O snapshot público versionado em `public/data/tjdft-snapshot.json` é a fonte publicada do conteúdo do dashboard.
+O Notion permanece privado. O conteúdo percorre esta cadeia:
 
-1. O frontend tenta chamar a Edge Function do Supabase.
-2. Em `?refresh=1`, a função busca primeiro o snapshot publicado no GitHub.
-3. O snapshot validado é gravado em `public.tjdft_dashboard_snapshots`.
-4. Se o Supabase ou a função estiverem indisponíveis, o frontend usa o mesmo arquivo do GitHub como backup.
-5. O conteúdo editorial continua seguindo o fluxo privado Notion → snapshot validado → GitHub. O token do Notion nunca vai para o navegador.
+`Notion privado → GitHub snapshot → GitHub Pages → Supabase → frontend`
 
-Assim, o GitHub é a origem versionada e o Supabase mantém a cópia de operação/cache e o progresso privado.
+1. O workflow `.github/workflows/sync-notion.yml` consulta o Notion a cada 30 minutos ou quando executado manualmente.
+2. O script valida e grava o resultado em `public/data/tjdft-snapshot.json`.
+3. Só há novo commit quando o conteúdo realmente muda.
+4. O GitHub Pages publica a versão do repositório.
+5. Em `?refresh=1`, a Edge Function busca primeiro o snapshot publicado no GitHub e grava a cópia atual em `public.tjdft_dashboard_snapshots`.
+6. O frontend usa o Supabase como API/cache e mantém o arquivo do GitHub como backup.
 
-## Deploy automático
+O token do Notion nunca é enviado ao navegador nem gravado no snapshot.
 
-O workflow `.github/workflows/deploy-supabase.yml` publica a Edge Function no projeto `ugxdmvlynyzfmmgshvyq` quando o código em `supabase/**` muda.
+## Segredos do GitHub Actions
 
-Para ativar o deploy automático no GitHub, crie em **Settings → Secrets and variables → Actions** o secret:
+Em **Settings → Secrets and variables → Actions**, os nomes têm funções diferentes:
 
-- `SUPABASE_ACCESS_TOKEN`: Personal Access Token da conta Supabase com permissão de Edge Functions no projeto.
+- `TJDFT_NOTION_TOKEN`: token privado da integração do Notion. É usado pelo workflow `sync-notion.yml`. Você já cadastrou este.
+- `SUPABASE_ACCESS_TOKEN`: Personal Access Token do Supabase. É usado pelo workflow `deploy-supabase.yml` para publicar a Edge Function.
 
-Esse token é usado somente pelo GitHub Actions e não deve ser colocado no código, no frontend ou enviado no chat.
+O segundo token ainda precisa ser cadastrado para que alterações em `supabase/**` sejam publicadas automaticamente no Supabase. Não coloque nenhum desses valores no código ou no frontend.
 
 A configuração `supabase/config.toml` mantém a verificação JWT da função desativada porque o próprio código valida a chave pública do projeto.
 
-## Notion opcional
+## Schema
 
-O fluxo GitHub → Supabase funciona sem token do Notion. Se for necessário consultar o Notion diretamente em uma operação controlada, configure `TJDFT_NOTION_TOKEN` em **Supabase Dashboard → Edge Functions → Secrets**. Nunca coloque esse segredo no GitHub ou no frontend.
+O schema aplicado remotamente está versionado em:
 
-O schema aplicado remotamente está versionado em `supabase/migrations/20260910181308_create_tjdft_dashboard_snapshots.sql`.
+`supabase/migrations/20260910181308_create_tjdft_dashboard_snapshots.sql`
