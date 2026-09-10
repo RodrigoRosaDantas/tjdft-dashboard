@@ -25,7 +25,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import SyncWorkflowPanel from "./sync-workflow-panel";
 
-type SectionId = "inicio" | "estudar" | "fases" | "cargos" | "progresso" | "materiais";
+type SectionId = "inicio" | "estudar" | "fases" | "cargos" | "progresso" | "materiais" | "pre-edital";
 type MaterialsTone = "gold" | "teal" | "violet" | "coral";
 type MaterialsView = "c01" | "legislation" | "sequence" | "future";
 
@@ -218,6 +218,7 @@ const navigation: Array<{ id: SectionId; label: string; icon: LucideIcon }> = [
   { id: "cargos", label: "Cargos-meta", icon: GraduationCap },
   { id: "progresso", label: "Progresso", icon: BarChart3 },
   { id: "materiais", label: "Materiais", icon: FileText },
+  { id: "pre-edital", label: "Pré-edital", icon: Target },
 ];
 
 const jobs = [
@@ -884,16 +885,174 @@ function JobCard({ job, compact = false }: { job: typeof jobs[number]; compact?:
   return <article className={`job-card job-${job.tone} ${compact ? "job-compact" : ""}`}><div className="job-code">{job.code}</div><div className="job-content"><div className="job-title-row"><h3>{job.title}</h3><StatusPill tone={job.tone === "gold" ? "gold" : job.tone === "teal" ? "teal" : "violet"}>{job.priority}</StatusPill></div><strong>{job.subtitle}</strong><p>{job.source}</p></div>{!compact && <div className="job-metrics"><span>Domínio inicial</span><strong>Em diagnóstico</strong></div>}</article>;
 }
 
-function StudyToday() {
-  const [checked, setChecked] = useState<string[]>([]);
-  const [sessionStarted, setSessionStarted] = useState(false);
-  const checklist = [{ id: "portugues", label: "Executar Português", detail: "Interpretação, coesão e resolução orientada" }, { id: "regimento", label: "Ler o Regimento no recorte do dia", detail: "Leitura seca com marcação de conceitos" }, { id: "questoes", label: "Registrar questões e resultado", detail: "Feitas, acertos, erros e dúvidas" }, { id: "fechamento", label: "Fechar o D01", detail: "Só avançar quando todas as linhas estiverem corrigidas" }];
-  const progress = Math.round((checked.length / checklist.length) * 100);
-  return <div className="inner-page"><section className="page-intro"><div><p className="eyebrow">EXECUÇÃO DIÁRIA · TJDFT</p><h1>D01 · Português: interpretação e coesão + Regimento I</h1><p>O primeiro dia não precisa ser perfeito. Precisa ser registrado.</p></div><StatusPill tone="gold">Próximo</StatusPill></section><section className="content-grid two-thirds study-layout"><div className="panel study-main-panel"><div className="study-progress-head"><div><p className="eyebrow">CHECKLIST DE EXECUÇÃO</p><h2>Feche o dia na ordem certa</h2></div><strong>{progress}%</strong></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div><div className="checklist">{checklist.map((item) => { const isChecked = checked.includes(item.id); return <button className={`check-row ${isChecked ? "is-checked" : ""}`} key={item.id} onClick={() => setChecked((current) => isChecked ? current.filter((id) => id !== item.id) : [...current, item.id])}><span className="checkbox">{isChecked && <Check size={14} />}</span><span className="check-copy"><strong>{item.label}</strong><small>{item.detail}</small></span><ChevronRight size={17} /></button>; })}</div><div className="study-actions"><button className="primary-button" onClick={() => setSessionStarted((value) => !value)}>{sessionStarted ? "Pausar sessão" : "Iniciar sessão"}<TimerReset size={16} /></button><span>{sessionStarted ? "Sessão em andamento neste dispositivo" : "O cronômetro real entra na execução"}</span></div><div className="study-source-links"><p className="eyebrow">MATERIAL DO DIA</p><div><a className="resource-link" href={d01NotionPage} target="_blank" rel="noreferrer">Abrir D01 completo no Notion <ArrowRight size={15} /></a><a className="resource-link" href={regimentoOfficialUrl} target="_blank" rel="noreferrer">Abrir Regimento oficial <ArrowRight size={15} /></a></div></div></div><aside className="panel day-rule-panel"><div className="day-badge">D01</div><p className="eyebrow">REGRA DO DIA</p><h3>Estude, registre, feche.</h3><p>O Banco de Dias agrega os números a partir das linhas detalhadas do Banco de Controle de Questões. Não lance os totais duas vezes.</p><div className="rule-list"><div><Check size={15} /> Dias não estudados não viram atraso.</div><div><Check size={15} /> D07 só nasce dos resultados de D01–D06.</div><div><Check size={15} /> O site não cria desempenho sem dado real.</div></div></aside></section><section className="panel next-days-panel"><SectionHeading eyebrow="SEQUÊNCIA" title="O CTJ-002 já está preparado" description="Os próximos dias permanecem não iniciados até a execução real." /><div className="day-strip">{dayRows.slice(0, 7).map((row) => <DayCard row={row} key={row.day} />)}</div></section></div>;
+function StudyToday({ snapshot = activeDashboardSnapshot }: { snapshot?: DashboardSnapshot | null } = {}) {
+  const [selectedDay, setSelectedDay] = useState("D01");
+  const liveMaterials = snapshot?.materials?.days ?? studyMaterials;
+  const liveLegislation = snapshot?.materials?.legislation ?? legislationPlan;
+  const executionDays = snapshot?.execution?.c01?.days ?? [];
+  const completedDays = executionDays.filter((day) => day.done > 0).length;
+  const completedQuestions = executionDays.reduce((total, day) => total + day.done, 0);
+  const selectedRow = dayRows.find((row) => row.day === selectedDay) ?? dayRows[0];
+  const selectedMaterial = liveMaterials.find((material) => material.day === selectedRow.day) ?? studyMaterials.find((material) => material.day === selectedRow.day);
+  const selectedLaw = liveLegislation.find((item) => item.day === selectedRow.day) ?? legislationPlan.find((item) => item.day === selectedRow.day);
+  const selectedExecution = executionDays.find((day) => day.day === selectedRow.day);
+  const selectedDone = selectedExecution?.done ?? 0;
+  const selectedPlanned = selectedExecution?.planned ?? Number(selectedMaterial?.meta.match(/^[0-9]+/)?.[0] ?? 0);
+  const selectedProgress = selectedExecution?.progress ? Math.round(selectedExecution.progress * 100) : 0;
+  const selectedExecuted = selectedDone > 0 || selectedProgress > 0;
+  const selectedStatus = selectedExecuted ? "Executado" : selectedRow.state === "next" ? "Próximo" : selectedRow.state === "adaptive" ? "Checkpoint" : "Preparado";
+  const selectedTone = selectedExecuted ? "teal" : selectedRow.state === "next" ? "gold" : selectedRow.state === "adaptive" ? "violet" : "neutral";
+  const sourceHref = selectedMaterial?.href ?? notionMaterialsPage;
+  const lawHref = selectedLaw?.links[0]?.href ?? sourceHref;
+  const lawLabel = selectedLaw?.links[0]?.label ?? "Ver fonte do recorte";
+  const registrationHref = selectedExecution?.href || notionExecutionPage;
+  const steps = [
+    { number: "01", label: "MATERIAL", title: selectedMaterial?.title ?? selectedRow.label, detail: selectedMaterial?.detail ?? "Material operacional do dia no Notion.", href: sourceHref, action: "Abrir material no Notion" },
+    { number: "02", label: "CADERNO", title: "Questões e correção do dia", detail: (selectedMaterial?.meta ?? selectedRow.meta) + " · registrar feitas, acertos, erros e dúvidas.", href: registrationHref, action: "Abrir caderno de execução" },
+    { number: "03", label: "LEI SECA / FONTE", title: selectedLaw?.title ?? "Fonte vinculada ao dia", detail: selectedLaw?.detail ?? "Este recorte não tem lei seca nuclear; siga a fonte indicada no material.", href: lawHref, action: lawLabel },
+    { number: "04", label: "REGISTRO", title: "Fechamento e evidência", detail: "Só considere o dia fechado depois de registrar o resultado no Banco de Dias.", href: registrationHref, action: "Abrir registro no Notion" },
+  ];
+
+  return <div className="inner-page daily-hub">
+    <section className="page-intro daily-hub-intro">
+      <div>
+        <p className="eyebrow">EXECUÇÃO DIÁRIA · TJDFT</p>
+        <h1>D01–D14 · estudar com começo, meio e fechamento</h1>
+        <p>O site organiza a travessia; o conteúdo completo, as questões e o registro continuam no Notion operacional.</p>
+      </div>
+      <div className="daily-intro-actions">
+        <StatusPill tone="gold">{completedDays > 0 ? completedDays + " dias registrados" : "D01 é o próximo passo"}</StatusPill>
+        <a className="text-button" href={notionExecutionPage} target="_blank" rel="noreferrer">Abrir execução no Notion <ArrowRight size={15} /></a>
+      </div>
+    </section>
+
+    <section className="daily-summary-grid" aria-label="Resumo da execução diária">
+      <div className="panel daily-summary-card"><span className="eyebrow">DIAS DO CTJ-002</span><strong>14</strong><small>preparados e navegáveis</small></div>
+      <div className="panel daily-summary-card"><span className="eyebrow">DIAS EXECUTADOS</span><strong>{completedDays}</strong><small>{completedDays > 0 ? "a partir de registros reais" : "nenhum registro no snapshot atual"}</small></div>
+      <div className="panel daily-summary-card"><span className="eyebrow">QUESTÕES REGISTRADAS</span><strong>{completedQuestions}</strong><small>sem importar desempenho de outro projeto</small></div>
+      <div className="panel daily-summary-card"><span className="eyebrow">PRÓXIMO MARCO</span><strong>D07</strong><small>checkpoint nasce dos resultados D01–D06</small></div>
+    </section>
+
+    <section className="panel daily-days-panel">
+      <SectionHeading eyebrow="MAPA DE EXECUÇÃO" title="Escolha o dia e siga a ordem" description="D01 está liberado; os demais dias ficam preparados. D07 e D14 são recalibrados somente quando houver evidência real." action={<StatusPill tone="teal">CTJ-002 · 14 dias</StatusPill>} />
+      <div className="daily-day-grid">
+        {dayRows.map((row) => {
+          const material = liveMaterials.find((item) => item.day === row.day);
+          const execution = executionDays.find((item) => item.day === row.day);
+          const executed = Boolean(execution && (execution.done > 0 || execution.progress > 0));
+          const status = executed ? "Executado" : row.state === "next" ? "Próximo" : row.state === "adaptive" ? "Checkpoint" : "Preparado";
+          const tone = executed ? "teal" : row.state === "next" ? "gold" : row.state === "adaptive" ? "violet" : "neutral";
+          return <button className={"daily-day-card " + (selectedDay === row.day ? "is-selected " : "") + "daily-day-" + tone} type="button" aria-pressed={selectedDay === row.day} onClick={() => setSelectedDay(row.day)} key={row.day}>
+            <div className="daily-day-card-top"><strong>{row.day}</strong><StatusPill tone={tone}>{status}</StatusPill></div>
+            <h3>{material?.title ?? row.label}</h3>
+            <p>{material?.detail ?? row.detail}</p>
+            <div className="daily-day-card-foot"><span>{material?.meta ?? row.meta}</span><span>{executed ? execution?.done + "/" + execution?.planned + " questões" : row.state === "adaptive" ? "resultado necessário" : "sem registro"}</span></div>
+          </button>;
+        })}
+      </div>
+    </section>
+
+    <section className="content-grid two-thirds daily-focus-layout">
+      <section className="panel daily-focus-panel">
+        <div className="daily-focus-head">
+          <div>
+            <p className="eyebrow">{selectedRow.day} · MATERIAL DO DIA</p>
+            <h2>{selectedMaterial?.title ?? selectedRow.label}</h2>
+            <p>{selectedMaterial?.detail ?? selectedRow.detail}</p>
+          </div>
+          <StatusPill tone={selectedTone}>{selectedStatus}</StatusPill>
+        </div>
+        <div className="daily-focus-progress">
+          <div><span>Questões do recorte</span><strong>{selectedExecuted ? selectedDone + "/" + selectedPlanned : "a registrar"}</strong></div>
+          <div className="progress-track"><span style={{ width: String(selectedProgress) + "%" }} /></div>
+        </div>
+        <div className="daily-step-grid">
+          {steps.map((step) => <article className="daily-step-card" key={step.number}>
+            <div className="daily-step-number">{step.number}</div>
+            <p className="eyebrow">{step.label}</p>
+            <h3>{step.title}</h3>
+            <p>{step.detail}</p>
+            <a className="text-button" href={step.href} target="_blank" rel="noreferrer">{step.action} <ArrowRight size={14} /></a>
+          </article>)}
+        </div>
+      </section>
+
+      <aside className="panel daily-rule-panel">
+        <div className="day-badge">{selectedRow.day}</div>
+        <p className="eyebrow">REGRA DO FLUXO</p>
+        <h3>{selectedRow.day === "D07" || selectedRow.day === "D14" ? "Checkpoint só depois dos dados." : "Estude, registre, feche."}</h3>
+        <p>O D01–D14 tem quatro portas: material, caderno, lei seca/fonte e registro. Abrir um link não marca o dia como concluído.</p>
+        <div className="rule-list">
+          <div><Check size={15} /> A pausa não vira dívida artificial.</div>
+          <div><Check size={15} /> D07 e D14 usam erros e dúvidas reais.</div>
+          <div><Check size={15} /> O site não cria desempenho TJDFT.</div>
+        </div>
+        <a className="primary-button daily-rule-action" href={registrationHref} target="_blank" rel="noreferrer">Abrir registro do dia <ArrowRight size={15} /></a>
+      </aside>
+    </section>
+  </div>;
 }
 
 function DayCard({ row }: { row: typeof dayRows[number] }) {
   return <article className={`day-card day-${row.state}`}><div className="day-card-top"><strong>{row.day}</strong><span className="day-state-dot" /></div><h3>{row.label}</h3><p>{row.detail}</p><span>{row.meta}</span></article>;
+}
+
+function PreEdital({ snapshot = activeDashboardSnapshot }: { snapshot?: DashboardSnapshot | null } = {}) {
+  const syncedAt = snapshot?.source?.synced_at ?? snapshot?.source?.last_edited_time ?? null;
+  const officialSource = sources.find((source) => source.tag === "OFICIAL");
+  return <div className="inner-page pre-edital-page">
+    <section className="page-intro">
+      <div>
+        <p className="eyebrow">RADAR · TJDFT</p>
+        <h1>Pré-edital preparado para o próximo gatilho</h1>
+        <p>Esta página acompanha o concurso sem inventar notícias: a fonte oficial e a Central TJDFT continuam sendo a referência quando surgir uma atualização.</p>
+      </div>
+      <StatusPill tone="teal">Monitoramento ativo</StatusPill>
+    </section>
+
+    <section className="content-grid two-thirds pre-edital-layout">
+      <article className="panel pre-edital-main">
+        <div className="pre-edital-statusline"><span className="live-dot" /> TJDFT · preparação pré-edital</div>
+        <h2>Dois cargos-meta, uma base comum</h2>
+        <p>O núcleo comum permanece organizado no CTJ-002. As trilhas específicas só avançam depois do fechamento da sequência e de um edital oficial que altere as prioridades.</p>
+        <div className="pre-edital-job-grid">
+          {jobs.map((job) => <div className={"pre-edital-job pre-edital-job-" + job.tone} key={job.code}><strong>{job.title}</strong><span>{job.subtitle}</span></div>)}
+        </div>
+        <div className="pre-edital-actions">
+          <a className="primary-button" href={notionMaterialsPage} target="_blank" rel="noreferrer">Abrir base de materiais <ArrowRight size={15} /></a>
+          <a className="secondary-button" href={officialSource?.href ?? "https://www.tjdft.jus.br/"} target="_blank" rel="noreferrer">Abrir fonte oficial <ArrowRight size={15} /></a>
+        </div>
+      </article>
+
+      <aside className="panel pre-edital-side">
+        <p className="eyebrow">ESTADO DO RADAR</p>
+        <strong className="pre-edital-state">Pré-edital</strong>
+        <p>Sem mudança oficial cadastrada no snapshot atual.</p>
+        <div className="pre-edital-meta"><span>Última leitura da fonte</span><strong>{formatSnapshotDate(syncedAt)}</strong></div>
+        <div className="pre-edital-meta"><span>Próxima ação</span><strong>Executar {snapshot?.dashboard?.next_action?.split(" · ")[0] ?? "D01"}</strong></div>
+      </aside>
+    </section>
+
+    <section className="panel pre-edital-checklist">
+      <SectionHeading eyebrow="O QUE O RADAR ACOMPANHA" title="Quatro gatilhos que mudam a rota" description="Quando uma fonte oficial confirmar qualquer item, a sequência pode ser reavaliada no Notion antes de virar alteração no site." />
+      <div className="pre-edital-check-grid">
+        <article><span>01</span><h3>Autorização e comissão</h3><p>Registrar somente quando houver publicação oficial verificável.</p></article>
+        <article><span>02</span><h3>Banca e edital</h3><p>Revisar os cargos e o conteúdo programático a partir do documento publicado.</p></article>
+        <article><span>03</span><h3>Vagas e requisitos</h3><p>Manter Técnico e Analista separados, sem misturar cargos ou metas.</p></article>
+        <article><span>04</span><h3>Gatilho pós-edital</h3><p>Converter o radar em plano quando o texto oficial realmente existir.</p></article>
+      </div>
+      <div className="pre-edital-note"><CircleAlert size={17} /><span>Última referência operacional: {formatSnapshotDate(syncedAt)}. O painel não substitui o portal oficial nem duplica o conteúdo do Notion.</span></div>
+    </section>
+
+    <section className="panel pre-edital-sources">
+      <SectionHeading eyebrow="FONTES DE CONTROLE" title="Onde conferir antes de mudar o plano" description="A página aponta para as fontes já usadas pelo projeto." />
+      <div className="pre-edital-source-grid">
+        <a className="pre-edital-source" href={officialSource?.href ?? "https://www.tjdft.jus.br/"} target="_blank" rel="noreferrer"><strong>Portal oficial TJDFT</strong><span>Publicações e concursos</span><ArrowRight size={15} /></a>
+        <a className="pre-edital-source" href={sources[0].href} target="_blank" rel="noreferrer"><strong>Central operacional</strong><span>Estado e decisões do projeto</span><ArrowRight size={15} /></a>
+        <a className="pre-edital-source" href={notionExecutionPage} target="_blank" rel="noreferrer"><strong>Execução diária</strong><span>D01–D14 e registros reais</span><ArrowRight size={15} /></a>
+      </div>
+    </section>
+  </div>;
 }
 
 function Phases() {
@@ -1419,5 +1578,5 @@ export default function Home() {
   const activeLabel = navigation.find((item) => item.id === section)?.label ?? "Visão geral";
   const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
   activeDashboardSnapshot = snapshot;
-  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button className={`nav-item ${active ? "nav-active" : ""}`} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><button onClick={() => handleNavigate("estudar")}>Abrir execução <ArrowRight size={15} /></button></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><button className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content">{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} />}{section === "estudar" && <StudyToday />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
+  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button className={`nav-item ${active ? "nav-active" : ""}`} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><button onClick={() => handleNavigate("estudar")}>Abrir execução <ArrowRight size={15} /></button></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><button className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content">{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
 }

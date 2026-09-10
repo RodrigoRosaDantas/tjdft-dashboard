@@ -356,3 +356,104 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
   .sync-panel-actions { grid-template-columns: 1fr; }
   .sync-workflow-link { margin-left: 0; }
 }
+
+
+/* Daily execution hub and pre-edital radar */
+.daily-hub { gap: 20px; }
+.daily-hub-intro { align-items: flex-start; }
+.daily-intro-actions { display: flex; align-items: center; justify-content: flex-end; gap: 14px; flex-wrap: wrap; }
+.daily-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.daily-summary-card { display: grid; gap: 6px; min-height: 112px; padding: 18px 20px; }
+.daily-summary-card strong { color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 30px; line-height: 1; }
+.daily-summary-card small { color: var(--muted); font-size: 11px; line-height: 1.4; }
+.daily-days-panel, .daily-focus-panel, .daily-rule-panel, .pre-edital-main, .pre-edital-side, .pre-edital-checklist, .pre-edital-sources { padding: 24px 28px; }
+.daily-day-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.daily-day-card { min-width: 0; border: 1px solid var(--line); border-radius: 14px; padding: 15px; text-align: left; background: var(--surface); color: var(--ink); cursor: pointer; transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease, background .18s ease; }
+.daily-day-card:hover { border-color: var(--teal); transform: translateY(-1px); box-shadow: 0 8px 18px rgba(25, 68, 77, .08); }
+.daily-day-card.is-selected { border-color: var(--teal-dark); background: #f3fbfa; box-shadow: 0 0 0 2px rgba(27, 126, 119, .12); }
+.daily-day-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.daily-day-card h3 { margin: 15px 0 7px; color: var(--ink); font-size: 14px; line-height: 1.25; }
+.daily-day-card p { min-height: 40px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.daily-day-card-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; color: var(--muted); font-size: 10px; font-weight: 800; }
+.daily-day-card-foot span:last-child { text-align: right; }
+.daily-day-gold { border-top: 3px solid #dca43c; }
+.daily-day-teal { border-top: 3px solid #2a9b91; }
+.daily-day-violet { border-top: 3px solid #8b75c8; }
+.daily-day-neutral { border-top: 3px solid #cfdadd; }
+.daily-focus-layout { align-items: start; }
+.daily-focus-panel { min-width: 0; }
+.daily-focus-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.daily-focus-head h2 { max-width: 720px; margin: 5px 0 7px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: clamp(23px, 3vw, 31px); line-height: 1.08; }
+.daily-focus-head p:not(.eyebrow) { max-width: 720px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.daily-focus-progress { display: grid; gap: 9px; margin-top: 22px; }
+.daily-focus-progress > div:first-child { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.daily-focus-progress strong { color: var(--ink); }
+.daily-step-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 22px; }
+.daily-step-card { display: flex; min-height: 188px; flex-direction: column; align-items: flex-start; border: 1px solid var(--line); border-radius: 14px; background: #fbfdfd; padding: 17px; }
+.daily-step-number { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; color: var(--teal-dark); background: #dcf2ef; font-size: 11px; font-weight: 900; }
+.daily-step-card .eyebrow { margin-top: 13px; }
+.daily-step-card h3 { margin: 4px 0 6px; color: var(--ink); font-size: 15px; line-height: 1.25; }
+.daily-step-card p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.daily-step-card .text-button { margin-top: auto; padding-top: 14px; }
+.daily-rule-panel { display: flex; min-height: 100%; flex-direction: column; }
+.daily-rule-panel h3 { margin: 11px 0 8px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 25px; }
+.daily-rule-panel > p:not(.eyebrow) { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.daily-rule-action { margin-top: auto; align-self: flex-start; }
+.pre-edital-layout { align-items: stretch; }
+.pre-edital-main h2 { margin: 14px 0 8px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: clamp(25px, 3vw, 35px); line-height: 1.06; }
+.pre-edital-main > p { max-width: 760px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.pre-edital-statusline { display: inline-flex; align-items: center; gap: 8px; color: var(--teal-dark); font-size: 11px; font-weight: 800; }
+.pre-edital-job-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 20px; }
+.pre-edital-job { display: grid; gap: 7px; border: 1px solid var(--line); border-radius: 13px; padding: 15px; }
+.pre-edital-job strong { color: var(--ink); font-size: 14px; }
+.pre-edital-job span { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.pre-edital-job-gold { border-color: #ecd59e; background: #fffaf0; }
+.pre-edital-job-violet { border-color: #d8cef3; background: #faf8ff; }
+.pre-edital-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.pre-edital-side { display: flex; flex-direction: column; min-height: 100%; }
+.pre-edital-state { display: block; margin-top: 10px; color: var(--teal-dark); font-family: Georgia, "Times New Roman", serif; font-size: 31px; }
+.pre-edital-side > p:not(.eyebrow) { margin: 8px 0 20px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.pre-edital-meta { display: grid; gap: 4px; border-top: 1px solid var(--line); padding: 13px 0; }
+.pre-edital-meta span { color: var(--muted); font-size: 10px; }
+.pre-edital-meta strong { color: var(--ink); font-size: 12px; line-height: 1.35; }
+.pre-edital-check-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; margin-top: 20px; }
+.pre-edital-check-grid article { border: 1px solid var(--line); border-radius: 13px; background: #fbfdfd; padding: 15px; }
+.pre-edital-check-grid article > span { color: var(--teal-dark); font-size: 11px; font-weight: 900; }
+.pre-edital-check-grid h3 { margin: 10px 0 6px; color: var(--ink); font-size: 14px; }
+.pre-edital-check-grid p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.pre-edital-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 17px; border-top: 1px solid var(--line); padding-top: 15px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.pre-edital-note svg { flex: 0 0 auto; color: var(--coral); }
+.pre-edital-source-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.pre-edital-source { display: flex; min-height: 92px; flex-direction: column; justify-content: space-between; gap: 9px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; color: var(--ink); background: #fbfdfd; text-decoration: none; }
+.pre-edital-source:hover { border-color: var(--teal); }
+.pre-edital-source strong { font-size: 12px; }
+.pre-edital-source span { color: var(--muted); font-size: 10px; }
+.pre-edital-source svg { color: var(--teal-dark); }
+@media (max-width: 1000px) {
+  .daily-day-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .daily-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pre-edital-check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .daily-intro-actions { justify-content: flex-start; }
+  .daily-days-panel, .daily-focus-panel, .daily-rule-panel, .pre-edital-main, .pre-edital-side, .pre-edital-checklist, .pre-edital-sources { padding: 19px 17px; }
+  .daily-day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .daily-day-card { padding: 12px; }
+  .daily-day-card h3 { font-size: 12px; }
+  .daily-day-card p { min-height: 0; font-size: 10px; }
+  .daily-day-card-foot { display: grid; gap: 4px; }
+  .daily-day-card-foot span:last-child { text-align: left; }
+  .daily-focus-head { display: block; }
+  .daily-focus-head .status-pill { margin-top: 12px; }
+  .daily-step-grid { grid-template-columns: 1fr; }
+  .daily-step-card { min-height: 0; }
+  .daily-rule-action { width: 100%; justify-content: center; margin-top: 22px; }
+  .pre-edital-job-grid, .pre-edital-source-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 430px) {
+  .daily-summary-grid { gap: 8px; }
+  .daily-summary-card { min-height: 98px; padding: 14px; }
+  .daily-summary-card strong { font-size: 26px; }
+  .daily-day-grid { grid-template-columns: 1fr; }
+  .pre-edital-check-grid { grid-template-columns: 1fr; }
+}
