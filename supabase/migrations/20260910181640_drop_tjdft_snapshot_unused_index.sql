@@ -1,0 +1,1 @@
+drop index if exists public.tjdft_dashboard_snapshots_synced_at_idx;
