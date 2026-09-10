@@ -687,7 +687,7 @@ async function sha256(value: string) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-async function buildSnapshot(token: string) {
+export async function buildSnapshot(token: string) {
   const fallback = await fetchPublishedSnapshot();
   const request = createNotionRequest(token);
   const [page, topLevelBlocks] = await Promise.all([
@@ -782,7 +782,8 @@ async function buildSnapshot(token: string) {
   };
 }
 
-Deno.serve(async (request) => {
+if (import.meta.main) {
+  Deno.serve(async (request) => {
   const headers = corsHeaders(request);
   if (request.method === "OPTIONS") return new Response("ok", { headers });
   if (!authorized(request)) return json({ error: "Não autorizado." }, 401, headers);
@@ -851,4 +852,5 @@ Deno.serve(async (request) => {
     }
     return json({ error: "Não foi possível consultar os dados do Notion TJDFT." }, 502, headers);
   }
-});
+  });
+}
