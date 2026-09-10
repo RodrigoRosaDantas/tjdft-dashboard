@@ -1,0 +1,48 @@
+name: Sync TJDFT Notion snapshot to GitHub
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/tjdft-notion/**"
+      - ".github/workflows/sync-notion.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tjdft-notion-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Generate snapshot from private Notion
+        run: deno run --allow-net --allow-env --allow-read --allow-write supabase/functions/tjdft-notion/sync.ts
+        env:
+          TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
+
+      - name: Commit snapshot when changed
+        run: |
+          if git diff --quiet -- public/data/tjdft-snapshot.json; then
+            echo "Nenhuma alteração editorial detectada."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/tjdft-snapshot.json
+          git commit -m "Sync TJDFT snapshot from Notion"
+          git push
