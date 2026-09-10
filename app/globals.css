@@ -242,3 +242,117 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
     border-left: 0;
   }
 }
+
+
+/* TJDFT publication workflow parity */
+.sync-panel-section { margin-top: 18px; }
+.sync-panel {
+  padding: 24px 29px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff, #f4fbfb);
+  box-shadow: var(--shadow);
+}
+.sync-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.sync-panel-title { display: flex; align-items: flex-start; gap: 13px; min-width: 0; }
+.sync-panel-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  color: var(--teal-dark);
+  background: #dff4f1;
+}
+.sync-panel h2 { margin-top: 4px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: clamp(22px, 3vw, 29px); line-height: 1.08; }
+.sync-panel-description { max-width: 720px; margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.sync-workflow-link,
+.sync-panel-status a,
+.sync-panel-guide a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--teal-dark);
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sync-workflow-link:hover,
+.sync-panel-status a:hover,
+.sync-panel-guide a:hover { color: var(--ink); }
+.sync-panel-status {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 21px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  background: #fbfdfd;
+}
+.sync-panel-status > svg { flex: 0 0 auto; color: var(--muted); }
+.sync-panel-status > div { display: grid; gap: 3px; min-width: 0; }
+.sync-panel-status strong { color: var(--ink); font-size: 12px; }
+.sync-panel-status span { font-size: 11px; line-height: 1.45; }
+.sync-panel-status a { margin-left: auto; }
+.sync-tone-running { border-color: #c7e8e4; background: #f2fbfa; }
+.sync-tone-running > svg { color: var(--teal-dark); }
+.sync-tone-success { border-color: #bee1c8; background: #f3fbf5; }
+.sync-tone-success > svg { color: #2a8b58; }
+.sync-tone-warning { border-color: #efd7a9; background: #fffaf0; }
+.sync-tone-warning > svg { color: #a8731d; }
+.sync-tone-error { border-color: #f0c9c2; background: #fff7f5; }
+.sync-tone-error > svg { color: var(--coral); }
+.sync-status-spin { animation: spin .8s linear infinite; }
+.sync-panel-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+.sync-primary-button { min-width: 153px; }
+.sync-panel-guide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 11px;
+}
+.sync-panel-guide > div { display: grid; gap: 3px; }
+.sync-panel-guide strong { color: var(--ink); font-size: 12px; }
+.sync-panel-guide span { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.sync-panel-guide .text-button { flex: 0 0 auto; }
+.sync-panel-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid #e8f0f1;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+.sync-panel-foot span { display: inline-flex; align-items: center; gap: 7px; }
+@media (max-width: 760px) {
+  .sync-panel { padding: 21px 18px; }
+  .sync-panel-head { display: block; }
+  .sync-workflow-link { margin: 14px 0 0 55px; }
+  .sync-panel-status { align-items: flex-start; }
+  .sync-panel-status a { display: none; }
+  .sync-panel-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .sync-panel-actions button { width: 100%; padding-left: 9px; padding-right: 9px; }
+  .sync-panel-guide { align-items: flex-start; flex-direction: column; }
+  .sync-panel-foot { display: grid; justify-content: stretch; }
+}
+@media (max-width: 430px) {
+  .sync-panel-actions { grid-template-columns: 1fr; }
+  .sync-workflow-link { margin-left: 0; }
+}
