@@ -798,8 +798,25 @@ Deno.serve(async (request) => {
     });
   }
 
+  if (forceRefresh) {
+    const published = await fetchPublishedSnapshot();
+    if (published) {
+      await persistSnapshot(published).catch((error) => {
+        console.error(
+          "TJDFT GitHub snapshot persistence unavailable:",
+          error instanceof Error ? error.message : "unknown error",
+        );
+      });
+      cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: published };
+      return json(published, 200, headers, {
+        "X-TJDFT-Cache": "github->supabase",
+        "Cache-Control": "public, max-age=30",
+      });
+    }
+  }
+
   if (!token) {
-    const fallback = await loadFallbackSnapshot(forceRefresh);
+    const fallback = await loadFallbackSnapshot();
     if (!fallback) return json({ error: "API TJDFT temporariamente indisponível." }, 503, headers);
     await persistSnapshot(fallback).catch((error) => {
       console.error(
@@ -809,7 +826,7 @@ Deno.serve(async (request) => {
     });
     cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: fallback };
     return json(fallback, 200, headers, {
-      "X-TJDFT-Cache": forceRefresh ? "github->supabase" : "snapshot",
+      "X-TJDFT-Cache": "snapshot",
       "Cache-Control": "public, max-age=30",
     });
   }
