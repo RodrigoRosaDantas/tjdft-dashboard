@@ -10,7 +10,7 @@ assert(snapshot && typeof snapshot === "object", "Snapshot precisa ser um objeto
 assert(Number.isFinite(Number(snapshot.schema_version)), "schema_version ausente ou inválido.");
 assert(snapshot.source && typeof snapshot.source === "object", "source ausente.");
 assert(typeof snapshot.source.title === "string" && snapshot.source.title.trim(), "source.title ausente.");
-assert(typeof snapshot.source.page_url === "string" && /^https:\\/\\//.test(snapshot.source.page_url), "source.page_url inválida.");
+assert(typeof snapshot.source.page_url === "string" && snapshot.source.page_url.startsWith("https://"), "source.page_url inválida.");
 assert(typeof snapshot.source.content_hash === "string" && snapshot.source.content_hash.trim(), "source.content_hash ausente.");
 assert(["synced", "live", "fallback"].includes(snapshot.source.status), "source.status não reconhecido.");
 assert(snapshot.dashboard && typeof snapshot.dashboard === "object", "dashboard ausente.");
