@@ -157,7 +157,11 @@ async function fetchPublishedSnapshot() {
   }
 }
 
-async function loadFallbackSnapshot() {
+async function loadFallbackSnapshot(preferPublished = false) {
+  if (preferPublished) {
+    const published = await fetchPublishedSnapshot();
+    if (published) return published;
+  }
   const stored = await loadStoredSnapshot().catch(() => null);
   if (stored) return stored;
   return await fetchPublishedSnapshot();
@@ -795,11 +799,17 @@ Deno.serve(async (request) => {
   }
 
   if (!token) {
-    const fallback = await loadFallbackSnapshot();
+    const fallback = await loadFallbackSnapshot(forceRefresh);
     if (!fallback) return json({ error: "API TJDFT temporariamente indisponível." }, 503, headers);
+    await persistSnapshot(fallback).catch((error) => {
+      console.error(
+        "TJDFT GitHub snapshot persistence unavailable:",
+        error instanceof Error ? error.message : "unknown error",
+      );
+    });
     cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: fallback };
     return json(fallback, 200, headers, {
-      "X-TJDFT-Cache": "snapshot",
+      "X-TJDFT-Cache": forceRefresh ? "github->supabase" : "snapshot",
       "Cache-Control": "public, max-age=30",
     });
   }
@@ -814,7 +824,7 @@ Deno.serve(async (request) => {
     });
   } catch (error) {
     console.error("TJDFT Notion sync failed:", error instanceof Error ? error.message : "unknown error");
-    const fallback = await loadFallbackSnapshot();
+    const fallback = await loadFallbackSnapshot(forceRefresh);
     if (fallback) {
       cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: fallback };
       return json(fallback, 200, headers, {
