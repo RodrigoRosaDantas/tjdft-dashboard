@@ -1,0 +1,354 @@
+{
+  "schemaVersion": 1,
+  "competitionId": "tjdft",
+  "title": "TJDFT — Edital verticalizado",
+  "version": "base-2022",
+  "kind": "historical-base",
+  "generatedAt": "2026-09-16T02:51:04.355Z",
+  "source": {
+    "type": "notion",
+    "dataSourceId": "01da7685-5903-4a48-ae8e-987a7d35b447",
+    "pageUrl": "https://app.notion.com/p/4c8fd5d72b4d42bd8dbf972b4896e64b",
+    "apiVersion": "2026-03-11"
+  },
+  "editorialPolicy": {
+    "official": false,
+    "note": "Pré-edital. O Edital 2022 é base histórica; alterações legais e eventual edital futuro prevalecem quando publicados."
+  },
+  "axisCount": 22,
+  "layers": {
+    "Edital histórico": 22
+  },
+  "subjects": {
+    "Administração geral; comportamento organizacional": 1,
+    "Direito Constitucional; Direito Administrativo": 1,
+    "Ética; Regimento Interno; Lei de Organização Judiciária": 2,
+    "Gestão de pessoas; administração de materiais": 1,
+    "Gestão pública; governança; gestão de processos": 1,
+    "Licitações; contratos; sustentabilidade nas contratações": 1,
+    "Língua Portuguesa": 2,
+    "Orçamento público; Lei de Responsabilidade Fiscal; MCASP": 1,
+    "Planejamento; indicadores; gestão de projetos": 1,
+    "Redação/dissertativa específica conforme o edital-base": 1,
+    "Administração Pública; gestão de pessoas; orçamento público": 1,
+    "Direito Administrativo": 1,
+    "Direito Civil; Lei de Introdução às Normas do Direito Brasileiro": 1,
+    "Direito Constitucional": 1,
+    "Direito Penal": 1,
+    "Direito Processual Civil": 1,
+    "Direito Processual Penal": 1,
+    "Licitações; contratos; compras públicas": 1,
+    "Provimento Geral da Corregedoria; Provimento Judicial aplicado ao PJe": 1,
+    "Redação/dissertativa conforme o edital-base": 1
+  },
+  "axes": [
+    {
+      "id": "3d5cf5a2-6731-81c6-b990-f9689a9f4b36",
+      "topic": "TJ2022-A — Administração geral e comportamento organizacional",
+      "subtopic": "Comportamento organizacional; organização como sistema social; cultura; motivação; liderança; comunicação; delegação; processo decisório; decisões programadas e não programadas; modelo racional; ferramentas de apoio; heurísticas; decisão em grupo; qualidade e produtividade; Deming; relação cliente/fornecedor; ferramentas da qualidade.",
+      "subject": "Administração geral; comportamento organizacional",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-8127-a8cc-e793fcd432fe",
+      "topic": "TJ2022-A — Constitucional e Administrativo",
+      "subtopic": "Noções de Direito Constitucional: conceito, classificações, princípios fundamentais; direitos e garantias fundamentais; organização político-administrativa; Administração Pública e servidores; Poder Judiciário e competências; CNJ; funções essenciais à Justiça. Noções de Direito Administrativo: organização administrativa; Administração direta/indireta; centralização/descentralização; desconcentração; princípios; órgãos e agentes; Lei 8.112/1990; processo administrativo; poderes; atos; controles; improbidade; responsabilidade civil; licitações e contratos; Estatuto da Pessoa com Deficiência.",
+      "subject": "Direito Constitucional; Direito Administrativo",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Núcleo comum",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81ba-9cf4-d74d29444460",
+      "topic": "TJ2022-A — Ética, regimento e organização judiciária",
+      "subtopic": "Ética e moral; princípios e valores; ética e democracia/cidadania; ética e função pública; ética no setor público; Lei 8.112/1990 e regime disciplinar; Lei 8.429/1992 e improbidade; Código de Ética dos Servidores do TJDFT; Regimento Interno com redação alterada; Lei 11.697/2008 e alterações.",
+      "subject": "Ética; Regimento Interno; Lei de Organização Judiciária",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Legislação interna",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81d0-b051-c363f8321b90",
+      "topic": "TJ2022-A — Gestão de pessoas e materiais",
+      "subtopic": "Administração de pessoal e Recursos Humanos: recrutamento e seleção; cargos e salários; desempenho; treinamento e desenvolvimento; valorização; gestão por competências; indicadores; planejamento organizacional; administração de materiais; estoques, classificação ABC, tempo de reposição, ponto de pedido, giro, custo, lote econômico e número de pedidos.",
+      "subject": "Gestão de pessoas; administração de materiais",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-8161-9507-cdc4c6d141b8",
+      "topic": "TJ2022-A — Gestão pública, governança e processos",
+      "subtopic": "Administração Pública: estrutura administrativa, conceitos, elementos e poderes; organização administrativa; princípios; governança pública, princípios, diretrizes, níveis e práticas; gestão de processos, mapeamento, análise, melhoria e indicadores; gestão de projetos, elaboração, avaliação, modelos, etapas e riscos.",
+      "subject": "Gestão pública; governança; gestão de processos",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-813e-9b78-f5901bedfdb7",
+      "topic": "TJ2022-A — Licitações, contratos e sustentabilidade",
+      "subtopic": "Licitações e contratos administrativos; Lei 8.666/1993, Lei 14.133/2021 e alterações posteriores; fases, modalidades, dispensa e inexigibilidade; sustentabilidade das contratações; controle de versão normativa antes da aplicação.",
+      "subject": "Licitações; contratos; sustentabilidade nas contratações",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81cc-93e6-cfefcadee490",
+      "topic": "TJ2022-A — Língua Portuguesa",
+      "subtopic": "Elementos de construção do texto e sentido (gêneros; interpretação; organização interna); semântica; morfologia; sintaxe; coesão; ortografia; acentuação; crase; pontuação; reescrita (substituição, deslocamento, paralelismo); variação linguística e norma culta; leitura dos itens sob o ponto de vista textual.",
+      "subject": "Língua Portuguesa",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Núcleo comum",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-815b-9750-e549dbff453f",
+      "topic": "TJ2022-A — Orçamento, responsabilidade fiscal e MCASP",
+      "subtopic": "Poderes e deveres do Administrador Público; improbidade; responsabilidade civil da Administração; controle interno, externo, pelos Tribunais de Contas e judicial; processo administrativo disciplinar; ética e Código de Conduta; atos administrativos; contratos administrativos, formalização, execução, direitos e obrigações, acompanhamento, inexecução, revisão, rescisão e suspensão; LRF (metas, transparência, controle e fiscalização); orçamento; receita e despesa; MCASP 9ª edição, Parte I.",
+      "subject": "Orçamento público; Lei de Responsabilidade Fiscal; MCASP",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-815e-a36e-ed3549f9d9ab",
+      "topic": "TJ2022-A — Planejamento, indicadores e projetos",
+      "subtopic": "Planejamento estratégico, tático e operacional; análise de ambiente interno e externo; Balanced Scorecard; gestão de projetos; elaboração, análise, avaliação, modelos, características, etapas e gestão de riscos; relação entre planejamento, indicadores e governança.",
+      "subject": "Planejamento; indicadores; gestão de projetos",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-8168-8086-dbafe0424087",
+      "topic": "TJ2022-A — Discursiva específica",
+      "subtopic": "Prova discursiva do Analista: duas questões relativas a conhecimentos específicos, adequadas às atribuições da especialidade; treino de resposta, fundamentação, correção por critérios do edital, diagnóstico e reescrita. Nenhuma nota é criada sem resposta produzida e corrigida.",
+      "subject": "Redação/dissertativa específica conforme o edital-base",
+      "cargos": [
+        "Analista Judiciário — Apoio Especializado — Administração"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Discursiva",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-8165-ad5e-e812d70dea26",
+      "topic": "TJ2022-T — Administração pública, pessoas e orçamento",
+      "subtopic": "Modelos de gestão de pessoas; gestão estratégica; processos de gestão; treinamento e desenvolvimento; avaliação de desempenho; modelagem do trabalho e cargos; motivação; gestão por competências; mudança e inovação; ambientes interno e externo; missão, visão e valores; indicadores de pessoas; modelos patrimonialista, burocrático e gerencial; eficácia e efetividade; princípios, processo e classificação do orçamento; receita, despesa, suprimento de fundos, restos a pagar e despesas de exercícios anteriores; MCASP 9ª edição, Parte I.",
+      "subject": "Administração Pública; gestão de pessoas; orçamento público",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81e8-a06b-d1195a3b67b8",
+      "topic": "TJ2022-T — Direito Administrativo",
+      "subtopic": "Organização administrativa; Administração direta e indireta; centralização e descentralização; desconcentração; princípios expressos e implícitos; órgãos e agentes públicos; Lei 8.112/1990; processo administrativo (Lei 9.784/1999 e Lei do DF 2.834/2001); poderes administrativos; atos administrativos; controle administrativo, judicial, legislativo e pelos Tribunais de Contas; improbidade; responsabilidade civil do Estado; licitações e contratos.",
+      "subject": "Direito Administrativo",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T04:55:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81f0-a1ba-dad07b645464",
+      "topic": "TJ2022-T — Direito Civil e LINDB",
+      "subtopic": "LINDB: vigência, aplicação, interpretação e integração; conflito de leis no tempo; eficácia da lei no espaço; pessoas naturais, personalidade, capacidade, nome, estado, domicílio e direitos da personalidade; pessoas jurídicas, domicílio, associações e fundações; bens; fatos jurídicos; negócio jurídico; atos lícitos e ilícitos; prescrição e decadência.",
+      "subject": "Direito Civil; Lei de Introdução às Normas do Direito Brasileiro",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T04:55:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-8143-930a-c165c0cc25c7",
+      "topic": "TJ2022-T — Direito Constitucional",
+      "subtopic": "Constituição: conceito, classificações e princípios fundamentais; direitos e garantias fundamentais; organização político-administrativa; Administração Pública e servidores públicos; Poder Judiciário e competências; Conselho Nacional de Justiça; funções essenciais à Justiça.",
+      "subject": "Direito Constitucional",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T04:55:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-813e-8a7e-ea172225aa47",
+      "topic": "TJ2022-T — Direito Penal",
+      "subtopic": "Aplicação da lei penal: legalidade, anterioridade, tempo, lugar, territorialidade, extraterritorialidade e eficácia; interpretação, analogia, irretroatividade e conflito aparente; teoria do crime, tipo, ilicitude e culpabilidade; crimes contra a pessoa, patrimônio e Administração Pública; disposições constitucionais; crimes hediondos; abuso de autoridade; Estatuto da Criança e do Adolescente.",
+      "subject": "Direito Penal",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T04:55:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81de-a4fb-d4d8d414d064",
+      "topic": "TJ2022-T — Direito Processual Civil",
+      "subtopic": "CPC (Lei 13.105/2015); princípios, devido processo, contraditório, ampla defesa e juiz natural; jurisdição, inércia e ação; condições, elementos e classificação da ação; cooperação internacional, auxílio direto e carta rogatória; competência; pressupostos e preclusão; sujeitos, capacidade, procuradores, litisconsórcio e intervenção de terceiros; juiz, auxiliares, Ministério Público, Advocacia Pública e Defensoria; atos, prazos, comunicações, nulidades, distribuição, registro e valor da causa; tutela provisória; formação, suspensão e extinção; procedimento comum; petição inicial, pedido, audiência, contestação, reconvenção, revelia, saneamento, provas, sentença e coisa julgada; cumprimento e impugnação; recursos; controle judicial, mandado de segurança e Processo Judicial Eletrônico.",
+      "subject": "Direito Processual Civil",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T04:55:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-8168-901f-d3176338cec6",
+      "topic": "TJ2022-T — Direito Processual Penal",
+      "subtopic": "Código de Processo Penal; inquérito policial; ação penal; juiz, Ministério Público, acusado, defensor, assistentes, auxiliares, peritos e intérpretes; citações e intimações; sentença; processo comum e instrução criminal; Tribunal do Júri (competência, acusação, pronúncia, plenário, conselho, debates, votação e sentença); prisão e liberdade provisória; crimes de responsabilidade de funcionários públicos; habeas corpus; disposições constitucionais aplicáveis.",
+      "subject": "Direito Processual Penal",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T04:55:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81fb-b3e2-c1ff86da1dee",
+      "topic": "TJ2022-T — Ética, regimento e organização judiciária",
+      "subtopic": "Ética e moral; princípios e valores; ética e democracia/cidadania; ética e função pública; ética no setor público; Lei 8.112/1990 (regime disciplinar, deveres, proibições, acumulação, responsabilidade, penalidades); Lei 8.429/1992 e atos de improbidade; Código de Ética dos Servidores do TJDFT, conforme a referência histórica do edital e alterações oficiais posteriores.",
+      "subject": "Ética; Regimento Interno; Lei de Organização Judiciária",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Legislação interna",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81d7-aa10-d78c065b2adf",
+      "topic": "TJ2022-T — Licitações, contratos e compras públicas",
+      "subtopic": "Licitação pública: fases, modalidades, dispensa e inexigibilidade; distinção entre legislação histórica e legislação vigente; consulta da Lei 14.133/2021 e da fonte oficial antes de registrar material.",
+      "subject": "Licitações; contratos; compras públicas",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Específico",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-8143-8781-cd99249a33b3",
+      "topic": "TJ2022-T — Língua Portuguesa",
+      "subtopic": "Elementos de construção do texto e sentido (gêneros; interpretação; organização interna); semântica (sentido e emprego de vocábulos; campos semânticos; tempos e modos verbais); morfologia (classes, formação de palavras, flexão); sintaxe (frase, oração, período, termos, coordenação, subordinação, concordância, transitividade, regência, colocação pronominal, coesão); ortografia; acentuação; crase; pontuação; reescrita (substituição, deslocamento, paralelismo); variação linguística e norma culta; leitura textual.",
+      "subject": "Língua Portuguesa",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Núcleo comum",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-815f-9561-fd79464335c3",
+      "topic": "TJ2022-T — Provimentos e processo eletrônico",
+      "subtopic": "Provimento Geral da Corregedoria aplicado aos juízes e ofícios judiciais, na versão oficial e alterações; Provimento Judicial aplicado ao Processo Judicial Eletrônico, na versão oficial e alterações; identificação do escopo aplicável ao cargo antes do estudo.",
+      "subject": "Provimento Geral da Corregedoria; Provimento Judicial aplicado ao PJe",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Legislação interna",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    },
+    {
+      "id": "3d5cf5a2-6731-81d2-8e3c-c3894d434ef3",
+      "topic": "TJ2022-T — Redação/dissertativa",
+      "subtopic": "Prova escrita discursiva do Técnico: uma redação, avaliada conforme o edital histórico; registro separado de proposta, texto produzido, correção, diagnóstico e reescrita. A existência do item não gera nota sem produção real.",
+      "subject": "Redação/dissertativa conforme o edital-base",
+      "cargos": [
+        "Técnico Judiciário — Área Administrativa — sem especialidade"
+      ],
+      "sourceBase": "Edital 2022",
+      "layer": "Edital histórico",
+      "level": "Discursiva",
+      "sourceUrl": "https://conhecimento.fgv.br/sites/default/files/concursos/tjdft_-_edital_24-01-2022_0.pdf",
+      "sourceLastEditedAt": "2026-09-09T14:16:00.000Z"
+    }
+  ]
+}
