@@ -398,6 +398,12 @@ const sources = [
     "detail": "Página oficial do TJDFT e banca organizadora.",
     "tag": "OFICIAL",
     "href": "https://www.tjdft.jus.br/informacoes/concursos/analista-e-tecnico-judiciario"
+  },
+  {
+    "title": "Leis Primeiro · site",
+    "detail": "Leitura, questões, flashcards e revisões D0/D7/D20 em uma rota própria.",
+    "tag": "LEIS",
+    "href": "https://rodrigorosadantas.github.io/tjdft-dashboard/leis/"
   }
 ];
 
