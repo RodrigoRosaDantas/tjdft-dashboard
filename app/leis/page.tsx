@@ -439,7 +439,7 @@ export default function LeisPrimeiroPage() {
         </section>
       ) : null}
 
-      <footer className="laws-footer"><span>TJDFT · Leis Primeiro</span><span>Leitura principal: site · Fallback: Notion · Fonte jurídica: texto oficial vigente</span></footer>
+      <footer className="laws-footer"><span>TJDFT · Leis Primeiro</span><span>Fonte operacional: Notion · Snapshot público: GitHub · Fonte jurídica: texto oficial vigente</span></footer>
     </main>
   );
 }
