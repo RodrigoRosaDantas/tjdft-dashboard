@@ -159,7 +159,6 @@ const snapshot = {
     "As metas de questões e flashcards são planejamento; os feitos permanecem zero até haver execução.",
     "D0, D7 e D20 são marcadores operacionais do Notion e não são preenchidos pelo sincronizador.",
     "As páginas D01–D14 são publicadas como páginas internas do site; o Notion permanece como fonte operacional.",
-  ]
   ],
 };
 
