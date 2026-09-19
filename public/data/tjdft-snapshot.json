@@ -5,9 +5,9 @@
     "title": "TJDFT — Central de Comando | Dashboard PRO",
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
-    "last_edited_time": "2026-09-10T18:32:00.000Z",
-    "synced_at": "2026-09-10T18:44:03.187Z",
-    "content_hash": "cd775d8765e4f96adb7db3139aec5fa8156a8614e2782c883bc2de3cf8b66edf",
+    "last_edited_time": "2026-09-19T22:33:00.000Z",
+    "synced_at": "2026-09-19T22:40:41.719Z",
+    "content_hash": "f6a58ea5c4ea4174cfb38f4f55c94dc4ca0f32f1fdc069acd34ed30a940da5a7",
     "status": "synced"
   },
   "dashboard": {
@@ -389,7 +389,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-10T18:44:03.186Z",
+    "as_of": "2026-09-19T22:40:41.718Z",
     "c01": {
       "days": [
         {
