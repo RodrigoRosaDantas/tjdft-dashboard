@@ -5,7 +5,7 @@
     "database_id": "7231d1250fb844d48e5d888386746ba9",
     "database_url": "https://app.notion.com/p/7231d1250fb844d48e5d888386746ba9",
     "data_source_id": "a8e16328-4587-4ace-93e5-5b994ee3389b",
-    "synced_at": "2026-09-19T22:45:00.000Z"
+    "synced_at": "2026-09-19T22:53:20.056Z"
   },
   "summary": {
     "records": 14,
@@ -14,8 +14,8 @@
   },
   "rows": [
     {
-      "page_id": "3e0cf5a267318104833df15c19f60d47",
-      "url": "https://app.notion.com/p/3e0cf5a267318104833df15c19f60d47",
+      "page_id": "3e0cf5a2-6731-8104-833d-f15c19f60d47",
+      "url": "https://app.notion.com/p/L01-Regimento-Interno-do-TJDFT-arts-1-6-e-mapa-geral-3e0cf5a267318104833df15c19f60d47",
       "operational_order": 1,
       "codes": [
         "L01"
@@ -24,7 +24,7 @@
         "./l01/"
       ],
       "record_kind": "trilha",
-      "title": "Regimento Interno do TJDFT — arts. 1º–6º e mapa geral",
+      "title": "L01 — Regimento Interno do TJDFT — arts. 1º–6º e mapa geral",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
       "action": "Estudar agora",
@@ -37,7 +37,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -48,17 +48,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Regimento arts. 1º–6º; organização básica, Pleno e Administração Superior.",
-      "alert": "Conferir o texto oficial vigente, especialmente o art. 6º.",
-      "block": "D01: orientação → fonte oficial → questões → flashcards → D0.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Estudar agora",
+      "cut": "L01 / D01 — organização, composição, jurisdição, Tribunal Pleno e Administração Superior.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L01 / D01 — organização, composição, jurisdição, Tribunal Pleno e Administração Superior.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D01 — Lei/Fonte | Regimento — arts. 1º–6º e mapa geral",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a267318116abd7f9a89da8f128",
-      "url": "https://app.notion.com/p/3e0cf5a267318116abd7f9a89da8f128",
+      "page_id": "3e0cf5a2-6731-8116-abd7-f9a89da8f128",
+      "url": "https://app.notion.com/p/L02-C-digo-de-tica-e-Conduta-do-TJDFT-arts-iniciais-3e0cf5a267318116abd7f9a89da8f128",
       "operational_order": 2,
       "codes": [
         "L02"
@@ -67,7 +67,7 @@
         "./l02/"
       ],
       "record_kind": "trilha",
-      "title": "Código de Ética e Conduta do TJDFT — arts. iniciais",
+      "title": "L02 — Código de Ética e Conduta do TJDFT — arts. iniciais",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -80,7 +80,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -91,17 +91,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Código de Ética arts. 1º–4º; aplicação, valores, objetivos e destinatários.",
-      "alert": "Conferir a Resolução nº 6/2022 e atualizações.",
-      "block": "D02: valores e destinatários antes das situações práticas.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L02 / D02 — princípios, deveres e estrutura inicial do Código de Ética.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L02 / D02 — princípios, deveres e estrutura inicial do Código de Ética.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D02 — Lei/Fonte | Código de Ética — arts. iniciais",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731811a2a88fe2c0b8f77b8c",
-      "url": "https://app.notion.com/p/3e0cf5a26731811a2a88fe2c0b8f77b8c",
+      "page_id": "3e0cf5a2-6731-81a2-a88f-e2c0b8f77b8c",
+      "url": "https://app.notion.com/p/L03-Lei-n-11-697-2008-arts-1-12-3e0cf5a2673181a2a88fe2c0b8f77b8c",
       "operational_order": 3,
       "codes": [
         "L03"
@@ -110,7 +110,7 @@
         "./l03/"
       ],
       "record_kind": "trilha",
-      "title": "Lei nº 11.697/2008 — arts. 1º–12",
+      "title": "L03 — Lei nº 11.697/2008 — arts. 1º–12",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -123,7 +123,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -134,17 +134,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Lei nº 11.697/2008 arts. 1º–12; organização da Justiça do DF e Territórios.",
-      "alert": "Checar consolidação no Planalto.",
-      "block": "D03: estrutura legal e diferença entre lei e Regimento.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L03 / D03 — organização judiciária do Distrito Federal e disposições iniciais.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L03 / D03 — organização judiciária do Distrito Federal e disposições iniciais.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D03 — Lei/Fonte | Lei nº 11.697 — arts. 1º–12",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a2673181798132d71f92ce40c2",
-      "url": "https://app.notion.com/p/3e0cf5a2673181798132d71f92ce40c2",
+      "page_id": "3e0cf5a2-6731-8179-8132-d71f92ce40c2",
+      "url": "https://app.notion.com/p/L04-Regimento-Interno-do-TJDFT-arts-7-40-3e0cf5a2673181798132d71f92ce40c2",
       "operational_order": 4,
       "codes": [
         "L04"
@@ -153,7 +153,7 @@
         "./l04/"
       ],
       "record_kind": "trilha",
-      "title": "Regimento Interno do TJDFT — arts. 7º–40",
+      "title": "L04 — Regimento Interno do TJDFT — arts. 7º–40",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -166,7 +166,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -177,17 +177,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Órgãos julgadores, Conselho Especial, Conselho da Magistratura, Turmas e comissões.",
-      "alert": "Confirmar composição e quóruns na versão oficial.",
-      "block": "D04: estrutura dos órgãos e quóruns.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L04 / D04 — composição e competências dos órgãos do Tribunal.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L04 / D04 — composição e competências dos órgãos do Tribunal.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D04 — Lei/Fonte | Regimento — arts. 7º–40",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a2673181069caec68bc6684877",
-      "url": "https://app.notion.com/p/3e0cf5a2673181069caec68bc6684877",
+      "page_id": "3e0cf5a2-6731-8106-9cae-c68bc6684877",
+      "url": "https://app.notion.com/p/L05-C-digo-de-tica-e-Conduta-do-TJDFT-conceitos-e-anexo-3e0cf5a2673181069caec68bc6684877",
       "operational_order": 5,
       "codes": [
         "L05"
@@ -196,7 +196,7 @@
         "./l05/"
       ],
       "record_kind": "trilha",
-      "title": "Código de Ética e Conduta do TJDFT — conceitos e anexo",
+      "title": "L05 — Código de Ética e Conduta do TJDFT — conceitos e anexo",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -209,7 +209,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -220,17 +220,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Conflito real, potencial e aparente; brindes, presentes e condutas.",
-      "alert": "Distinguir análise ética, administrativa e penal.",
-      "block": "D05: conceitos práticos e eixos adequado/inadequado.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L05 / D05 — conceitos, valores e aplicação do Código de Ética.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L05 / D05 — conceitos, valores e aplicação do Código de Ética.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D05 — Lei/Fonte | Código de Ética — conceitos e anexo",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731810e8534c9fe08b77327",
-      "url": "https://app.notion.com/p/3e0cf5a26731810e8534c9fe08b77327",
+      "page_id": "3e0cf5a2-6731-81e0-8534-c9fe08b77327",
+      "url": "https://app.notion.com/p/L06-Lei-n-11-697-2008-primeiro-grau-3e0cf5a2673181e08534c9fe08b77327",
       "operational_order": 6,
       "codes": [
         "L06"
@@ -239,7 +239,7 @@
         "./l06/"
       ],
       "record_kind": "trilha",
-      "title": "Lei nº 11.697/2008 — primeiro grau",
+      "title": "L06 — Lei nº 11.697/2008 — primeiro grau",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -252,7 +252,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -263,17 +263,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Primeiro grau, circunscrições, varas, Juizados e Justiça Militar no recorte.",
-      "alert": "Não confundir circunscrição, vara e competência.",
-      "block": "D06: unidades de primeiro grau e competências.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L06 / D06 — estrutura e competências do primeiro grau.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L06 / D06 — estrutura e competências do primeiro grau.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D06 — Lei/Fonte | Lei nº 11.697 — primeiro grau",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731819c9a9eee051cebb5b8",
-      "url": "https://app.notion.com/p/3e0cf5a26731819c9a9eee051cebb5b8",
+      "page_id": "3e0cf5a2-6731-819c-9a9e-ee051cebb5b8",
+      "url": "https://app.notion.com/p/L07-Checkpoint-institucional-revis-o-L01-L06-3e0cf5a26731819c9a9eee051cebb5b8",
       "operational_order": 7,
       "codes": [
         "L07"
@@ -282,11 +282,11 @@
         "./l07/"
       ],
       "record_kind": "trilha",
-      "title": "Checkpoint institucional — revisão L01–L06",
+      "title": "L07 — Checkpoint institucional — revisão L01–L06",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Revisão",
-      "official_url": "",
+      "official_url": "https://www.tjdft.jus.br/informacoes/concursos/analista-e-tecnico-judiciario",
       "question_target": 12,
       "questions_done": 0,
       "hits": 0,
@@ -295,7 +295,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 6,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -306,17 +306,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Checkpoint com comparação de fontes, erros e integração do primeiro bloco.",
-      "alert": "Revisar origem normativa antes de consolidar cartões.",
-      "block": "D07: checkpoint adaptativo; não avançar por calendário artificial.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Revisão",
+      "cut": "L07 / D07 — revisão dos seis blocos iniciais; comparar diploma, órgão, sujeito e competência.",
+      "alert": "Revisão; conferir atualizações nas normas vinculadas antes do fechamento.",
+      "block": "L07 / D07 — revisão dos seis blocos iniciais; comparar diploma, órgão, sujeito e competência.",
+      "observations": "Unidade de revisão/integração; não substitui a fonte normativa. Meta planejada; feitos permanecem em zero até execução real. Página de estudo existente: D07 — Lei/Fonte | Revisão institucional D01–D06",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731811ee9b72cba2463c5b81",
-      "url": "https://app.notion.com/p/3e0cf5a26731811ee9b72cba2463c5b81",
+      "page_id": "3e0cf5a2-6731-81ee-9b72-cba2463c5b81",
+      "url": "https://app.notion.com/p/L08-Regimento-Interno-do-TJDFT-arts-41-66-3e0cf5a2673181ee9b72cba2463c5b81",
       "operational_order": 8,
       "codes": [
         "L08"
@@ -325,7 +325,7 @@
         "./l08/"
       ],
       "record_kind": "trilha",
-      "title": "Regimento Interno do TJDFT — arts. 41–66",
+      "title": "L08 — Regimento Interno do TJDFT — arts. 41–66",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -338,7 +338,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -349,17 +349,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Direção, atribuições, desembargadores e juízes substitutos de segundo grau.",
-      "alert": "Conferir atribuição e artigo na fonte vigente.",
-      "block": "D08: liderança e segundo grau.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L08 / D08 — Presidência, Vice-Presidências, Corregedoria e desembargadores.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L08 / D08 — Presidência, Vice-Presidências, Corregedoria e desembargadores.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D08 — Lei/Fonte | Regimento — arts. 41–66",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731812e9607f9918f48c422",
-      "url": "https://app.notion.com/p/3e0cf5a26731812e9607f9918f48c422",
+      "page_id": "3e0cf5a2-6731-812e-9607-f9918f48c422",
+      "url": "https://app.notion.com/p/L09-C-digo-de-tica-e-Conduta-do-TJDFT-integridade-e-desvios-3e0cf5a26731812e9607f9918f48c422",
       "operational_order": 9,
       "codes": [
         "L09"
@@ -368,7 +368,7 @@
         "./l09/"
       ],
       "record_kind": "trilha",
-      "title": "Código de Ética e Conduta do TJDFT — integridade e desvios",
+      "title": "L09 — Código de Ética e Conduta do TJDFT — integridade e desvios",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -381,7 +381,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -392,17 +392,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Instâncias, notícias de desvio, conflitos, rede de apoio e proteção.",
-      "alert": "Preservar confidencialidade e encaminhamento correto.",
-      "block": "D09: integridade aplicada e limites de cada instância.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L09 / D09 — integridade, conflitos, desvios e consequências.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L09 / D09 — integridade, conflitos, desvios e consequências.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D09 — Lei/Fonte | Código de Ética — integridade e desvios",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731811c8a514fdcc3d835d9a",
-      "url": "https://app.notion.com/p/3e0cf5a26731811c8a514fdcc3d835d9a",
+      "page_id": "3e0cf5a2-6731-81c8-a514-fdcc3d835d9a",
+      "url": "https://app.notion.com/p/L10-Lei-n-11-697-2008-compet-ncias-comparadas-3e0cf5a2673181c8a514fdcc3d835d9a",
       "operational_order": 10,
       "codes": [
         "L10"
@@ -411,7 +411,7 @@
         "./l10/"
       ],
       "record_kind": "trilha",
-      "title": "Lei nº 11.697/2008 — competências comparadas",
+      "title": "L10 — Lei nº 11.697/2008 — competências comparadas",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -424,7 +424,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -435,17 +435,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Comparação de competências: Presidência, Corregedoria, varas e execução.",
-      "alert": "Não inventar atribuição sem fonte oficial.",
-      "block": "D10: método quem/o quê/hipótese/exceção/fonte.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L10 / D10 — comparação de competências da organização judiciária.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L10 / D10 — comparação de competências da organização judiciária.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D10 — Lei/Fonte | Lei nº 11.697 — competências comparadas",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731815aa3e4e81bfb357e5e",
-      "url": "https://app.notion.com/p/3e0cf5a26731815aa3e4e81bfb357e5e",
+      "page_id": "3e0cf5a2-6731-815a-a3e4-e81bfb357e5e",
+      "url": "https://app.notion.com/p/L11-Regimento-Interno-do-TJDFT-arts-67-135-3e0cf5a26731815aa3e4e81bfb357e5e",
       "operational_order": 11,
       "codes": [
         "L11"
@@ -454,7 +454,7 @@
         "./l11/"
       ],
       "record_kind": "trilha",
-      "title": "Regimento Interno do TJDFT — arts. 67–135",
+      "title": "L11 — Regimento Interno do TJDFT — arts. 67–135",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -467,7 +467,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -478,17 +478,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Protocolo, distribuição, relator, revisor, pauta, sessões e julgamento virtual.",
-      "alert": "Conferir prazos operacionais na versão vigente.",
-      "block": "D11: fluxo processual e prazos.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L11 / D11 — serviços, atos e processo no Regimento, conforme o recorte do ciclo.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L11 / D11 — serviços, atos e processo no Regimento, conforme o recorte do ciclo.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D11 — Lei/Fonte | Regimento — arts. 67–135",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a267318155a0f7ffb812cc7b3b",
-      "url": "https://app.notion.com/p/3e0cf5a267318155a0f7ffb812cc7b3b",
+      "page_id": "3e0cf5a2-6731-8155-a0f7-ffb812cc7b3b",
+      "url": "https://app.notion.com/p/L12-C-digo-de-tica-e-Conduta-do-TJDFT-aplica-o-e-disposi-es-finais-3e0cf5a267318155a0f7ffb812cc7b3b",
       "operational_order": 12,
       "codes": [
         "L12"
@@ -497,7 +497,7 @@
         "./l12/"
       ],
       "record_kind": "trilha",
-      "title": "Código de Ética e Conduta do TJDFT — aplicação e disposições finais",
+      "title": "L12 — Código de Ética e Conduta do TJDFT — aplicação e disposições finais",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Leitura dirigida",
@@ -510,7 +510,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 10,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -521,17 +521,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Destinatários, notícias, confidencialidade, Ouvidoria, LAI, LGPD e encaminhamentos.",
-      "alert": "Separar confidencialidade, anonimato, acolhimento e apuração.",
-      "block": "D12: aplicação e disposições finais.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Leitura dirigida",
+      "cut": "L12 / D12 — aplicação, responsabilização e disposições finais.",
+      "alert": "Texto oficial vigente; conferir alterações antes da leitura e registrar a versão consultada.",
+      "block": "L12 / D12 — aplicação, responsabilização e disposições finais.",
+      "observations": "Unidade normativa do CTJ-002. Meta planejada; feitos permanecem em zero até execução real. A fonte oficial vigente prevalece. Página de estudo existente: D12 — Lei/Fonte | Código de Ética — aplicação e disposições finais",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a26731811fa507d42c5f9952f6",
-      "url": "https://app.notion.com/p/3e0cf5a26731811fa507d42c5f9952f6",
+      "page_id": "3e0cf5a2-6731-811f-a507-d42c5f9952f6",
+      "url": "https://app.notion.com/p/L13-Integra-o-institucional-quadro-comparativo-3e0cf5a26731811fa507d42c5f9952f6",
       "operational_order": 13,
       "codes": [
         "L13"
@@ -540,11 +540,11 @@
         "./l13/"
       ],
       "record_kind": "trilha",
-      "title": "Integração institucional — quadro comparativo",
+      "title": "L13 — Integração institucional — quadro comparativo",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Revisão",
-      "official_url": "",
+      "official_url": "https://www.tjdft.jus.br/informacoes/concursos/analista-e-tecnico-judiciario",
       "question_target": 10,
       "questions_done": 0,
       "hits": 0,
@@ -553,7 +553,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 8,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -564,17 +564,17 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Regimento, Lei nº 11.697/2008 e Ética em uma matriz de fonte, artigo e competência.",
-      "alert": "Registrar fonte, data e dispositivo antes de atualizar o caderno.",
-      "block": "D13: integração e protocolo de prova.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Revisão",
+      "cut": "L13 / D13 — quadro comparativo entre Regimento, Ética e Lei nº 11.697/2008.",
+      "alert": "Revisão; conferir atualizações nas normas vinculadas antes do fechamento.",
+      "block": "L13 / D13 — quadro comparativo entre Regimento, Ética e Lei nº 11.697/2008.",
+      "observations": "Unidade de revisão/integração; não substitui a fonte normativa. Meta planejada; feitos permanecem em zero até execução real. Página de estudo existente: D13 — Lei/Fonte | Quadro comparativo institucional",
       "last_read": null,
       "last_audit": "2026-09-19"
     },
     {
-      "page_id": "3e0cf5a2673181428422ecebb1ebdab2",
-      "url": "https://app.notion.com/p/3e0cf5a2673181428422ecebb1ebdab2",
+      "page_id": "3e0cf5a2-6731-8142-8422-ecebb1ebdab2",
+      "url": "https://app.notion.com/p/L14-Fechamento-e-atualiza-o-normativa-do-CTJ-002-3e0cf5a2673181428422ecebb1ebdab2",
       "operational_order": 14,
       "codes": [
         "L14"
@@ -583,11 +583,11 @@
         "./l14/"
       ],
       "record_kind": "trilha",
-      "title": "Fechamento e atualização normativa do CTJ-002",
+      "title": "L14 — Fechamento e atualização normativa do CTJ-002",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
       "action": "Revisão",
-      "official_url": "",
+      "official_url": "https://www.tjdft.jus.br/informacoes/concursos/analista-e-tecnico-judiciario",
       "question_target": 14,
       "questions_done": 0,
       "hits": 0,
@@ -596,7 +596,7 @@
       "accuracy": null,
       "flashcards_done": 0,
       "flashcards_meta": 8,
-      "flashcards_status": "Não iniciado",
+      "flashcards_status": null,
       "cargos": [
         "Núcleo comum",
         "Técnico Administrativo",
@@ -607,11 +607,11 @@
       "d7": false,
       "d20": false,
       "next_review": null,
-      "next_step": "1 · Ler orientação",
-      "cut": "Auditoria de vigência, checklist de atualização e preservação do histórico.",
-      "alert": "Registrar alteração, artigo, data e versão; não alterar métricas executadas.",
-      "block": "D14: fechar o ciclo e preparar a manutenção.",
-      "observations": "Meta e estado são planejamento editorial; feitos permanecem zerados até execução real.",
+      "next_step": "Revisão",
+      "cut": "L14 / D14 — consolidação, conferência de vigência e decisão da próxima trilha.",
+      "alert": "Revisão; conferir atualizações nas normas vinculadas antes do fechamento.",
+      "block": "L14 / D14 — consolidação, conferência de vigência e decisão da próxima trilha.",
+      "observations": "Unidade de revisão/integração; não substitui a fonte normativa. Meta planejada; feitos permanecem em zero até execução real. Página de estudo existente: D14 — Lei/Fonte | Fechamento e atualização",
       "last_read": null,
       "last_audit": "2026-09-19"
     }
