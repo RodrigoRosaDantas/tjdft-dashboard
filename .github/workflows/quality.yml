@@ -17,6 +17,7 @@ on:
       - "tests/**"
       - "package.json"
       - "package-lock.json"
+      - "eslint.config.mjs"
       - ".github/workflows/quality.yml"
   workflow_run:
     workflows: ["Sincronizar snapshot TJDFT"]
@@ -43,6 +44,10 @@ jobs:
           cache: npm
       - name: Instalar dependências
         run: npm ci
+      - name: Verificar lint
+        run: npm run lint
+      - name: Auditar dependências de produção
+        run: npm audit --omit=dev --audit-level=high
       - name: Configurar Deno para o validador do snapshot
         uses: denoland/setup-deno@v2
         with:

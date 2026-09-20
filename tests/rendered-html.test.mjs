@@ -16,6 +16,7 @@ test("exporta as rotas de Pages como diretórios", async () => {
     "leis/l01/index.html",
     "leis/l02/index.html",
     "leis/flashcards/index.html",
+    ...Array.from({ length: 24 }, (_, index) => `leis/l${String(index + 3).padStart(2, "0")}/index.html`),
   ];
   for (const route of routes) await access(path.join(output, route));
   for (const route of ["leis.html", "leis/l01.html", "leis/l02.html", "leis/flashcards.html"]) {
@@ -32,4 +33,5 @@ test("renderiza os marcadores públicos principais", async () => {
   assert.match(laws, /Leis Primeiro/);
   assert.match(laws, /L01–L26/);
   assert.match(laws, /data-reading-settings/);
+  assert.match(laws, /reading-settings-trigger/);
 });

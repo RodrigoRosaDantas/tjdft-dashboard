@@ -1,4 +1,5 @@
-const CACHE_NAME = "tjdft-pages-v1";
+const CACHE_NAME = "tjdft-pages-v2";
+const LAW_ROUTE_ASSETS = Array.from({ length: 26 }, (_, index) => `./leis/l${String(index + 1).padStart(2, "0")}/index.html`);
 const CORE_ASSETS = [
   "./",
   "./manifest.webmanifest",
@@ -8,6 +9,7 @@ const CORE_ASSETS = [
   "./leis-enhanced.css",
   "./leis/index.html",
   "./leis/flashcards/index.html",
+  ...LAW_ROUTE_ASSETS,
   "./data/tjdft-snapshot.json",
   "./data/tjdft-edital.json",
   "./data/leis-primeiro.json",
@@ -36,10 +38,16 @@ function sameOrigin(request) {
   return new URL(request.url).origin === self.location.origin;
 }
 
+function cacheKeyFor(request) {
+  const key = new URL(request.url);
+  key.search = "";
+  return key.href;
+}
+
 function cacheResponse(request, response) {
   if (!response || !response.ok) return response;
   const copy = response.clone();
-  void caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => undefined);
+  void caches.open(CACHE_NAME).then((cache) => cache.put(cacheKeyFor(request), copy)).catch(() => undefined);
   return response;
 }
 
@@ -61,8 +69,19 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (isStaticAsset) {
+    const cacheKey = cacheKeyFor(request);
+    const cachedResponse = caches.match(cacheKey);
+    const isDataSnapshot = url.pathname.includes("/data/") && url.pathname.endsWith(".json");
+    if (isDataSnapshot) {
+      event.respondWith(
+        fetch(request, { cache: "no-store" })
+          .then((response) => cacheResponse(request, response))
+          .catch(() => cachedResponse),
+      );
+      return;
+    }
     event.respondWith(
-      caches.match(request).then((cached) => {
+      cachedResponse.then((cached) => {
         const network = fetch(request).then((response) => cacheResponse(request, response)).catch(() => cached);
         return cached || network;
       }),

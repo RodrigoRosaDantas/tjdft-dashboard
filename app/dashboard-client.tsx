@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import SyncWorkflowPanel from "./sync-workflow-panel";
+import ReadingSettings from "./reading-settings";
 
 type SectionId = "inicio" | "estudar" | "fases" | "cargos" | "progresso" | "materiais" | "pre-edital";
 type MaterialsTone = "gold" | "teal" | "violet" | "coral";
@@ -167,7 +168,6 @@ type SnapshotReadResult = { snapshot: DashboardSnapshot; cacheMode: string | nul
 const LIVE_NOTION_API_URL = "https://ugxdmvlynyzfmmgshvyq.supabase.co/functions/v1/tjdft-notion";
 // Public Supabase anon key: it gates the read-only function; the Notion token never reaches the browser.
 const LIVE_NOTION_API_KEY = "sb_publishable_acJ3KnWmZLidHTFhtTGYUw_RkYu39ca";
-let activeDashboardSnapshot: DashboardSnapshot | null = null;
 
 function isDashboardSnapshot(value: unknown): value is DashboardSnapshot {
   if (!value || typeof value !== "object") return false;
@@ -195,14 +195,14 @@ function formatSnapshotDate(value: string | null) {
   if (!value) return "aguardando sincronização";
   const date = new Date(value);
   if (Number.isNaN(date.valueOf())) return "aguardando sincronização";
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(date);
 }
 
 function formatMaterialsAudit(value: string | null) {
   if (!value) return "LEITURA LEGISLATIVA · AUDITORIA 10/09/2026";
   const date = new Date(value);
   if (Number.isNaN(date.valueOf())) return "LEITURA LEGISLATIVA · AUDITORIA 10/09/2026";
-  return `LEITURA LEGISLATIVA · NOTION ATUALIZADO ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(date)}`;
+  return `LEITURA LEGISLATIVA · NOTION ATUALIZADO ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeZone: "America/Sao_Paulo" }).format(date)}`;
 }
 
 function formatExecutionPercent(value: number | null) {
@@ -974,9 +974,12 @@ function StudyFocusTimer() {
   const progress = Math.min(100, (elapsedSeconds / Math.max(1, timer.durationSeconds)) * 100);
 
   useEffect(() => {
-    const stored = readStoredFocusTimer();
-    if (stored) setTimer(stored);
-    setHydrated(true);
+    const frame = window.requestAnimationFrame(() => {
+      const stored = readStoredFocusTimer();
+      if (stored) setTimer(stored);
+      setHydrated(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -1074,7 +1077,7 @@ function StudyFocusTimer() {
   </section>;
 }
 
-function StudyToday({ snapshot = activeDashboardSnapshot }: { snapshot?: DashboardSnapshot | null } = {}) {
+function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const [selectedDay, setSelectedDay] = useState("D01");
   const liveMaterials = snapshot?.materials?.days ?? studyMaterials;
   const liveLegislation = snapshot?.materials?.legislation ?? legislationPlan;
@@ -1187,7 +1190,7 @@ function DayCard({ row }: { row: typeof dayRows[number] }) {
   return <article className={`day-card day-${row.state}`}><div className="day-card-top"><strong>{row.day}</strong><span className="day-state-dot" /></div><h3>{row.label}</h3><p>{row.detail}</p><span>{row.meta}</span></article>;
 }
 
-function PreEdital({ snapshot = activeDashboardSnapshot }: { snapshot?: DashboardSnapshot | null } = {}) {
+function PreEdital({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const syncedAt = snapshot?.source?.synced_at ?? snapshot?.source?.last_edited_time ?? null;
   const officialSource = sources.find((source) => source.tag === "OFICIAL");
   return <div className="inner-page pre-edital-page">
@@ -1258,7 +1261,7 @@ function Jobs() {
   return <div className="inner-page"><section className="page-intro"><div><p className="eyebrow">EDITAL-BASE · 2 CARGOS-META</p><h1>Cargos-meta e trilhas de cobrança</h1><p>O núcleo comum é compartilhado; os ciclos específicos de Técnico e Analista permanecem separados.</p></div><StatusPill tone="gold">Base 2022 · revisão 10/09/2026</StatusPill></section><section className="job-list">{jobs.map((job) => <JobCard job={job} key={job.code} />)}</section><section className="content-grid three-columns"><div className="panel mini-metric"><p className="eyebrow">NÚCLEO COMUM</p><strong>14</strong><span>dias no CTJ-002</span></div><div className="panel mini-metric"><p className="eyebrow">TÉCNICO</p><strong>5</strong><span>ciclos específicos previstos</span></div><div className="panel mini-metric"><p className="eyebrow">ANALISTA</p><strong>7</strong><span>ciclos específicos previstos</span></div></section></div>;
 }
 
-function Progress({ snapshot = activeDashboardSnapshot }: { snapshot?: DashboardSnapshot | null } = {}) {
+function Progress({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const execution = snapshot?.execution?.c01;
   const totals = execution?.totals;
   const fixedPlanned = totals?.fixed_meta ?? snapshot?.dashboard.planned_questions ?? 124;
@@ -1338,7 +1341,7 @@ function toneForSequence(order: number): MaterialsTone {
   return "teal";
 }
 
-function Materials({ snapshot = activeDashboardSnapshot }: { snapshot?: DashboardSnapshot | null }) {
+function Materials({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialPreview | null>(null);
   const [materialsView, setMaterialsView] = useState<MaterialsView>("c01");
 
@@ -1788,6 +1791,5 @@ export default function Home() {
   }, [readSnapshot, refreshSnapshot]);
   const activeLabel = navigation.find((item) => item.id === section)?.label ?? "Visão geral";
   const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
-  activeDashboardSnapshot = snapshot;
-  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button type="button" className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button type="button" className={`nav-item ${active ? "nav-active" : ""}`} aria-current={active ? "page" : undefined} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><button type="button" onClick={() => handleNavigate("estudar")}>Abrir execução <ArrowRight size={15} /></button></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button type="button" className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button type="button" className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><div className="reading-settings-host" data-reading-settings /><button type="button" className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content" id="dashboard-section" tabIndex={-1}>{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
+  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button type="button" className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button type="button" className={`nav-item ${active ? "nav-active" : ""}`} aria-current={active ? "page" : undefined} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><button type="button" onClick={() => handleNavigate("estudar")}>Abrir execução <ArrowRight size={15} /></button></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button type="button" className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button type="button" className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><ReadingSettings /><button type="button" className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content" id="dashboard-section" tabIndex={-1}>{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
 }

@@ -49,14 +49,28 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(dashboard, /visibilitychange/);
   assert.match(dashboard, /hashchange/);
   assert.match(dashboard, /aria-current/);
-  assert.match(lawDetail, /data-reading-settings/);
-  assert.match(flashcards, /data-reading-settings/);
+  assert.match(lawDetail, /ReadingSettings/);
+  assert.match(flashcards, /ReadingSettings/);
+  assert.match(flashcards, /extractFlashcardHtml/);
+  assert.match(flashcards, /extractFlashcardPairs/);
   assert.match(preferences, /tjdft-dashboard:reading-preferences:v1/);
+  assert.doesNotMatch(preferences, /innerHTML\s*=/);
   assert.match(serviceWorker, /network-first/i);
-  assert.match(serviceWorker, /tjdft-pages-v1/);
+  assert.match(serviceWorker, /tjdft-pages-v2/);
+  assert.match(serviceWorker, /search\s*=\s*""/);
   assert.match(registration, /navigator\.serviceWorker\.register/);
   assert.match(manifest, /"display": "standalone"/);
   assert.match(manifest, /"scope": "\.\/"/);
+});
+
+test("encontra flashcards reais no snapshot ativo", async () => {
+  const snapshot = JSON.parse(await read("public/data/leis-primeiro.json"));
+  const activeLaws = snapshot.laws.filter((law) => law.record_kind === "active");
+  assert.equal(activeLaws.length, 23);
+  for (const law of activeLaws) {
+    assert.match(law.content_html || "", /<h[23][^>]*>[\s\S]*Flashcards[\s\S]*<\/h[23]>/i, law.code);
+    assert.match(law.content_html || "", /(?:Frente:|class="study-toggle")/i, law.code);
+  }
 });
 
 test("a preparação de Pages rejeita rotas achatadas", async () => {

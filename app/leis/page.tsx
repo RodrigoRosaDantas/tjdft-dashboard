@@ -12,6 +12,7 @@ import {
   Search,
   ShieldCheck,
 } from "lucide-react";
+import ReadingSettings from "../reading-settings";
 
 type Law = {
   code: string;
@@ -120,7 +121,7 @@ function formatAuditDate(value: string | null | undefined) {
   if (!value) return null;
   const date = new Date(`${value.slice(0, 10)}T12:00:00`);
   if (Number.isNaN(date.valueOf())) return value;
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeZone: "America/Sao_Paulo" }).format(date);
 }
 
 function priorityShort(value?: string) {
@@ -260,7 +261,7 @@ export default function LeisPrimeiroPage() {
     <main className="laws-page laws-cockpit">
       <header className="laws-topbar">
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Dashboard TJDFT</a>
-        <div className="laws-topbar-tools"><div className="reading-settings-host" data-reading-settings /><div className="laws-sync"><span className="laws-live-dot" /> Notion → GitHub · {formatDate(snapshot?.source.synced_at)}</div></div>
+        <div className="laws-topbar-tools"><ReadingSettings /><div className="laws-sync"><span className="laws-live-dot" /> Notion → GitHub · {formatDate(snapshot?.source.synced_at)}</div></div>
       </header>
 
       <section className="laws-hero laws-cockpit-hero">

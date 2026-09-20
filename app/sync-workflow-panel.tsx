@@ -60,10 +60,10 @@ function describeRun(run: WorkflowRun | null, publishedAt: string | null): { ton
 export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflowPanelProps) {
   const [run, setRun] = useState<WorkflowRun | null>(null);
   const [checking, setChecking] = useState(false);
-  const [baseline, setBaseline] = useState(0);
+  const [baseline, setBaseline] = useState(() => readBaseline());
   const [guide, setGuide] = useState<{ tone: PanelTone; title: string; detail: string } | null>(null);
   const [requestError, setRequestError] = useState(false);
-  const [monitoring, setMonitoring] = useState(false);
+  const [monitoring, setMonitoring] = useState(() => Boolean(readBaseline()));
   const checkingRef = useRef(false);
   const runRef = useRef<WorkflowRun | null>(null);
 
@@ -110,10 +110,8 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
   }, []);
 
   useEffect(() => {
-    const storedBaseline = readBaseline();
-    setBaseline(storedBaseline);
-    setMonitoring(Boolean(storedBaseline));
-    void check();
+    const frame = window.requestAnimationFrame(() => { void check(); });
+    return () => window.cancelAnimationFrame(frame);
   }, [check]);
 
   useEffect(() => {
@@ -132,17 +130,16 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
     };
   }, [check]);
 
-  const openWorkflow = async () => {
-    const current = await check();
-    const currentId = Number(current?.id ?? runRef.current?.id ?? 0);
-    if (typeof window !== "undefined") {
-      if (currentId > 0) {
-        try { window.sessionStorage.setItem(BASELINE_KEY, String(currentId)); } catch { /* armazenamento opcional */ }
-        setBaseline(currentId);
-        setMonitoring(true);
-      }
-      window.open(WORKFLOW_URL, "_blank", "noopener,noreferrer");
-    }
+  const openWorkflow = () => {
+    if (typeof window === "undefined") return;
+    window.open(WORKFLOW_URL, "_blank", "noopener,noreferrer");
+    void check().then((current) => {
+      const currentId = Number(current?.id ?? runRef.current?.id ?? 0);
+      if (currentId <= 0) return;
+      try { window.sessionStorage.setItem(BASELINE_KEY, String(currentId)); } catch { /* armazenamento opcional */ }
+      setBaseline(currentId);
+      setMonitoring(true);
+    });
   };
 
   const reloadSnapshot = async () => {

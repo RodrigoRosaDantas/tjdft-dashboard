@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import ReadingSettings from "../../reading-settings";
 
 type Law = {
   code: string;
@@ -64,7 +65,7 @@ export default function LawDetailClient({ code }: { code: string }) {
   if (error) {
     return (
       <main className="law-detail-page">
-        <header className="laws-topbar"><a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Leis Primeiro</a><div className="laws-topbar-tools"><div className="reading-settings-host" data-reading-settings /></div></header>
+        <header className="laws-topbar"><a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Leis Primeiro</a><div className="laws-topbar-tools"><ReadingSettings /></div></header>
         <section className="law-detail-hero"><p className="laws-kicker">SNAPSHOT INDISPONÍVEL</p><h1>Abra esta unidade no Notion.</h1><p>O site não conseguiu carregar o espelho publicado agora.</p></section>
       </main>
     );
@@ -73,7 +74,7 @@ export default function LawDetailClient({ code }: { code: string }) {
   if (!snapshot || !law) {
     return (
       <main className="law-detail-page">
-        <header className="laws-topbar"><a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Leis Primeiro</a><div className="laws-topbar-tools"><div className="reading-settings-host" data-reading-settings /></div></header>
+        <header className="laws-topbar"><a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Leis Primeiro</a><div className="laws-topbar-tools"><ReadingSettings /></div></header>
         <section className="law-detail-hero"><p className="laws-kicker">LEIS PRIMEIRO · TJDFT</p><h1>Carregando a unidade…</h1></section>
       </main>
     );
@@ -83,7 +84,7 @@ export default function LawDetailClient({ code }: { code: string }) {
     <main className="law-detail-page laws-reading-body">
       <header className="laws-topbar">
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Leis Primeiro · TJDFT</a>
-        <div className="laws-topbar-tools"><div className="reading-settings-host" data-reading-settings /><span className="laws-sync"><span className="laws-live-dot" /> Snapshot publicado</span></div>
+        <div className="laws-topbar-tools"><ReadingSettings /><span className="laws-sync"><span className="laws-live-dot" /> Snapshot publicado</span></div>
       </header>
 
       <section className="law-detail-hero">
