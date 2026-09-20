@@ -78,7 +78,7 @@ const contentByCode = new Map();
 
 for (const row of rows.slice().sort((left, right) => left.canonical_order - right.canonical_order)) {
   const tree = await getBlockTree(apiId(row.study_url));
-  const rendered = sanitizeProjectHtml(renderBlocks(tree, codeByPageId).trim());
+  const rendered = sanitizePublicStudyHtml(renderBlocks(tree, codeByPageId).trim());
   const content = rendered.length >= 80 ? rendered : fallbackContent(row);
   if (row.material_ready && content.length < 500) {
     throw new Error(`Material pronto sem conteúdo suficiente: ${row.code}.`);
@@ -406,4 +406,56 @@ function sanitizeProjectHtml(value = "") {
     .replaceAll(/<script[\s\S]*?<\/script>/gi, "")
     .replaceAll(/ on[a-z]+="[^"]*"/gi, "")
     .replaceAll(/ on[a-z]+='[^']*'/gi, "");
+}
+
+function sanitizePublicStudyHtml(value = "") {
+  let html = sanitizeProjectHtml(value);
+
+  // The Notion pages contain operational material that belongs only in the
+  // private control database. Keep the public copy focused on the lesson.
+  html = removeHtmlSections(html, (heading) => /controle\s+operacional|sinal\s+do\s+hist[óo]rico\s+pessoal|hist[óo]rico\s+e\s+prioridade/i.test(stripHtml(heading)));
+  html = html.replace(/<aside\b[^>]*class=["']study-callout["'][^>]*>[\s\S]*?<\/aside>/gi, (aside) => {
+    const plainText = stripHtml(aside);
+    return /navega[çc][ãa]o|fim\s+do\b/i.test(plainText) ? "" : aside;
+  });
+  html = html.replace(/<(p|blockquote|li)\b[^>]*>[\s\S]*?<\/\1>/gi, (block) => {
+    const plainText = stripHtml(block);
+    return /o\s+controle\s+registra|sinal\s+do\s+hist[óo]rico|leitura\s+correta\s+desse\s+hist[óo]rico/i.test(plainText)
+      ? ""
+      : block;
+  });
+
+  // Preserve the pedagogical label without publishing a personal-history
+  // marker that can reveal the source of the prioritisation.
+  html = html.replace(/hist[óo]rico\s+pessoal/gi, "diagnóstico editorial");
+  return html.replace(/\s{2,}/g, " ").trim();
+}
+
+function removeHtmlSections(html, shouldRemove) {
+  const headingPattern = /<h[1-3]\b[^>]*>[\s\S]*?<\/h[1-3]>/gi;
+  const matches = [...html.matchAll(headingPattern)];
+  if (!matches.length) return html;
+
+  let output = "";
+  let cursor = 0;
+  for (let index = 0; index < matches.length; index += 1) {
+    const match = matches[index];
+    const start = match.index ?? 0;
+    const nextStart = matches[index + 1]?.index ?? html.length;
+    output += html.slice(cursor, start);
+    if (!shouldRemove(match[0])) output += html.slice(start, nextStart);
+    cursor = nextStart;
+  }
+  return output + html.slice(cursor);
+}
+
+function stripHtml(value = "") {
+  return String(value)
+    .replaceAll(/<[^>]+>/g, " ")
+    .replaceAll(/&nbsp;/gi, " ")
+    .replaceAll(/&amp;/gi, "&")
+    .replaceAll(/&quot;/gi, '"')
+    .replaceAll(/&#39;/gi, "'")
+    .replaceAll(/\s+/g, " ")
+    .trim();
 }

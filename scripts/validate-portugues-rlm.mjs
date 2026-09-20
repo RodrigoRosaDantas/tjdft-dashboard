@@ -30,6 +30,9 @@ for (const unit of units) {
   if (!unit.title || !unit.notion_url || !unit.internal_path) throw new Error(`Unidade incompleta: ${unit.code}`);
   if (typeof unit.material_ready !== "boolean") throw new Error(`Material pronto inválido: ${unit.code}`);
   if (typeof unit.content_html !== "string" || unit.content_html.length < 40) throw new Error(`Conteúdo ausente: ${unit.code}`);
+  if (/NAVEGAÇÃO|NAVEGAÇÃO DA TRILHA|FIM DO (?:P|RL|REV)\d+/i.test(unit.content_html)) throw new Error(`Navegação operacional exposta: ${unit.code}`);
+  if (/<h[1-3]\b[^>]*>[\s\S]*?(?:Controle operacional|Sinal do histórico pessoal|Histórico e prioridade)[\s\S]*?<\/h[1-3]>/i.test(unit.content_html)) throw new Error(`Seção privada exposta: ${unit.code}`);
+  if (/O controle registra|Sinal do histórico pessoal|Leitura correta desse histórico|histórico pessoal/i.test(unit.content_html)) throw new Error(`Histórico privado exposto: ${unit.code}`);
 }
 
 const publicKeys = snapshot.units.flatMap((unit) => Object.keys(unit));

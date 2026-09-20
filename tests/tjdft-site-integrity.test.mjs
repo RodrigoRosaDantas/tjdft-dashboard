@@ -40,6 +40,11 @@ test("preserva a esteira intercalada de Português + RLM", async () => {
   for (const privateKey of ["Histórico pessoal", "status", "d0", "d7", "d20"]) {
     assert.equal(publicKeys.includes(privateKey), false, `Campo privado exposto: ${privateKey}`);
   }
+  for (const unit of snapshot.units) {
+    assert.doesNotMatch(unit.content_html || "", /NAVEGAÇÃO|NAVEGAÇÃO DA TRILHA|FIM DO (?:P|RL|REV)\d+/i, unit.code);
+    assert.doesNotMatch(unit.content_html || "", /<h[1-3]\b[^>]*>[\s\S]*?(?:Controle operacional|Sinal do histórico pessoal|Histórico e prioridade)[\s\S]*?<\/h[1-3]>/i, unit.code);
+    assert.doesNotMatch(unit.content_html || "", /O controle registra|Sinal do histórico pessoal|Leitura correta desse histórico|histórico pessoal/i, unit.code);
+  }
 });
 
 test("mantém a navegação principal separada da sequência D01–D14", async () => {
