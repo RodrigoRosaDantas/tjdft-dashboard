@@ -59,7 +59,7 @@ const lawCodeByPageId = new Map(bankRows.map((row) => [compactId(row.study_url),
 const contentByCode = new Map();
 
 for (const row of bankRows) {
-  const tree = await getBlockTree(compactId(row.study_url));
+  const tree = await getBlockTree(apiId(row.study_url));
   const html = renderBlocks(tree, lawCodeByPageId).trim();
   const content = html.length >= 40 ? html : fallbackContent(row);
   if (row.active && content.length < 40) {
@@ -466,6 +466,12 @@ function notionPageUrl(value) {
 
 function compactId(value) {
   return String(value || "").replaceAll("-", "").toLowerCase();
+}
+
+function apiId(value) {
+  const compact = compactId(value);
+  if (compact.length !== 32) return value;
+  return compact.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
 }
 
 function escapeHtml(value = "") {
