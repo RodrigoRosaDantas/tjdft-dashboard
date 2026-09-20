@@ -85,5 +85,17 @@ await Deno.writeTextFile(outputPath,JSON.stringify(snapshot,null,2)+'\n');
 console.log(`Edital TJDFT sanitizado: ${axes.length} eixos exportados para ${outputPath}.`);
 
 function stableSnapshot(value:any){
-  return JSON.stringify(value,(key,nested)=>key==='generatedAt'?undefined:nested);
+  const normalize=(nested:any):any=>{
+    if(Array.isArray(nested))return nested.map(normalize);
+    if(nested&&typeof nested==='object'){
+      return Object.fromEntries(
+        Object.entries(nested)
+          .filter(([key])=>key!=='generatedAt')
+          .sort(([left],[right])=>left.localeCompare(right))
+          .map(([key,item])=>[key,normalize(item)])
+      );
+    }
+    return nested;
+  };
+  return JSON.stringify(normalize(value));
 }
