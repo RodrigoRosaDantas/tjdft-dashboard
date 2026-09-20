@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, CircleAlert, RefreshCw } from "lucide-react";
+import { Check, CircleAlert, ExternalLink, RefreshCw } from "lucide-react";
 
 const REPOSITORY = "RodrigoRosaDantas/tjdft-dashboard";
 const WORKFLOW_URL = "https://github.com/" + REPOSITORY + "/actions/workflows/sync-notion.yml";
-const WORKFLOW_API = "https://api.github.com/repos/" + REPOSITORY + "/actions/workflows/sync-notion.yml/runs?per_page=1";
+const WORKFLOW_API = "https://api.github.com/repos/" + REPOSITORY + "/actions/workflows/sync-notion.yml/runs?branch=main&per_page=1";
 const BASELINE_KEY = "tjdft:sync:baseline-run";
 
 type WorkflowRun = {
@@ -18,10 +18,11 @@ type WorkflowRun = {
 };
 
 type PanelTone = "neutral" | "running" | "success" | "warning" | "error";
+type SyncMode = "live" | "fallback" | "error";
 
 type SyncWorkflowPanelProps = {
   publishedAt: string | null;
-  onReload: () => Promise<void>;
+  onReload: () => Promise<SyncMode>;
 };
 
 function formatWorkflowDate(value: string | null | undefined) {
@@ -49,7 +50,7 @@ function readBaseline() {
 }
 
 function describeRun(run: WorkflowRun | null, publishedAt: string | null): { tone: PanelTone; title: string; detail: string } {
-  if (!run) return { tone: "neutral", title: "Nenhuma execução encontrada", detail: "Use Atualizar dados para abrir o workflow de sincronização." };
+  if (!run) return { tone: "neutral", title: "Nenhuma execução encontrada", detail: "Use Atualizar agora para consultar a fonte viva ou abra o workflow para uma publicação oficial." };
   if (run.status !== "completed") return { tone: "running", title: "Atualização em andamento", detail: "O GitHub está consultando o Notion e validando o novo snapshot." };
   if (run.conclusion === "success") return { tone: "success", title: "Sincronização validada", detail: "Concluída em " + formatWorkflowDate(run.updated_at) + "." };
   const publishedDetail = publishedAt ? " Snapshot anterior: " + formatWorkflowDate(publishedAt) + "." : " O snapshot anterior foi preservado.";
@@ -62,6 +63,7 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
   const [baseline, setBaseline] = useState(0);
   const [guide, setGuide] = useState<{ tone: PanelTone; title: string; detail: string } | null>(null);
   const [requestError, setRequestError] = useState(false);
+  const [monitoring, setMonitoring] = useState(false);
   const checkingRef = useRef(false);
   const runRef = useRef<WorkflowRun | null>(null);
 
@@ -70,10 +72,13 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
     checkingRef.current = true;
     setChecking(true);
     setRequestError(false);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
     try {
       const response = await fetch(WORKFLOW_API + "&t=" + Date.now(), {
         cache: "no-store",
         headers: { Accept: "application/vnd.github+json" },
+        signal: controller.signal,
       });
       if (!response.ok) throw new Error("GitHub " + response.status);
       const payload = (await response.json()) as { workflow_runs?: WorkflowRun[] };
@@ -81,16 +86,24 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
       runRef.current = next;
       setRun(next);
       const storedBaseline = readBaseline();
-      if (storedBaseline && next && next.id > storedBaseline && next.status === "completed") {
-        setGuide(next.conclusion === "success"
-          ? { tone: "success", title: "Dados publicados", detail: "O novo snapshot foi validado. Recarregue o painel para ler os dados atualizados." }
-          : { tone: "warning", title: "Snapshot anterior preservado", detail: "A execução terminou sem publicar dados novos. Abra o diagnóstico no GitHub." });
+      if (storedBaseline && next) {
+        if (next.id > storedBaseline && next.status === "completed") {
+          setMonitoring(false);
+          setBaseline(0);
+          try { window.sessionStorage.removeItem(BASELINE_KEY); } catch { /* armazenamento opcional */ }
+          setGuide(next.conclusion === "success"
+            ? { tone: "success", title: "Dados publicados", detail: "O novo snapshot foi validado. Recarregue o painel para ler os dados atualizados." }
+            : { tone: "warning", title: "Snapshot anterior preservado", detail: "A execução terminou sem publicar dados novos. Abra o diagnóstico no GitHub." });
+        } else {
+          setMonitoring(next.status !== "completed");
+        }
       }
       return next;
     } catch {
       setRequestError(true);
       return null;
     } finally {
+      window.clearTimeout(timeout);
       checkingRef.current = false;
       setChecking(false);
     }
@@ -99,14 +112,15 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
   useEffect(() => {
     const storedBaseline = readBaseline();
     setBaseline(storedBaseline);
+    setMonitoring(Boolean(storedBaseline));
     void check();
   }, [check]);
 
   useEffect(() => {
-    if (!baseline || !run || run.status === "completed") return undefined;
+    if (!monitoring || !baseline) return undefined;
     const timer = window.setInterval(() => { void check(); }, 15000);
     return () => window.clearInterval(timer);
-  }, [baseline, run, check]);
+  }, [monitoring, baseline, check]);
 
   useEffect(() => {
     const handleReturn = () => { if (!document.hidden) void check(); };
@@ -122,23 +136,35 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
     const current = await check();
     const currentId = Number(current?.id ?? runRef.current?.id ?? 0);
     if (typeof window !== "undefined") {
-      try { window.sessionStorage.setItem(BASELINE_KEY, String(currentId)); } catch { /* armazenamento opcional */ }
-      window.location.assign(WORKFLOW_URL);
+      if (currentId > 0) {
+        try { window.sessionStorage.setItem(BASELINE_KEY, String(currentId)); } catch { /* armazenamento opcional */ }
+        setBaseline(currentId);
+        setMonitoring(true);
+      }
+      window.open(WORKFLOW_URL, "_blank", "noopener,noreferrer");
     }
   };
 
   const reloadSnapshot = async () => {
     setGuide({ tone: "running", title: "Recarregando snapshot", detail: "Consultando o Supabase e o backup publicado no GitHub." });
-    await onReload();
+    const mode = await onReload().catch(() => "error" as const);
     if (typeof window !== "undefined") {
       try { window.sessionStorage.removeItem(BASELINE_KEY); } catch { /* armazenamento opcional */ }
     }
     setBaseline(0);
-    setGuide({ tone: "success", title: "Painel atualizado", detail: "A leitura mais recente do TJDFT foi carregada." });
+    setMonitoring(false);
+    setGuide(mode === "live"
+      ? { tone: "success", title: "Painel atualizado", detail: "A fonte viva do TJDFT foi consultada e a leitura mais recente foi carregada." }
+      : mode === "fallback"
+        ? { tone: "warning", title: "Backup do GitHub carregado", detail: "A fonte viva não respondeu; o snapshot publicado foi mantido como fallback." }
+        : { tone: "error", title: "Atualização indisponível", detail: "A fonte viva e o snapshot publicado não puderam ser carregados." });
   };
 
   const status = describeRun(run, publishedAt);
-  const StatusIcon = status.tone === "success" ? Check : status.tone === "warning" || status.tone === "error" ? CircleAlert : RefreshCw;
+  const displayStatus = requestError
+    ? { tone: "error" as PanelTone, title: "GitHub Actions indisponível", detail: "Não foi possível consultar o status do workflow agora." }
+    : status;
+  const StatusIcon = displayStatus.tone === "success" ? Check : displayStatus.tone === "warning" || displayStatus.tone === "error" ? CircleAlert : RefreshCw;
   const runUrl = run?.html_url && run.html_url.startsWith("https://github.com/") ? run.html_url : WORKFLOW_URL;
 
   return (
@@ -156,26 +182,30 @@ export default function SyncWorkflowPanel({ publishedAt, onReload }: SyncWorkflo
           GitHub Actions <span aria-hidden="true">↗</span>
         </a>
       </div>
-      <div className={"sync-panel-status sync-tone-" + status.tone} data-tone={status.tone} aria-live="polite">
+      <div className={"sync-panel-status sync-tone-" + displayStatus.tone} data-tone={displayStatus.tone} aria-live="polite">
         <StatusIcon className={checking ? "sync-status-spin" : ""} size={21} />
         <div>
-          <strong>{status.title}</strong>
-          <span>{requestError ? "Não foi possível consultar o GitHub agora." : status.detail}</span>
+          <strong>{displayStatus.title}</strong>
+          <span>{displayStatus.detail}</span>
         </div>
         {run && <a href={runUrl} target="_blank" rel="noreferrer">Ver execução <span aria-hidden="true">↗</span></a>}
       </div>
       <div className="sync-panel-actions">
         <button className="secondary-button" type="button" onClick={() => void check()} disabled={checking}>
-          <RefreshCw size={16} className={checking ? "sync-status-spin" : ""} /> Verificar
+          <RefreshCw size={16} className={checking ? "sync-status-spin" : ""} /> Verificar workflow
         </button>
-        <button className="primary-button sync-primary-button" type="button" onClick={() => void openWorkflow()} disabled={checking}>
-          <RefreshCw size={16} /> Atualizar dados
+        <button className="primary-button sync-primary-button" type="button" onClick={() => void reloadSnapshot()} disabled={checking}>
+          <RefreshCw size={16} className={checking ? "sync-status-spin" : ""} /> Atualizar agora
+        </button>
+        <button className="text-button sync-open-workflow" type="button" onClick={() => void openWorkflow()} disabled={checking}>
+          {monitoring ? "Acompanhar workflow" : "Abrir workflow"} <ExternalLink size={14} />
         </button>
       </div>
       {guide && <div className={"sync-panel-guide sync-tone-" + guide.tone} role="status">
         <div><strong>{guide.title}</strong><span>{guide.detail}</span></div>
         {guide.tone === "success" && guide.title === "Dados publicados" && <button className="text-button" type="button" onClick={() => void reloadSnapshot()}>Recarregar snapshot <RefreshCw size={14} /></button>}
         {guide.tone === "warning" && <a href={WORKFLOW_URL} target="_blank" rel="noreferrer">Ver diagnóstico <ExternalLink size={13} /></a>}
+        {guide.tone === "error" && <button className="text-button" type="button" onClick={() => void reloadSnapshot()}>Tentar novamente <RefreshCw size={14} /></button>}
       </div>}
       <div className="sync-panel-foot">
         <span><span className="source-dot" /> Notion privado → GitHub Actions → snapshot → Supabase</span>

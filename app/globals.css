@@ -314,6 +314,7 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
 .sync-status-spin { animation: spin .8s linear infinite; }
 .sync-panel-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
 .sync-primary-button { min-width: 153px; }
+.sync-open-workflow { min-height: 35px; padding-inline: 5px; }
 .sync-panel-guide {
   display: flex;
   align-items: center;
@@ -349,6 +350,7 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
   .sync-panel-status a { display: none; }
   .sync-panel-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .sync-panel-actions button { width: 100%; padding-left: 9px; padding-right: 9px; }
+  .sync-panel-actions .sync-open-workflow { grid-column: 1 / -1; justify-content: center; }
   .sync-panel-guide { align-items: flex-start; flex-direction: column; }
   .sync-panel-foot { display: grid; justify-content: stretch; }
 }

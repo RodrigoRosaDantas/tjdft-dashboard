@@ -11,6 +11,7 @@ const DAYS_DATA_SOURCE_ID = "a06ef2a6-c492-4800-a556-8ebf562b1e4e";
 const QUESTIONS_DATA_SOURCE_ID = "76f5f5ec-fc73-4f6e-86b1-69eeeb6cdc37";
 const ERRORS_DATA_SOURCE_ID = "b4abcf79-27a8-46bc-a917-739a1e1811c4";
 const CACHE_TTL_MS = 60_000;
+const FORCE_REFRESH_COOLDOWN_MS = 15_000;
 const MAX_NOTION_CONCURRENCY = 4;
 
 const allowedOrigins = new Set([
@@ -24,6 +25,8 @@ type AnyRecord = Record<string, any>;
 type DashboardSnapshot = AnyRecord;
 
 let cachedSnapshot: { expiresAt: number; value: DashboardSnapshot } | null = null;
+let refreshPromise: Promise<DashboardSnapshot> | null = null;
+let lastForcedRefreshAt = 0;
 
 const projectUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const adminKey = readAdminKey();
@@ -85,6 +88,7 @@ function corsHeaders(request: Request) {
       : "https://rodrigorosadantas.github.io",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Expose-Headers": "X-TJDFT-Cache, Cache-Control",
     "Content-Type": "application/json; charset=utf-8",
     "Vary": "Origin",
   };
@@ -784,73 +788,98 @@ export async function buildSnapshot(token: string) {
 
 if (import.meta.main) {
   Deno.serve(async (request) => {
-  const headers = corsHeaders(request);
-  if (request.method === "OPTIONS") return new Response("ok", { headers });
-  if (!authorized(request)) return json({ error: "Não autorizado." }, 401, headers);
-  if (request.method !== "GET") return json({ error: "Método não permitido." }, 405, headers);
+    const headers = corsHeaders(request);
+    if (request.method === "OPTIONS") return new Response("ok", { headers });
+    if (!authorized(request)) return json({ error: "Não autorizado." }, 401, headers);
+    if (request.method !== "GET") return json({ error: "Método não permitido." }, 405, headers);
 
-  const forceRefresh = new URL(request.url).searchParams.get("refresh") === "1";
-  const token = (Deno.env.get("TJDFT_NOTION_TOKEN") ?? Deno.env.get("NOTION_TOKEN"))?.trim();
+    const forceRefresh = new URL(request.url).searchParams.get("refresh") === "1";
+    const token = (Deno.env.get("TJDFT_NOTION_TOKEN") ?? Deno.env.get("NOTION_TOKEN"))?.trim();
+    const now = Date.now();
 
-  if (!forceRefresh && cachedSnapshot && cachedSnapshot.expiresAt > Date.now()) {
-    return json(cachedSnapshot.value, 200, headers, {
-      "X-TJDFT-Cache": "hit",
-      "Cache-Control": "public, max-age=30",
-    });
-  }
+    if (!forceRefresh && cachedSnapshot && cachedSnapshot.expiresAt > now) {
+      return json(cachedSnapshot.value, 200, headers, {
+        "X-TJDFT-Cache": "hit",
+        "Cache-Control": "public, max-age=30",
+      });
+    }
 
-  if (forceRefresh) {
-    const published = await fetchPublishedSnapshot();
-    if (published) {
-      await persistSnapshot(published).catch((error) => {
+    if (forceRefresh && cachedSnapshot && now - lastForcedRefreshAt < FORCE_REFRESH_COOLDOWN_MS) {
+      return json(cachedSnapshot.value, 200, headers, {
+        "X-TJDFT-Cache": "throttled",
+        "Cache-Control": "public, max-age=15",
+      });
+    }
+
+    if (refreshPromise) {
+      try {
+        const snapshot = await refreshPromise;
+        return json(snapshot, 200, headers, {
+          "X-TJDFT-Cache": "coalesced",
+          "Cache-Control": "public, max-age=30",
+        });
+      } catch (error) {
+        console.error(
+          "TJDFT Notion sync failed while coalescing:",
+          error instanceof Error ? error.message : "unknown error",
+        );
+        const stale = cachedSnapshot?.value ?? await loadFallbackSnapshot(true);
+        if (stale) {
+          return json(stale, 200, headers, {
+            "X-TJDFT-Cache": "stale",
+            "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+          });
+        }
+        return json({ error: "Não foi possível consultar os dados do Notion TJDFT." }, 502, headers);
+      }
+    }
+
+    if (forceRefresh) lastForcedRefreshAt = now;
+
+    if (!token) {
+      const fallback = await loadFallbackSnapshot(forceRefresh);
+      if (!fallback) return json({ error: "API TJDFT temporariamente indisponível." }, 503, headers);
+      await persistSnapshot(fallback).catch((error) => {
         console.error(
           "TJDFT GitHub snapshot persistence unavailable:",
           error instanceof Error ? error.message : "unknown error",
         );
       });
-      cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: published };
-      return json(published, 200, headers, {
-        "X-TJDFT-Cache": "github->supabase",
-        "Cache-Control": "public, max-age=30",
-      });
-    }
-  }
-
-  if (!token) {
-    const fallback = await loadFallbackSnapshot();
-    if (!fallback) return json({ error: "API TJDFT temporariamente indisponível." }, 503, headers);
-    await persistSnapshot(fallback).catch((error) => {
-      console.error(
-        "TJDFT GitHub snapshot persistence unavailable:",
-        error instanceof Error ? error.message : "unknown error",
-      );
-    });
-    cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: fallback };
-    return json(fallback, 200, headers, {
-      "X-TJDFT-Cache": "snapshot",
-      "Cache-Control": "public, max-age=30",
-    });
-  }
-
-  try {
-    const snapshot = await buildSnapshot(token);
-    cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: snapshot };
-    await persistSnapshot(snapshot);
-    return json(snapshot, 200, headers, {
-      "X-TJDFT-Cache": "miss",
-      "Cache-Control": "public, max-age=30",
-    });
-  } catch (error) {
-    console.error("TJDFT Notion sync failed:", error instanceof Error ? error.message : "unknown error");
-    const fallback = await loadFallbackSnapshot(forceRefresh);
-    if (fallback) {
       cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: fallback };
       return json(fallback, 200, headers, {
-        "X-TJDFT-Cache": "stale",
+        "X-TJDFT-Cache": "snapshot",
         "Cache-Control": "public, max-age=30",
       });
     }
-    return json({ error: "Não foi possível consultar os dados do Notion TJDFT." }, 502, headers);
-  }
+
+    const currentRefresh = buildSnapshot(token);
+    refreshPromise = currentRefresh;
+    try {
+      const snapshot = await currentRefresh;
+      cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: snapshot };
+      await persistSnapshot(snapshot).catch((error) => {
+        console.error(
+          "TJDFT Supabase snapshot persistence unavailable:",
+          error instanceof Error ? error.message : "unknown error",
+        );
+      });
+      return json(snapshot, 200, headers, {
+        "X-TJDFT-Cache": "miss",
+        "Cache-Control": "public, max-age=30",
+      });
+    } catch (error) {
+      console.error("TJDFT Notion sync failed:", error instanceof Error ? error.message : "unknown error");
+      const fallback = await loadFallbackSnapshot(forceRefresh);
+      if (fallback) {
+        cachedSnapshot = { expiresAt: Date.now() + CACHE_TTL_MS, value: fallback };
+        return json(fallback, 200, headers, {
+          "X-TJDFT-Cache": "stale",
+          "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+        });
+      }
+      return json({ error: "Não foi possível consultar os dados do Notion TJDFT." }, 502, headers);
+    } finally {
+      if (refreshPromise === currentRefresh) refreshPromise = null;
+    }
   });
 }

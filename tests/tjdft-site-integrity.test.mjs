@@ -66,3 +66,25 @@ test("a preparação de Pages rejeita rotas achatadas", async () => {
   }
   assert.match(source, /GitHub Pages route permaneceu achatada/);
 });
+
+test("mantém a sincronização viva com fallback e publicação controlada", async () => {
+  const [edgeFunction, workflow, panel, dashboard] = await Promise.all([
+    read("supabase/functions/tjdft-notion/index.ts"),
+    read(".github/workflows/sync-notion.yml"),
+    read("app/sync-workflow-panel.tsx"),
+    read("app/dashboard-client.tsx"),
+  ]);
+  assert.match(edgeFunction, /FORCE_REFRESH_COOLDOWN_MS/);
+  assert.match(edgeFunction, /refreshPromise/);
+  assert.match(edgeFunction, /buildSnapshot\(token\)/);
+  assert.match(edgeFunction, /Access-Control-Expose-Headers/);
+  assert.doesNotMatch(edgeFunction, /github->supabase/);
+  assert.match(workflow, /cron: "\*\/15 \* \* \* \*"/);
+  assert.match(workflow, /git pull --rebase origin main/);
+  assert.doesNotMatch(workflow, /app\/leis\/\*\*/);
+  assert.match(panel, /Atualizar agora/);
+  assert.match(panel, /Backup do GitHub carregado/);
+  assert.match(panel, /Acompanhar workflow/);
+  assert.match(dashboard, /Notion · ao vivo/);
+  assert.match(dashboard, /GitHub · backup/);
+});

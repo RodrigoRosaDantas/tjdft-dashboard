@@ -161,6 +161,9 @@ type DashboardSnapshot = {
   notice?: string;
 };
 
+type DashboardSyncMode = "live" | "fallback" | "error";
+type SnapshotReadResult = { snapshot: DashboardSnapshot; cacheMode: string | null };
+
 const LIVE_NOTION_API_URL = "https://ugxdmvlynyzfmmgshvyq.supabase.co/functions/v1/tjdft-notion";
 // Public Supabase anon key: it gates the read-only function; the Notion token never reaches the browser.
 const LIVE_NOTION_API_KEY = "sb_publishable_acJ3KnWmZLidHTFhtTGYUw_RkYu39ca";
@@ -818,7 +821,7 @@ function SectionHeading({ eyebrow, title, description, action }: { eyebrow: stri
   );
 }
 
-function Overview({ onNavigate, snapshot, onRefresh }: { onNavigate: (section: SectionId) => void; snapshot: DashboardSnapshot | null; onRefresh: () => Promise<void> }) {
+function Overview({ onNavigate, snapshot, onRefresh }: { onNavigate: (section: SectionId) => void; snapshot: DashboardSnapshot | null; onRefresh: () => Promise<DashboardSyncMode> }) {
   const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
   const plannedQuestions = snapshot?.dashboard.planned_questions ?? 124;
   const projectedQuestions = snapshot?.dashboard.projected_questions ?? 124;
@@ -1702,7 +1705,7 @@ export default function Home() {
   const [lastUpdated, setLastUpdated] = useState("GitHub · carregando...");
   const [refreshing, setRefreshing] = useState(false);
   const [syncError, setSyncError] = useState(false);
-  const [syncMode, setSyncMode] = useState<"live" | "fallback" | "error">("error");
+  const [syncMode, setSyncMode] = useState<DashboardSyncMode>("error");
   useEffect(() => {
     const syncSectionFromHash = () => setSection(sectionFromLocation());
     syncSectionFromHash();
@@ -1717,49 +1720,57 @@ export default function Home() {
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const readSnapshot = async (url: string, options: RequestInit = {}) => {
+  const readSnapshot = useCallback(async (url: string, options: RequestInit = {}): Promise<SnapshotReadResult> => {
     const separator = url.includes("?") ? "&" : "?";
     const response = await fetch(`${url}${separator}ts=${Date.now()}`, { ...options, cache: "no-store" });
     if (!response.ok) throw new Error("Snapshot indisponível");
     const candidate: unknown = await response.json();
     if (!isDashboardSnapshot(candidate)) throw new Error("Snapshot inválido");
-    return candidate;
-  };
-  const refreshSnapshot = async () => {
+    return { snapshot: candidate, cacheMode: response.headers.get("x-tjdft-cache") };
+  }, []);
+  const refreshSnapshot = useCallback(async (): Promise<DashboardSyncMode> => {
     setRefreshing(true);
     setSyncError(false);
     try {
-      const candidate = await readSnapshot(`${LIVE_NOTION_API_URL}?refresh=1`, {
+      const result = await readSnapshot(`${LIVE_NOTION_API_URL}?refresh=1`, {
         headers: {
           Accept: "application/json",
           apikey: LIVE_NOTION_API_KEY,
           Authorization: `Bearer ${LIVE_NOTION_API_KEY}`,
         },
       });
+      const candidate = result.snapshot;
       setSnapshot(candidate);
       setSyncMode("live");
-      setLastUpdated(`${candidate.source.status === "live" ? "Notion · sincronizado" : "Supabase · snapshot"} · ${formatSnapshotDate(candidate.source.synced_at)}`);
+      const liveLabel = candidate.source.status === "live" ? "Notion · ao vivo" : "Supabase · snapshot";
+      const cacheLabel = result.cacheMode && result.cacheMode !== "miss" ? ` · ${result.cacheMode}` : "";
+      setLastUpdated(`${liveLabel}${cacheLabel} · ${formatSnapshotDate(candidate.source.synced_at)}`);
+      return "live";
     } catch {
       try {
-        const candidate = await readSnapshot("./data/tjdft-snapshot.json");
+        const result = await readSnapshot("./data/tjdft-snapshot.json");
+        const candidate = result.snapshot;
         setSnapshot(candidate);
         setSyncMode("fallback");
         setLastUpdated(`GitHub · backup · ${formatSnapshotDate(candidate.source.synced_at)}`);
+        return "fallback";
       } catch {
         setSyncMode("error");
         setSyncError(true);
         setLastUpdated("GitHub · indisponível");
+        return "error";
       }
     } finally {
       setRefreshing(false);
     }
-  };
+  }, [readSnapshot]);
   useEffect(() => {
     let cancelled = false;
 
     const initialize = async () => {
       try {
-        const fallback = await readSnapshot("./data/tjdft-snapshot.json");
+        const result = await readSnapshot("./data/tjdft-snapshot.json");
+        const fallback = result.snapshot;
         if (!cancelled) {
           setSnapshot(fallback);
           setSyncMode("fallback");
@@ -1774,7 +1785,7 @@ export default function Home() {
 
     void initialize();
     return () => { cancelled = true; };
-  }, []);
+  }, [readSnapshot, refreshSnapshot]);
   const activeLabel = navigation.find((item) => item.id === section)?.label ?? "Visão geral";
   const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
   activeDashboardSnapshot = snapshot;
