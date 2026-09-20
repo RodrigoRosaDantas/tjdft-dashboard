@@ -138,6 +138,31 @@ function numberValue(value: number | string | null | undefined) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function formatLawCodeRanges(codes: string[]) {
+  const numericCodes = [...new Set(codes
+    .map((code) => code.match(/^L(\d+)$/i)?.[1])
+    .filter(Boolean)
+    .map(Number))].sort((left, right) => left - right);
+  if (!numericCodes.length) return codes.join(", ") || "—";
+  const parts: string[] = [];
+  let start = numericCodes[0];
+  let end = numericCodes[0];
+  const flush = () => {
+    const format = (value: number) => `L${String(value).padStart(2, "0")}`;
+    parts.push(start === end ? format(start) : `${format(start)}–${format(end)}`);
+  };
+  for (const value of numericCodes.slice(1)) {
+    if (value === end + 1) end = value;
+    else {
+      flush();
+      start = value;
+      end = value;
+    }
+  }
+  flush();
+  return parts.join(", ");
+}
+
 function operationalUnits(laws: Law[]) {
   const seen = new Set<string>();
   return laws.filter((law) => !isRadarLaw(law)).filter((law) => {
@@ -193,6 +218,7 @@ export default function LeisPrimeiroPage() {
   const [group, setGroup] = useState("Todos");
   const [priority, setPriority] = useState("Todas");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [mapOpen, setMapOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,6 +234,15 @@ export default function LeisPrimeiroPage() {
         if (!cancelled) setError(true);
       });
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const syncMapFromHash = () => {
+      if (window.location.hash === "#mapa-detalhado") setMapOpen(true);
+    };
+    syncMapFromHash();
+    window.addEventListener("hashchange", syncMapFromHash);
+    return () => window.removeEventListener("hashchange", syncMapFromHash);
   }, []);
 
   const filtered = useMemo(() => {
@@ -319,7 +354,7 @@ export default function LeisPrimeiroPage() {
             const radars = groupLaws.filter(isRadarLaw);
             const completed = executable.filter(lawComplete).length;
             const pending = executable.find((law) => !lawComplete(law));
-            const range = groupLaws.length ? `${groupLaws[0].code}–${groupLaws[groupLaws.length - 1].code}` : "—";
+            const range = formatLawCodeRanges(groupLaws.map((law) => law.code));
             const progress = completionPercent(completed, executable.length);
             return <article className="laws-track-card" data-track-group={name} key={name}>
               <div className="laws-track-head"><div className="laws-track-head-main"><span className="laws-track-number">0{index + 1}</span><span>{name}</span></div><span className="laws-track-range">{range}</span></div>
@@ -333,7 +368,7 @@ export default function LeisPrimeiroPage() {
         </div>
       </section>
 
-      <nav className="laws-quick-nav" aria-label="Atalhos da trilha"><a className="laws-quick-link" href="#mapa-detalhado"><span className="laws-quick-icon">⌕</span><span><b>Localizar uma norma</b><small>Mapa detalhado e filtros</small></span><span className="laws-quick-arrow">↗</span></a><a className="laws-quick-link" href="#radar"><span className="laws-quick-icon">◎</span><span><b>Ver Radar</b><small>Atualizações fora da fila</small></span><span className="laws-quick-arrow">↗</span></a><a className="laws-quick-link" href={snapshot?.source.page_url || "#"} target="_blank" rel="noreferrer"><span className="laws-quick-icon">▦</span><span><b>Consultar o banco</b><small>Metas, revisões e registros no Notion</small></span><span className="laws-quick-arrow">↗</span></a><a className="laws-quick-link" href="./flashcards/"><span className="laws-quick-icon">▣</span><span><b>Estudar com cards</b><small>Revisão com repetição espaçada</small></span><span className="laws-quick-arrow">↗</span></a></nav>
+      <nav className="laws-quick-nav" aria-label="Atalhos da trilha"><a className="laws-quick-link" href="#mapa-detalhado" onClick={() => setMapOpen(true)}><span className="laws-quick-icon">⌕</span><span><b>Localizar uma norma</b><small>Mapa detalhado e filtros</small></span><span className="laws-quick-arrow">↗</span></a><a className="laws-quick-link" href="#radar"><span className="laws-quick-icon">◎</span><span><b>Ver Radar</b><small>Atualizações fora da fila</small></span><span className="laws-quick-arrow">↗</span></a><a className="laws-quick-link" href={snapshot?.source.page_url || "#"} target="_blank" rel="noreferrer"><span className="laws-quick-icon">▦</span><span><b>Consultar o banco</b><small>Metas, revisões e registros no Notion</small></span><span className="laws-quick-arrow">↗</span></a><a className="laws-quick-link" href="./flashcards/"><span className="laws-quick-icon">▣</span><span><b>Estudar com cards</b><small>Revisão com repetição espaçada</small></span><span className="laws-quick-arrow">↗</span></a></nav>
 
       <details className="laws-panel laws-disclosure laws-method-disclosure">
         <summary><span><b>📖 COMO ESTUDAR</b><strong>Fluxo de uma norma</strong></span><span>abrir método + regras</span></summary>
@@ -369,7 +404,7 @@ export default function LeisPrimeiroPage() {
         </div>
       </details>
 
-      <details className="laws-panel laws-disclosure laws-map-panel" id="mapa-detalhado">
+      <details className="laws-panel laws-disclosure laws-map-panel" id="mapa-detalhado" open={mapOpen} onToggle={(event) => setMapOpen(event.currentTarget.open)}>
         <summary><span><b>📚 CONSULTA RÁPIDA</b><strong>Mapa detalhado L01–L26</strong><small>Uma linha por norma: ação, prioridade, meta e revisões.</small></span><span>abrir mapa</span></summary>
         <div className="laws-disclosure-body">
         <div className="laws-heading laws-list-heading">

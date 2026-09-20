@@ -408,6 +408,18 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
 .focus-timer-presets { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 900; }
 .focus-timer-presets > span { margin-right: 2px; }
 .focus-timer-presets button { min-height: 27px; padding: 0 8px; border: 1px solid var(--line); background: var(--paper); }
+.daily-checklist { display: grid; gap: 12px; margin-top: 18px; padding: 17px; border: 1px solid #d6e3df; border-radius: 15px; background: #f8fbfa; }
+.daily-checklist-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.daily-checklist-head h3 { margin: 4px 0 0; color: var(--ink); font-size: 16px; }
+.daily-checklist-head > strong { display: grid; place-items: center; min-width: 42px; height: 32px; border-radius: 9px; color: var(--teal-dark); background: #e1f4ef; font-size: 12px; }
+.daily-checklist-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.daily-checklist-item { display: flex; align-items: flex-start; gap: 9px; min-width: 0; padding: 11px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); cursor: pointer; }
+.daily-checklist-item input { flex: 0 0 auto; width: 16px; height: 16px; margin-top: 2px; accent-color: var(--teal-dark); }
+.daily-checklist-item span { display: grid; gap: 3px; min-width: 0; }
+.daily-checklist-item strong { color: var(--ink); font-size: 11px; }
+.daily-checklist-item small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+.daily-checklist-item.is-done { border-color: #a8dfd1; background: #eefaf6; }
+.daily-checklist-note { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
 .daily-step-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 22px; }
 .daily-step-card { display: flex; min-height: 188px; flex-direction: column; align-items: flex-start; border: 1px solid var(--line); border-radius: 14px; background: #fbfdfd; padding: 17px; }
 .daily-step-number { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; color: var(--teal-dark); background: #dcf2ef; font-size: 11px; font-weight: 900; }
@@ -507,6 +519,7 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
   .daily-day-card-foot span:last-child { text-align: left; }
   .daily-focus-head { display: block; }
   .daily-focus-head .status-pill { margin-top: 12px; }
+  .daily-checklist-grid { grid-template-columns: 1fr; }
   .daily-step-grid { grid-template-columns: 1fr; }
   .daily-step-card { min-height: 0; }
   .daily-rule-action { width: 100%; justify-content: center; margin-top: 22px; }

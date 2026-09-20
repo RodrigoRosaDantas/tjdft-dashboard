@@ -33,11 +33,12 @@ test("mantém a navegação principal separada da sequência D01–D14", async (
 });
 
 test("entrega conforto de leitura, foco e fallback offline", async () => {
-  const [layout, dashboard, lawDetail, flashcards, preferences, serviceWorker, registration, manifest] = await Promise.all([
+  const [layout, dashboard, lawDetail, flashcards, lawsPage, preferences, serviceWorker, registration, manifest] = await Promise.all([
     read("app/layout.tsx"),
     read("app/dashboard-client.tsx"),
     read("app/leis/[code]/law-detail-client.tsx"),
     read("app/leis/flashcards/page.tsx"),
+    read("app/leis/page.tsx"),
     read("public/reading-preferences.js"),
     read("public/sw.js"),
     read("public/sw-register.js"),
@@ -49,10 +50,18 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(dashboard, /visibilitychange/);
   assert.match(dashboard, /hashchange/);
   assert.match(dashboard, /aria-current/);
+  assert.match(dashboard, /STUDY_CHECKLIST_STORAGE_KEY/);
+  assert.match(dashboard, /daily-checklist/);
   assert.match(lawDetail, /ReadingSettings/);
   assert.match(flashcards, /ReadingSettings/);
   assert.match(flashcards, /extractFlashcardHtml/);
   assert.match(flashcards, /extractFlashcardPairs/);
+  assert.match(flashcards, /CARD_PROGRESS_STORAGE_KEY/);
+  assert.match(flashcards, /Filtrar flashcards por lei/);
+  assert.match(flashcards, /D20/);
+  assert.match(lawsPage, /formatLawCodeRanges/);
+  assert.match(lawsPage, /setMapOpen\(true\)/);
+  assert.match(lawsPage, /open=\{mapOpen\}/);
   assert.match(preferences, /tjdft-dashboard:reading-preferences:v1/);
   assert.doesNotMatch(preferences, /innerHTML\s*=/);
   assert.match(serviceWorker, /network-first/i);

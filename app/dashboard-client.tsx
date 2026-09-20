@@ -135,6 +135,17 @@ type ExecutionSnapshot = {
   };
 };
 
+type StudyChecklistKey = "material" | "questions" | "legislation" | "closing";
+type StudyChecklistState = Record<StudyChecklistKey, boolean>;
+
+const STUDY_CHECKLIST_STORAGE_KEY = "tjdft-dashboard:study-checklist:v1";
+const DEFAULT_STUDY_CHECKLIST: StudyChecklistState = {
+  material: false,
+  questions: false,
+  legislation: false,
+  closing: false,
+};
+
 type DashboardSnapshot = {
   schema_version: number;
   source: {
@@ -1080,6 +1091,7 @@ function StudyFocusTimer() {
 
 function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const [selectedDay, setSelectedDay] = useState("D01");
+  const [checklistByDay, setChecklistByDay] = useState<Record<string, StudyChecklistState>>({});
   const liveMaterials = snapshot?.materials?.days ?? studyMaterials;
   const liveLegislation = snapshot?.materials?.legislation ?? legislationPlan;
   const executionDays = snapshot?.execution?.c01?.days ?? [];
@@ -1095,6 +1107,14 @@ function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const selectedExecuted = selectedDone > 0 || selectedProgress > 0;
   const selectedStatus = selectedExecuted ? "Executado" : selectedRow.state === "next" ? "Próximo" : selectedRow.state === "adaptive" ? "Checkpoint" : "Preparado";
   const selectedTone = selectedExecuted ? "teal" : selectedRow.state === "next" ? "gold" : selectedRow.state === "adaptive" ? "violet" : "neutral";
+  const selectedChecklist = checklistByDay[selectedRow.day] ?? DEFAULT_STUDY_CHECKLIST;
+  const checklistItems: Array<{ key: StudyChecklistKey; title: string; detail: string }> = [
+    { key: "material", title: "Material do dia", detail: selectedMaterial?.meta || "Ler o recorte operacional indicado." },
+    { key: "questions", title: "Questões corrigidas", detail: "Registrar feitas, acertos, erros e dúvidas." },
+    { key: "legislation", title: "Lei seca / fonte", detail: selectedLaw?.title || "Ler a fonte vinculada ao dia." },
+    { key: "closing", title: "Fechamento no Notion", detail: "Confirmar o registro antes de encerrar o dia." },
+  ];
+  const checklistDone = checklistItems.filter((item) => selectedChecklist[item.key]).length;
   const sourceHref = selectedMaterial?.href ?? notionMaterialsPage;
   const lawHref = selectedLaw?.links[0]?.href ?? sourceHref;
   const lawLabel = selectedLaw?.links[0]?.label ?? "Ver fonte do recorte";
@@ -1105,6 +1125,33 @@ function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
     { number: "03", label: "LEI SECA / FONTE", title: selectedLaw?.title ?? "Fonte vinculada ao dia", detail: selectedLaw?.detail ?? "Este recorte não tem lei seca nuclear; siga a fonte indicada no material.", href: lawHref, action: lawLabel },
     { number: "04", label: "REGISTRO", title: "Fechamento e evidência", detail: "Só considere o dia fechado depois de registrar o resultado no Banco de Dias.", href: registrationHref, action: "Abrir registro no Notion" },
   ];
+  const toggleChecklist = (key: StudyChecklistKey) => {
+    setChecklistByDay((current) => {
+      const previous = current[selectedRow.day] ?? DEFAULT_STUDY_CHECKLIST;
+      const next = {
+        ...current,
+        [selectedRow.day]: { ...previous, [key]: !previous[key] },
+      };
+      try {
+        window.localStorage.setItem(STUDY_CHECKLIST_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // O checklist continua válido nesta sessão se o navegador bloquear storage.
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const raw = window.localStorage.getItem(STUDY_CHECKLIST_STORAGE_KEY);
+        if (raw) setChecklistByDay(JSON.parse(raw) as Record<string, StudyChecklistState>);
+      } catch {
+        // O checklist começa vazio quando não há armazenamento disponível.
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return <div className="inner-page daily-hub">
     <section className="page-intro daily-hub-intro">
@@ -1160,6 +1207,16 @@ function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
           <div className="progress-track"><span style={{ width: String(selectedProgress) + "%" }} /></div>
         </div>
         <StudyFocusTimer />
+        <section className="daily-checklist" aria-label={`Checklist local de ${selectedRow.day}`}>
+          <div className="daily-checklist-head"><div><p className="eyebrow">CHECKLIST LOCAL</p><h3>Feche o dia sem se perder</h3></div><strong>{checklistDone}/4</strong></div>
+          <div className="daily-checklist-grid">
+            {checklistItems.map((item) => <label className={`daily-checklist-item ${selectedChecklist[item.key] ? "is-done" : ""}`} key={item.key}>
+              <input type="checkbox" checked={selectedChecklist[item.key]} onChange={() => toggleChecklist(item.key)} />
+              <span><strong>{item.title}</strong><small>{item.detail}</small></span>
+            </label>)}
+          </div>
+          <p className="daily-checklist-note">Salvo neste aparelho. Este checklist orienta a sessão, mas não substitui o registro oficial no Notion.</p>
+        </section>
         <div className="daily-step-grid">
           {steps.map((step) => <article className="daily-step-card" key={step.number}>
             <div className="daily-step-number">{step.number}</div>
