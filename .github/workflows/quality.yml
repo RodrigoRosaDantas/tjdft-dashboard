@@ -6,11 +6,13 @@ on:
     branches: [main]
     paths:
       - "app/**"
-      - "public/**"
-      - "scripts/**"
+      - "public/leis-enhanced.css"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/quality.yml"
+  workflow_run:
+    workflows: ["Sincronizar snapshot TJDFT"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -18,11 +20,14 @@ permissions:
 
 jobs:
   quality:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
+        with:
+          ref: main
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
