@@ -25,7 +25,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import SyncWorkflowPanel from "./sync-workflow-panel";
 
-type SectionId = "inicio" | "estudar" | "fases" | "cargos" | "progresso" | "materiais" | "leis" | "pre-edital";
+type SectionId = "inicio" | "estudar" | "fases" | "cargos" | "progresso" | "materiais" | "pre-edital";
 type MaterialsTone = "gold" | "teal" | "violet" | "coral";
 type MaterialsView = "c01" | "legislation" | "sequence" | "future";
 
@@ -218,7 +218,6 @@ const navigation: Array<{ id: SectionId; label: string; icon: LucideIcon }> = [
   { id: "cargos", label: "Cargos-meta", icon: GraduationCap },
   { id: "progresso", label: "Progresso", icon: BarChart3 },
   { id: "materiais", label: "Materiais", icon: FileText },
-  { id: "leis", label: "Leis Primeiro", icon: FileCheck2 },
   { id: "pre-edital", label: "Pré-edital", icon: Target },
 ];
 
@@ -1523,15 +1522,7 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const [syncError, setSyncError] = useState(false);
   const [syncMode, setSyncMode] = useState<"live" | "fallback" | "error">("error");
-  const handleNavigate = (next: SectionId) => {
-    if (next === "leis") {
-      window.location.href = "./leis/";
-      return;
-    }
-    setSection(next);
-    setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const handleNavigate = (next: SectionId) => { setSection(next); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const readSnapshot = async (url: string, options: RequestInit = {}) => {
     const separator = url.includes("?") ? "&" : "?";
     const response = await fetch(`${url}${separator}ts=${Date.now()}`, { ...options, cache: "no-store" });
