@@ -105,4 +105,7 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(panel, /Acompanhar workflow/);
   assert.match(dashboard, /Notion · ao vivo/);
   assert.match(dashboard, /GitHub · backup/);
+  assert.match(dashboard, /SNAPSHOT_REQUEST_TIMEOUT_MS/);
+  assert.match(dashboard, /AbortController/);
+  assert.match(dashboard, /clearTimeout\(timeout\)/);
 });

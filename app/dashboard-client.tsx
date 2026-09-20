@@ -168,6 +168,7 @@ type SnapshotReadResult = { snapshot: DashboardSnapshot; cacheMode: string | nul
 const LIVE_NOTION_API_URL = "https://ugxdmvlynyzfmmgshvyq.supabase.co/functions/v1/tjdft-notion";
 // Public Supabase anon key: it gates the read-only function; the Notion token never reaches the browser.
 const LIVE_NOTION_API_KEY = "sb_publishable_acJ3KnWmZLidHTFhtTGYUw_RkYu39ca";
+const SNAPSHOT_REQUEST_TIMEOUT_MS = 8000;
 
 function isDashboardSnapshot(value: unknown): value is DashboardSnapshot {
   if (!value || typeof value !== "object") return false;
@@ -1725,11 +1726,17 @@ export default function Home() {
   };
   const readSnapshot = useCallback(async (url: string, options: RequestInit = {}): Promise<SnapshotReadResult> => {
     const separator = url.includes("?") ? "&" : "?";
-    const response = await fetch(`${url}${separator}ts=${Date.now()}`, { ...options, cache: "no-store" });
-    if (!response.ok) throw new Error("Snapshot indisponível");
-    const candidate: unknown = await response.json();
-    if (!isDashboardSnapshot(candidate)) throw new Error("Snapshot inválido");
-    return { snapshot: candidate, cacheMode: response.headers.get("x-tjdft-cache") };
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), SNAPSHOT_REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(`${url}${separator}ts=${Date.now()}`, { ...options, cache: "no-store", signal: controller.signal });
+      if (!response.ok) throw new Error("Snapshot indisponível");
+      const candidate: unknown = await response.json();
+      if (!isDashboardSnapshot(candidate)) throw new Error("Snapshot inválido");
+      return { snapshot: candidate, cacheMode: response.headers.get("x-tjdft-cache") };
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }, []);
   const refreshSnapshot = useCallback(async (): Promise<DashboardSyncMode> => {
     setRefreshing(true);
