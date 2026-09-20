@@ -28,7 +28,7 @@ export default function FlashcardsPage() {
 
   return (
     <main className="flashcards-page">
-      <header className="laws-topbar"><a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Leis Primeiro</a><span className="laws-sync"><span className="laws-live-dot" /> TJDFT · flashcards</span></header>
+      <header className="laws-topbar"><a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Leis Primeiro</a><div className="laws-topbar-tools"><div className="reading-settings-host" data-reading-settings /><span className="laws-sync"><span className="laws-live-dot" /> TJDFT · flashcards</span></div></header>
       <section className="flashcards-hero">
         <p className="laws-kicker">🧠 RECUPERAÇÃO ATIVA · D0 / D7 / D20</p>
         <h1>Flashcards da trilha TJDFT</h1>

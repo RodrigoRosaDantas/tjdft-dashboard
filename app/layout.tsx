@@ -9,7 +9,10 @@ const siteBasePath =
 export const metadata: Metadata = {
   title: "TJDFT Dashboard PRO",
   description: "Central de comando da preparação pré-edital para Técnico Judiciário — Área Administrativa e Analista Judiciário — Administração.",
-  other: { "codex-preview": "development" },
+  other: {
+    "codex-preview": "development",
+    "theme-color": "#0b1120",
+  },
   icons: {
     icon: `${siteBasePath}/favicon.svg`,
     shortcut: `${siteBasePath}/favicon.svg`,
@@ -20,7 +23,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <head>
+        <link rel="stylesheet" href={`${siteBasePath}/reading-preferences.css`} />
+        <script src={`${siteBasePath}/reading-preferences.js`} defer />
+      </head>
+      <body>
+        {children}
+        <script src={`${siteBasePath}/sw-register.js`} defer />
+      </body>
     </html>
   );
 }

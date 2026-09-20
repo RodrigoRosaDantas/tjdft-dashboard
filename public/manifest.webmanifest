@@ -1,8 +1,12 @@
 {
+  "id": "./",
   "name": "TJDFT Dashboard PRO",
   "short_name": "TJDFT",
+  "description": "Central de comando da preparação pré-edital do TJDFT.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0b1120",
   "theme_color": "#101827",
   "lang": "pt-BR",
@@ -10,7 +14,9 @@
     {
       "src": "./favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }

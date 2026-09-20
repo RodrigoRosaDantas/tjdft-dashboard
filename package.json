@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "vinext build && node scripts/prepare-github-pages.mjs",
     "start": "vinext start",
-    "test": "npm run build",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {

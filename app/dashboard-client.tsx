@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -220,6 +220,14 @@ const navigation: Array<{ id: SectionId; label: string; icon: LucideIcon }> = [
   { id: "materiais", label: "Materiais", icon: FileText },
   { id: "pre-edital", label: "Pré-edital", icon: Target },
 ];
+
+const sectionIds = navigation.map((item) => item.id);
+
+function sectionFromLocation(): SectionId {
+  if (typeof window === "undefined") return "inicio";
+  const candidate = window.location.hash.replace(/^#/, "") as SectionId;
+  return sectionIds.includes(candidate) ? candidate : "inicio";
+}
 
 const jobs = [
   {
@@ -891,6 +899,178 @@ function JobCard({ job, compact = false }: { job: typeof jobs[number]; compact?:
   return <article className={`job-card job-${job.tone} ${compact ? "job-compact" : ""}`}><div className="job-code">{job.code}</div><div className="job-content"><div className="job-title-row"><h3>{job.title}</h3><StatusPill tone={job.tone === "gold" ? "gold" : job.tone === "teal" ? "teal" : "violet"}>{job.priority}</StatusPill></div><strong>{job.subtitle}</strong><p>{job.source}</p></div>{!compact && <div className="job-metrics"><span>Domínio inicial</span><strong>Em diagnóstico</strong></div>}</article>;
 }
 
+type FocusTimerMode = "count-up" | "countdown";
+
+type FocusTimerSnapshot = {
+  mode: FocusTimerMode;
+  durationSeconds: number;
+  startedAt: number | null;
+  elapsedSeconds: number;
+  running: boolean;
+  updatedAt: number;
+};
+
+const FOCUS_TIMER_STORAGE_KEY = "tjdft-dashboard:focus-timer:v1";
+const FOCUS_TIMER_PRESETS = [15, 25, 45, 60];
+
+function newFocusTimer(mode: FocusTimerMode = "count-up", durationMinutes = 25): FocusTimerSnapshot {
+  return {
+    mode,
+    durationSeconds: Math.max(60, durationMinutes * 60),
+    startedAt: null,
+    elapsedSeconds: 0,
+    running: false,
+    updatedAt: Date.now(),
+  };
+}
+
+function normalizeFocusTimer(value: unknown): FocusTimerSnapshot {
+  const candidate = value && typeof value === "object" ? value as Partial<FocusTimerSnapshot> : {};
+  const mode: FocusTimerMode = candidate.mode === "countdown" ? "countdown" : "count-up";
+  const durationSeconds = Number.isFinite(candidate.durationSeconds) ? Math.max(60, Number(candidate.durationSeconds)) : 25 * 60;
+  const elapsedSeconds = Number.isFinite(candidate.elapsedSeconds) ? Math.max(0, Number(candidate.elapsedSeconds)) : 0;
+  const running = candidate.running === true && typeof candidate.startedAt === "number";
+  return {
+    mode,
+    durationSeconds,
+    startedAt: running ? Number(candidate.startedAt) : null,
+    elapsedSeconds,
+    running,
+    updatedAt: Number.isFinite(candidate.updatedAt) ? Number(candidate.updatedAt) : Date.now(),
+  };
+}
+
+function readStoredFocusTimer() {
+  try {
+    const raw = window.localStorage.getItem(FOCUS_TIMER_STORAGE_KEY);
+    return raw ? normalizeFocusTimer(JSON.parse(raw)) : null;
+  } catch {
+    return null;
+  }
+}
+
+function focusElapsedSeconds(timer: FocusTimerSnapshot, now = Date.now()) {
+  if (!timer.running || timer.startedAt === null) return timer.elapsedSeconds;
+  return timer.elapsedSeconds + Math.max(0, Math.floor((now - timer.startedAt) / 1000));
+}
+
+function formatFocusDuration(seconds: number) {
+  const safeSeconds = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const remainder = safeSeconds % 60;
+  return `${hours > 0 ? `${String(hours).padStart(2, "0")}:` : ""}${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+}
+
+function StudyFocusTimer() {
+  const [timer, setTimer] = useState<FocusTimerSnapshot>(() => newFocusTimer());
+  const [hydrated, setHydrated] = useState(false);
+  const elapsedSeconds = focusElapsedSeconds(timer);
+  const remainingSeconds = Math.max(0, timer.durationSeconds - elapsedSeconds);
+  const displaySeconds = timer.mode === "countdown" ? remainingSeconds : elapsedSeconds;
+  const progress = Math.min(100, (elapsedSeconds / Math.max(1, timer.durationSeconds)) * 100);
+
+  useEffect(() => {
+    const stored = readStoredFocusTimer();
+    if (stored) setTimer(stored);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(FOCUS_TIMER_STORAGE_KEY, JSON.stringify(timer));
+    } catch {
+      // A sessão de foco continua funcional quando o navegador bloqueia storage.
+    }
+  }, [hydrated, timer]);
+
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== FOCUS_TIMER_STORAGE_KEY || !event.newValue) return;
+      try {
+        setTimer(normalizeFocusTimer(JSON.parse(event.newValue)));
+      } catch {
+        // Ignora valores corrompidos de outra aba.
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const pauseTimer = useCallback(() => {
+    setTimer((current) => current.running
+      ? { ...current, elapsedSeconds: focusElapsedSeconds(current), startedAt: null, running: false, updatedAt: Date.now() }
+      : current);
+  }, []);
+
+  useEffect(() => {
+    const pauseWhenHidden = () => {
+      if (document.visibilityState === "hidden") pauseTimer();
+    };
+    document.addEventListener("visibilitychange", pauseWhenHidden);
+    window.addEventListener("pagehide", pauseTimer);
+    return () => {
+      document.removeEventListener("visibilitychange", pauseWhenHidden);
+      window.removeEventListener("pagehide", pauseTimer);
+    };
+  }, [pauseTimer]);
+
+  useEffect(() => {
+    if (!timer.running) return undefined;
+    const interval = window.setInterval(() => {
+      setTimer((current) => {
+        if (!current.running) return current;
+        const elapsed = focusElapsedSeconds(current);
+        if (current.mode === "countdown" && elapsed >= current.durationSeconds) {
+          return { ...current, elapsedSeconds: current.durationSeconds, startedAt: null, running: false, updatedAt: Date.now() };
+        }
+        return { ...current, elapsedSeconds: elapsed, startedAt: Date.now(), updatedAt: Date.now() };
+      });
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [timer.mode, timer.running, timer.durationSeconds]);
+
+  const toggleTimer = () => {
+    setTimer((current) => {
+      if (current.running) {
+        return { ...current, elapsedSeconds: focusElapsedSeconds(current), startedAt: null, running: false, updatedAt: Date.now() };
+      }
+      if (current.mode === "countdown" && current.elapsedSeconds >= current.durationSeconds) {
+        return { ...current, elapsedSeconds: 0, startedAt: Date.now(), running: true, updatedAt: Date.now() };
+      }
+      return { ...current, startedAt: Date.now(), running: true, updatedAt: Date.now() };
+    });
+  };
+
+  const resetTimer = () => setTimer((current) => newFocusTimer(current.mode, Math.round(current.durationSeconds / 60)));
+  const chooseMode = (mode: FocusTimerMode) => setTimer((current) => newFocusTimer(mode, Math.round(current.durationSeconds / 60)));
+  const choosePreset = (minutes: number) => setTimer((current) => newFocusTimer(current.mode, minutes));
+  const stateLabel = timer.running
+    ? "Em andamento"
+    : timer.mode === "countdown" && remainingSeconds === 0 && elapsedSeconds > 0
+      ? "Sessão concluída"
+      : elapsedSeconds > 0
+        ? "Pausado"
+        : "Pronto para começar";
+
+  return <section className="focus-timer-panel" aria-label="Timer de foco da sessão de estudo">
+    <div className="focus-timer-top">
+      <div><p className="eyebrow">SESSÃO DE FOCO</p><h3>Estude com começo e fechamento</h3></div>
+      <span className={`focus-timer-state ${timer.running ? "is-running" : ""}`}>{stateLabel}</span>
+    </div>
+    <div className="focus-timer-modes" role="group" aria-label="Modo do timer">
+      <button type="button" className={timer.mode === "count-up" ? "is-selected" : ""} onClick={() => chooseMode("count-up")}>Cronômetro</button>
+      <button type="button" className={timer.mode === "countdown" ? "is-selected" : ""} onClick={() => chooseMode("countdown")}>Contagem regressiva</button>
+    </div>
+    <div className="focus-timer-display" aria-live="polite">{formatFocusDuration(displaySeconds)}</div>
+    <div className="focus-timer-track" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
+    <div className="focus-timer-meta"><span>{timer.mode === "countdown" ? `${Math.round(timer.durationSeconds / 60)} min selecionados` : "tempo efetivamente estudado"}</span><span>{timer.mode === "countdown" && remainingSeconds === 0 ? "Sessão concluída" : "salvo neste aparelho"}</span></div>
+    <div className="focus-timer-actions"><button type="button" className="primary-button" onClick={toggleTimer}>{timer.running ? "Pausar foco" : elapsedSeconds > 0 ? "Retomar foco" : "Iniciar foco"} <TimerReset size={15} /></button><button type="button" className="secondary-button" onClick={resetTimer}>Zerar</button></div>
+    <div className="focus-timer-presets"><span>Atalhos</span>{FOCUS_TIMER_PRESETS.map((minutes) => <button type="button" key={minutes} className={timer.durationSeconds === minutes * 60 ? "is-selected" : ""} onClick={() => choosePreset(minutes)}>{minutes} min</button>)}</div>
+  </section>;
+}
+
 function StudyToday({ snapshot = activeDashboardSnapshot }: { snapshot?: DashboardSnapshot | null } = {}) {
   const [selectedDay, setSelectedDay] = useState("D01");
   const liveMaterials = snapshot?.materials?.days ?? studyMaterials;
@@ -972,6 +1152,7 @@ function StudyToday({ snapshot = activeDashboardSnapshot }: { snapshot?: Dashboa
           <div><span>Questões do recorte</span><strong>{selectedExecuted ? selectedDone + "/" + selectedPlanned : "a registrar"}</strong></div>
           <div className="progress-track"><span style={{ width: String(selectedProgress) + "%" }} /></div>
         </div>
+        <StudyFocusTimer />
         <div className="daily-step-grid">
           {steps.map((step) => <article className="daily-step-card" key={step.number}>
             <div className="daily-step-number">{step.number}</div>
@@ -1522,7 +1703,20 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const [syncError, setSyncError] = useState(false);
   const [syncMode, setSyncMode] = useState<"live" | "fallback" | "error">("error");
-  const handleNavigate = (next: SectionId) => { setSection(next); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  useEffect(() => {
+    const syncSectionFromHash = () => setSection(sectionFromLocation());
+    syncSectionFromHash();
+    window.addEventListener("hashchange", syncSectionFromHash);
+    return () => window.removeEventListener("hashchange", syncSectionFromHash);
+  }, []);
+  const handleNavigate = (next: SectionId) => {
+    setSection(next);
+    setMenuOpen(false);
+    const url = new URL(window.location.href);
+    url.hash = next;
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const readSnapshot = async (url: string, options: RequestInit = {}) => {
     const separator = url.includes("?") ? "&" : "?";
     const response = await fetch(`${url}${separator}ts=${Date.now()}`, { ...options, cache: "no-store" });
@@ -1584,5 +1778,5 @@ export default function Home() {
   const activeLabel = navigation.find((item) => item.id === section)?.label ?? "Visão geral";
   const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
   activeDashboardSnapshot = snapshot;
-  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button className={`nav-item ${active ? "nav-active" : ""}`} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><button onClick={() => handleNavigate("estudar")}>Abrir execução <ArrowRight size={15} /></button></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><button className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content">{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
+  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button type="button" className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button type="button" className={`nav-item ${active ? "nav-active" : ""}`} aria-current={active ? "page" : undefined} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><button type="button" onClick={() => handleNavigate("estudar")}>Abrir execução <ArrowRight size={15} /></button></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button type="button" className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button type="button" className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><div className="reading-settings-host" data-reading-settings /><button type="button" className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content" id="dashboard-section" tabIndex={-1}>{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
 }
