@@ -429,12 +429,53 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
 .pre-edital-source strong { font-size: 12px; }
 .pre-edital-source span { color: var(--muted); font-size: 10px; }
 .pre-edital-source svg { color: var(--teal-dark); }
+
+/* Persistent quick access to the legislation track */
+.law-fab {
+  position: fixed;
+  right: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid rgba(246, 199, 90, .32);
+  border-radius: 999px;
+  background: rgba(12, 25, 42, .96);
+  color: #f7d477;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .28);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .01em;
+  backdrop-filter: blur(14px);
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+.law-fab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(246, 199, 90, .65);
+  background: rgba(17, 39, 59, .98);
+}
+.law-fab:focus-visible {
+  outline: 3px solid rgba(243, 180, 76, .46);
+  outline-offset: 3px;
+}
 @media (max-width: 1000px) {
   .daily-day-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .daily-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pre-edital-check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
+  .main-column { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+  .law-fab {
+    right: 12px;
+    left: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    min-height: 48px;
+  }
   .daily-intro-actions { justify-content: flex-start; }
   .daily-days-panel, .daily-focus-panel, .daily-rule-panel, .pre-edital-main, .pre-edital-side, .pre-edital-checklist, .pre-edital-sources { padding: 19px 17px; }
   .daily-day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
