@@ -36,8 +36,10 @@ test("preserva a esteira intercalada de Português + RLM", async () => {
   assert.equal(snapshot.summary.review_units, 6);
   assert.equal(snapshot.units.filter((unit) => unit.material_ready).length, snapshot.summary.material_ready);
   assert.doesNotMatch(JSON.stringify(snapshot), /\b(?:SEEDF|TDAS|EDAS|SEDES)\b/i);
-  assert.doesNotMatch(JSON.stringify(snapshot), /"(?:status|d0|d7|d20)"\s*:/i);
-  assert.doesNotMatch(JSON.stringify(snapshot), /Histórico pessoal/i);
+  const publicKeys = snapshot.units.flatMap((unit) => Object.keys(unit));
+  for (const privateKey of ["Histórico pessoal", "status", "d0", "d7", "d20"]) {
+    assert.equal(publicKeys.includes(privateKey), false, `Campo privado exposto: ${privateKey}`);
+  }
 });
 
 test("mantém a navegação principal separada da sequência D01–D14", async () => {

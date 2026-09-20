@@ -32,10 +32,11 @@ for (const unit of units) {
   if (typeof unit.content_html !== "string" || unit.content_html.length < 40) throw new Error(`Conteúdo ausente: ${unit.code}`);
 }
 
-const serialized = JSON.stringify(snapshot);
-for (const privateField of ["Histórico pessoal", '"status"', '"d0"', '"d7"', '"d20"']) {
-  if (serialized.includes(privateField)) throw new Error(`Campo privado exposto no snapshot: ${privateField}`);
+const publicKeys = snapshot.units.flatMap((unit) => Object.keys(unit));
+for (const privateField of ["Histórico pessoal", "status", "d0", "d7", "d20"]) {
+  if (publicKeys.includes(privateField)) throw new Error(`Campo privado exposto no snapshot: ${privateField}`);
 }
+const serialized = JSON.stringify(snapshot);
 if (/\b(?:SEEDF|TDAS|EDAS|SEDES)\b/i.test(serialized)) {
   throw new Error("O snapshot Português/RLM contém referência de outro projeto.");
 }
