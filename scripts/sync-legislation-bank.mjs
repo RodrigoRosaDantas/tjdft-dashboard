@@ -92,7 +92,7 @@ const rows = pages.map((page) => {
     cut: propertyText(properties, "Recorte prioritário"),
     alert: propertyText(properties, "Vigência / alerta"),
     block: propertyText(properties, "Bloco sugerido"),
-    observations: propertyText(properties, "Observações"),
+    observations: sanitizeProjectText(propertyText(properties, "Observações")),
     version: propertyText(properties, "Versão ou alteração"),
     last_read: propertyDate(properties, "Última leitura"),
     last_audit: propertyDate(properties, "Última auditoria"),
@@ -154,6 +154,16 @@ function recordKind(code, active) {
   if (code === "L23") return "support";
   return "historical";
 }
+
+function sanitizeProjectText(value = "") {
+  return String(value)
+    .replaceAll(/Leis Primeiro\/SEEDF/gi, "Leis Primeiro do TJDFT")
+    .replaceAll(/padrão\s+SEEDF/gi, "padrão TJDFT")
+    .replaceAll(/padrão\s+Seedf/gi, "padrão TJDFT")
+    .replaceAll(/\bSEEDF\b/gi, "TJDFT")
+    .replaceAll(/\b(?:TDAS|EDAS|SEDES)\b/gi, "TJDFT");
+}
+
 
 function groupFor(code) {
   const number = Number(String(code).replace(/^L/i, ""));

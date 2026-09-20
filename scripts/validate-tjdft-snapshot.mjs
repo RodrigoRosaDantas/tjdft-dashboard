@@ -53,4 +53,18 @@ const forbidden = [
 ];
 assert(!forbidden.some((pattern) => pattern.test(snapshotRaw + lawsRaw + bankRaw)), "Snapshot contém credencial ou nome de segredo proibido.");
 
+const forbiddenProjectReferences = [
+  /\bSEEDF\b/i,
+  /\bTDAS\b/i,
+  /\bEDAS\b/i,
+  /\bSEDES\b/i,
+  /\bCTJ-00[12]\b/i,
+];
+assert(!forbiddenProjectReferences.some((pattern) => pattern.test(lawsRaw + bankRaw)), "Snapshot legislativo contém referência de outro projeto.");
+
+const legacyDayPath = /(^|\/)d(?:0[1-9]|1[0-4])\/?$/i;
+assert(lawsSnapshot.laws.every((law) => !legacyDayPath.test(String(law.internal_path || "")) && !/^D(?:0[1-9]|1[0-4])$/i.test(String(law.code || ""))), "Snapshot legislativo contém estrutura legada D01-D14.");
+assert(lawsSnapshot.summary?.support_records === 1 && lawsSnapshot.summary?.historical_records === 2, "Classificação de apoio/histórico da legislação está inconsistente.");
+assert(bankSnapshot.summary?.support_records === 1 && bankSnapshot.summary?.historical_records === 2, "Classificação do banco legislativo está inconsistente.");
+
 console.log("Snapshots TJDFT válidos: " + snapshot.materials.days.length + " dias, " + snapshot.execution.c01.days.length + " execuções, " + lawsSnapshot.laws.length + " leis.");

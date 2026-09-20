@@ -61,7 +61,7 @@ const contentByCode = new Map();
 for (const row of bankRows) {
   const shouldReadNotionBlocks = row.active || row.code === "L23";
   const html = shouldReadNotionBlocks
-    ? renderBlocks(await getBlockTree(apiId(row.study_url)), lawCodeByPageId).trim()
+    ? sanitizeProjectHtml(renderBlocks(await getBlockTree(apiId(row.study_url)), lawCodeByPageId).trim())
     : "";
   const content = html.length >= 40 ? html : fallbackContent(row);
   if (row.active && content.length < 40) {
@@ -97,7 +97,7 @@ const laws = bankRows.map((row) => ({
   cut: row.cut,
   alert: row.alert,
   block: row.block,
-  observations: row.observations,
+  observations: sanitizeProjectText(row.observations),
   version: row.version,
   orientation_read: row.orientation_read,
   d0: row.d0,
@@ -328,8 +328,8 @@ function richTextHtml(items = [], lawMap) {
 }
 
 function internalLawHref(url, lawMap) {
-  const compact = String(url || "").match(/[0-9a-f]{32}/i)?.[0]?.toLowerCase();
-  const code = compact ? lawMap.get(compact) : null;
+  const compact = compactId(url);
+  const code = compact.length === 32 ? lawMap.get(compact) : null;
   return code ? `../${code.toLowerCase()}/` : "";
 }
 
@@ -397,7 +397,7 @@ function fallbackContent(row) {
   if (row.code === "L24") {
     return "<h2>Arquivo histórico — não estudar</h2><p>A Lei nº 10.520/2002 está revogada. Esta unidade permanece apenas para rastreabilidade; para licitações e contratos vigentes, estude a <a href=\"../l06/\">L06 — Lei nº 14.133/2021</a>.</p><p><strong>Não gerar leitura, questões, flashcards ou revisão para a L24.</strong></p>";
   }
-  return "<h2>" + escapeHtml(groupFor(row.code)) + "</h2><p>" + escapeHtml(row.observations || row.alert || "Consulte o registro operacional no Notion.") + "</p>";
+  return "<h2>" + escapeHtml(groupFor(row.code)) + "</h2><p>" + escapeHtml(sanitizeProjectText(row.observations || row.alert || "Consulte o registro operacional no Notion.")) + "</p>";
 }
 
 function propertyText(properties, name) {
@@ -482,6 +482,20 @@ function apiId(value) {
 function escapeHtml(value = "") {
   return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
+
+function sanitizeProjectText(value = "") {
+  return String(value)
+    .replaceAll(/Leis Primeiro\/SEEDF/gi, "Leis Primeiro do TJDFT")
+    .replaceAll(/padrão\s+SEEDF/gi, "padrão TJDFT")
+    .replaceAll(/padrão\s+Seedf/gi, "padrão TJDFT")
+    .replaceAll(/\bSEEDF\b/gi, "TJDFT")
+    .replaceAll(/\b(?:TDAS|EDAS|SEDES)\b/gi, "TJDFT");
+}
+
+function sanitizeProjectHtml(value = "") {
+  return sanitizeProjectText(value);
+}
+
 function groupForNumber(number) {
   return groupFor("L" + String(number).padStart(2, "0"));
 }
