@@ -465,7 +465,10 @@ function notionPageUrl(value) {
 }
 
 function compactId(value) {
-  return String(value || "").replaceAll("-", "").toLowerCase();
+  const raw = String(value || "");
+  const match = raw.match(/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}|[0-9a-f]{32}/i);
+  if (!match) return raw.replaceAll("-", "").toLowerCase();
+  return match[0].replaceAll("-", "").toLowerCase();
 }
 
 function apiId(value) {
