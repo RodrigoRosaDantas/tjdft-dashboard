@@ -5,7 +5,7 @@
     "database_id": "7231d1250fb844d48e5d888386746ba9",
     "database_url": "https://app.notion.com/p/6fcef35896774118880a9aa7d15682b6",
     "data_source_id": "a8e16328-4587-4ace-93e5-5b994ee3389b",
-    "synced_at": "2026-09-20T06:53:12.894Z"
+    "synced_at": "2026-09-20T07:08:05.684Z"
   },
   "summary": {
     "records": 26,
@@ -17,8 +17,9 @@
   },
   "rows": [
     {
-      "page_id": "3e0cf5a267318185a3f5e3ad9f0b0896",
-      "url": "https://app.notion.com/p/3e0cf5a267318104833df15c19f60d47",
+      "page_id": "3e0cf5a2-6731-8104-833d-f15c19f60d47",
+      "url": "https://app.notion.com/p/L01-Constitui-o-Federal-de-1988-recorte-dos-cargos-meta-3e0cf5a267318104833df15c19f60d47",
+      "notion_url": "https://app.notion.com/p/3e0cf5a267318185a3f5e3ad9f0b0896",
       "operational_order": 1,
       "code": "L01",
       "internal_paths": [
@@ -27,7 +28,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L01 — Constituição Federal de 1988 — recorte dos cargos-meta",
-      "material": "Constituição Federal de 1988 — recorte dos cargos-meta",
+      "material": "L01 — Constituição Federal de 1988 — recorte dos cargos-meta",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -38,9 +39,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -56,13 +58,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto vigente da Constituição Federal, conferido na fonte oficial do Planalto em 20/09/2026. Emendas constitucionais posteriores prevalecem sobre redações históricas.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e0cf5a267318185a3f5e3ad9f0b0896"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e0cf5a2673181308b38fb875b20ac1d",
-      "url": "https://app.notion.com/p/3e0cf5a267318116abd7f9a89da8f128",
+      "page_id": "3e0cf5a2-6731-8116-abd7-f9a89da8f128",
+      "url": "https://app.notion.com/p/L02-Lei-n-8-112-1990-regime-jur-dico-dos-servidores-3e0cf5a267318116abd7f9a89da8f128",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181308b38fb875b20ac1d",
       "operational_order": 2,
       "code": "L02",
       "internal_paths": [
@@ -71,7 +74,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L02 — Lei nº 8.112/1990 — regime jurídico dos servidores",
-      "material": "Lei nº 8.112/1990 — regime jurídico dos servidores",
+      "material": "L02 — Lei nº 8.112/1990 — regime jurídico dos servidores",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -82,9 +85,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -100,13 +104,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto compilado vigente da Lei nº 8.112/1990, conferido na fonte oficial do Planalto em 20/09/2026; alterações posteriores devem prevalecer sobre redações históricas.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181308b38fb875b20ac1d"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e0cf5a2673181d78e7ec42767d1f8b2",
-      "url": "https://app.notion.com/p/3e0cf5a2673181a2a88fe2c0b8f77b8c",
+      "page_id": "3e0cf5a2-6731-81a2-a88f-e2c0b8f77b8c",
+      "url": "https://app.notion.com/p/L03-Lei-n-8-429-1992-improbidade-administrativa-3e0cf5a2673181a2a88fe2c0b8f77b8c",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181d78e7ec42767d1f8b2",
       "operational_order": 3,
       "code": "L03",
       "internal_paths": [
@@ -115,7 +120,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L03 — Lei nº 8.429/1992 — improbidade administrativa",
-      "material": "Lei nº 8.429/1992 — improbidade administrativa",
+      "material": "L03 — Lei nº 8.429/1992 — improbidade administrativa",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -126,9 +131,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -144,13 +150,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Lei nº 14.230/2021 e alterações posteriores; texto compilado conferido em 20/09/2026.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181d78e7ec42767d1f8b2"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181d0b3b6f2f85e9adbd1",
-      "url": "https://app.notion.com/p/3e0cf5a2673181798132d71f92ce40c2",
+      "page_id": "3e0cf5a2-6731-8179-8132-d71f92ce40c2",
+      "url": "https://app.notion.com/p/L04-Lei-n-9-784-1999-processo-administrativo-federal-3e0cf5a2673181798132d71f92ce40c2",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181d0b3b6f2f85e9adbd1",
       "operational_order": 4,
       "code": "L04",
       "internal_paths": [
@@ -159,7 +166,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L04 — Lei nº 9.784/1999 — processo administrativo federal",
-      "material": "Lei nº 9.784/1999 — processo administrativo federal",
+      "material": "L04 — Lei nº 9.784/1999 — processo administrativo federal",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -170,9 +177,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -188,13 +196,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Lei nº 14.210/2021 e alterações posteriores; texto oficial conferido em 20/09/2026.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181d0b3b6f2f85e9adbd1"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181f38faad6783ed63d69",
-      "url": "https://app.notion.com/p/3e0cf5a2673181069caec68bc6684877",
+      "page_id": "3e0cf5a2-6731-8106-9cae-c68bc6684877",
+      "url": "https://app.notion.com/p/L05-Lei-Distrital-n-2-834-2001-processo-administrativo-no-DF-3e0cf5a2673181069caec68bc6684877",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181f38faad6783ed63d69",
       "operational_order": 5,
       "code": "L05",
       "internal_paths": [
@@ -203,7 +212,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L05 — Lei Distrital nº 2.834/2001 — processo administrativo no DF",
-      "material": "Lei Distrital nº 2.834/2001 — processo administrativo no DF",
+      "material": "L05 — Lei Distrital nº 2.834/2001 — processo administrativo no DF",
       "group": "Núcleo comum",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -214,9 +223,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -232,13 +242,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto compilado do SINJ-DF; art. 1º alterado pela Lei nº 6.037/2017; parágrafo único acrescido pela Lei nº 6.811/2021; art. 1º remete à redação da Lei Federal nº 12.008/2009; conferido em 20/09/2026.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181f38faad6783ed63d69"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a26731818aa058e44285329c71",
-      "url": "https://app.notion.com/p/3e0cf5a2673181e08534c9fe08b77327",
+      "page_id": "3e0cf5a2-6731-81e0-8534-c9fe08b77327",
+      "url": "https://app.notion.com/p/L06-Lei-n-14-133-2021-licita-es-e-contratos-administrativos-3e0cf5a2673181e08534c9fe08b77327",
+      "notion_url": "https://app.notion.com/p/3e0cf5a26731818aa058e44285329c71",
       "operational_order": 6,
       "code": "L06",
       "internal_paths": [
@@ -247,7 +258,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L06 — Lei nº 14.133/2021 — licitações e contratos administrativos",
-      "material": "Lei nº 14.133/2021 — licitações e contratos administrativos",
+      "material": "L06 — Lei nº 14.133/2021 — licitações e contratos administrativos",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -258,9 +269,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -276,13 +288,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto compilado do Planalto, com alterações posteriores conferidas em 20/09/2026; valores atualizados pelo Decreto nº 12.807/2025, vigente desde 01/01/2026.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a26731818aa058e44285329c71"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181e18337f2e4a7432daf",
-      "url": "https://app.notion.com/p/3e0cf5a26731819c9a9eee051cebb5b8",
+      "page_id": "3e0cf5a2-6731-819c-9a9e-ee051cebb5b8",
+      "url": "https://app.notion.com/p/L07-Lei-n-11-697-2008-organiza-o-judici-ria-do-Distrito-Federal-3e0cf5a26731819c9a9eee051cebb5b8",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181e18337f2e4a7432daf",
       "operational_order": 7,
       "code": "L07",
       "internal_paths": [
@@ -291,7 +304,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L07 — Lei nº 11.697/2008 — organização judiciária do Distrito Federal",
-      "material": "Lei nº 11.697/2008 — organização judiciária do Distrito Federal",
+      "material": "L07 — Lei nº 11.697/2008 — organização judiciária do Distrito Federal",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -302,9 +315,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -320,13 +334,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro ampliada no padrão SEEDF. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto vigente conferido no Planalto em 20/09/2026; art. 25-A incluído pela Lei nº 13.850/2019; art. 26 com redação atual destacada; art. 4º com 48 desembargadores.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181e18337f2e4a7432daf"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181f09695ce394705ad24",
-      "url": "https://app.notion.com/p/3e0cf5a2673181ee9b72cba2463c5b81",
+      "page_id": "3e0cf5a2-6731-81ee-9b72-cba2463c5b81",
+      "url": "https://app.notion.com/p/L08-Regimento-Interno-atual-do-TJDFT-3e0cf5a2673181ee9b72cba2463c5b81",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181f09695ce394705ad24",
       "operational_order": 8,
       "code": "L08",
       "internal_paths": [
@@ -335,7 +350,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L08 — Regimento Interno atual do TJDFT",
-      "material": "Regimento Interno atual do TJDFT",
+      "material": "L08 — Regimento Interno atual do TJDFT",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -346,9 +361,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -364,13 +380,14 @@
       "block": "Núcleo comum",
       "observations": "Página individual da biblioteca Leis Primeiro ampliada no padrão SEEDF. Métricas permanecem sem execução até o estudo real.",
       "version": "Portal oficial conferido em 20/09/2026; página com última modificação informada em 14/01/2026; conferir especialmente Emendas Regimentais nº 33/2025 e nº 37/2025.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181f09695ce394705ad24"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181b6a63cd71e1ebea143",
-      "url": "https://app.notion.com/p/3e0cf5a26731812e9607f9918f48c422",
+      "page_id": "3e0cf5a2-6731-812e-9607-f9918f48c422",
+      "url": "https://app.notion.com/p/L09-C-digo-de-tica-e-Conduta-do-TJDFT-Resolu-o-n-6-2022-3e0cf5a26731812e9607f9918f48c422",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181b6a63cd71e1ebea143",
       "operational_order": 9,
       "code": "L09",
       "internal_paths": [
@@ -379,7 +396,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L09 — Código de Ética e Conduta do TJDFT — Resolução nº 6/2022",
-      "material": "Código de Ética e Conduta do TJDFT — Resolução nº 6/2022",
+      "material": "L09 — Código de Ética e Conduta do TJDFT — Resolução nº 6/2022",
       "group": "Núcleo comum",
       "priority": "P0 - Nuclear",
       "status": "Não iniciado",
@@ -390,9 +407,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -408,13 +426,14 @@
       "block": "Núcleo comum",
       "observations": "Página ativa no padrão SEEDF: teoria dirigida, mapa, 30 questões C/E, 20 flashcards, classificação de erros e D0/D7/D20. Redação operacional atual: Resolução nº 6/2022 + Portaria Conjunta nº 38/2025. O edital de 2022 citou Resolução nº 9/2019 + Portaria nº 76/2020, mantidas somente como ponte histórica; métricas e execução permanecem não iniciadas.",
       "version": "Resolução nº 6/2022, alterada pela Portaria Conjunta nº 38/2025; edital histórico de 2022 citado apenas como referência de versão anterior.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181b6a63cd71e1ebea143"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a26731811985b6c98c5c25951f",
-      "url": "https://app.notion.com/p/3e0cf5a2673181c8a514fdcc3d835d9a",
+      "page_id": "3e0cf5a2-6731-81c8-a514-fdcc3d835d9a",
+      "url": "https://app.notion.com/p/L10-MCASP-Manual-de-Contabilidade-Aplicada-ao-Setor-P-blico-3e0cf5a2673181c8a514fdcc3d835d9a",
+      "notion_url": "https://app.notion.com/p/3e0cf5a26731811985b6c98c5c25951f",
       "operational_order": 10,
       "code": "L10",
       "internal_paths": [
@@ -423,7 +442,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L10 — MCASP — Manual de Contabilidade Aplicada ao Setor Público",
-      "material": "MCASP — Manual de Contabilidade Aplicada ao Setor Público",
+      "material": "L10 — MCASP — Manual de Contabilidade Aplicada ao Setor Público",
       "group": "Específico dos dois cargos",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -434,9 +453,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -452,13 +472,14 @@
       "block": "Específico dos dois cargos — recortes distintos",
       "observations": "Página ativa no padrão SEEDF: recorte correto por cargo, teoria dirigida, 30 questões C/E, 20 flashcards, classificação de erros e D0/D7/D20. Auditoria do edital retificado, MCASP 9ª e edição vigente em 20/09/2026.",
       "version": "Edital histórico: MCASP 9ª edição, Parte I. Referência operacional atual: MCASP 11ª edição, com as portarias de aprovação indicadas pelo Tesouro Nacional.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a26731811985b6c98c5c25951f"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181dfa62ae7f329c85e2b",
-      "url": "https://app.notion.com/p/3e0cf5a26731815aa3e4e81bfb357e5e",
+      "page_id": "3e0cf5a2-6731-815a-a3e4-e81bfb357e5e",
+      "url": "https://app.notion.com/p/L11-Lei-Complementar-n-101-2000-Responsabilidade-Fiscal-3e0cf5a26731815aa3e4e81bfb357e5e",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181dfa62ae7f329c85e2b",
       "operational_order": 11,
       "code": "L11",
       "internal_paths": [
@@ -467,7 +488,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L11 — Lei Complementar nº 101/2000 — Responsabilidade Fiscal",
-      "material": "Lei Complementar nº 101/2000 — Responsabilidade Fiscal",
+      "material": "L11 — Lei Complementar nº 101/2000 — Responsabilidade Fiscal",
       "group": "Analista — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -478,9 +499,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Analista Judiciário — Apoio Especializado — Administração"
       ],
@@ -495,13 +517,14 @@
       "block": "Analista — específico",
       "observations": "Página L11 expandida no padrão SEEDF: recorte separado por cargo, texto vigente e edital histórico, teoria dirigida, mapa, pegadinhas, 30 questões C/E, gabarito comentado, classificação de erros e 20 flashcards. Auditada em 20/09/2026; sem execução real.",
       "version": "Texto oficial atual conferido em 20/09/2026; edital TJDFT 2022 cobrava recorte histórico. O texto atual incorpora alterações posteriores, incluindo LC 178/2021, LC 200/2023, LC 212/2025, LC 214/2025 e LC 224/2025; separar versão histórica da redação vigente.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181dfa62ae7f329c85e2b"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a26731815da040d7efad2c26e9",
-      "url": "https://app.notion.com/p/3e0cf5a267318155a0f7ffb812cc7b3b",
+      "page_id": "3e0cf5a2-6731-8155-a0f7-ffb812cc7b3b",
+      "url": "https://app.notion.com/p/L12-Lei-n-13-146-2015-Estatuto-da-Pessoa-com-Defici-ncia-3e0cf5a267318155a0f7ffb812cc7b3b",
+      "notion_url": "https://app.notion.com/p/3e0cf5a26731815da040d7efad2c26e9",
       "operational_order": 12,
       "code": "L12",
       "internal_paths": [
@@ -510,7 +533,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L12 — Lei nº 13.146/2015 — Estatuto da Pessoa com Deficiência",
-      "material": "Lei nº 13.146/2015 — Estatuto da Pessoa com Deficiência",
+      "material": "L12 — Lei nº 13.146/2015 — Estatuto da Pessoa com Deficiência",
       "group": "Analista — conhecimentos básicos",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -521,9 +544,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Analista Judiciário — Apoio Especializado — Administração"
       ],
@@ -538,13 +562,14 @@
       "block": "Conhecimentos básicos — Noções de Direito Administrativo",
       "observations": "Página ativa no padrão SEEDF: recorte exclusivo do Analista Administração, teoria dirigida, 30 questões C/E, 20 flashcards, classificação de erros e D0/D7/D20. Auditoria do edital retificado e do texto vigente em 20/09/2026.",
       "version": "Texto vigente da Lei nº 13.146/2015, com alterações posteriores; edital TJDFT/FGV 2022 usado para comprovar o recorte do Analista Administração.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a26731815da040d7efad2c26e9"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181a2a250faf54ddc3c94",
-      "url": "https://app.notion.com/p/3e0cf5a26731811fa507d42c5f9952f6",
+      "page_id": "3e0cf5a2-6731-811f-a507-d42c5f9952f6",
+      "url": "https://app.notion.com/p/L13-Decreto-Lei-n-4-657-1942-LINDB-3e0cf5a26731811fa507d42c5f9952f6",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181a2a250faf54ddc3c94",
       "operational_order": 13,
       "code": "L13",
       "internal_paths": [
@@ -553,7 +578,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L13 — Decreto-Lei nº 4.657/1942 — LINDB",
-      "material": "Decreto-Lei nº 4.657/1942 — LINDB",
+      "material": "L13 — Decreto-Lei nº 4.657/1942 — LINDB",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -564,9 +589,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -581,13 +607,14 @@
       "block": "Técnico — específico",
       "observations": "Página L13 expandida no padrão SEEDF: recorte por cargo, fonte oficial, controle de versão, teoria dirigida, mapa, pegadinhas, 30 questões C/E, gabarito comentado, classificação de erros e 20 flashcards. Auditada em 20/09/2026; sem execução real.",
       "version": "Texto consolidado do Planalto conferido em 20/09/2026. Decreto-Lei nº 4.657/1942 passou a denominar-se LINDB pela Lei nº 12.376/2010; arts. 20 a 30 foram incluídos pela Lei nº 13.655/2018. Separar texto vigente de questão histórica.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181a2a250faf54ddc3c94"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a26731813b8b6fd8301df79341",
-      "url": "https://app.notion.com/p/3e0cf5a2673181428422ecebb1ebdab2",
+      "page_id": "3e0cf5a2-6731-8142-8422-ecebb1ebdab2",
+      "url": "https://app.notion.com/p/L14-Lei-n-10-406-2002-C-digo-Civil-3e0cf5a2673181428422ecebb1ebdab2",
+      "notion_url": "https://app.notion.com/p/3e0cf5a26731813b8b6fd8301df79341",
       "operational_order": 14,
       "code": "L14",
       "internal_paths": [
@@ -596,7 +623,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L14 — Lei nº 10.406/2002 — Código Civil",
-      "material": "Lei nº 10.406/2002 — Código Civil",
+      "material": "L14 — Lei nº 10.406/2002 — Código Civil",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -607,9 +634,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -624,13 +652,14 @@
       "block": "Técnico — específico",
       "observations": "Página L14 expandida no padrão SEEDF: recorte por cargo, controle de versão, teoria dirigida, mapa, pegadinhas, 30 questões C/E, gabarito comentado, classificação de erros e 20 flashcards. Auditada em 20/09/2026; sem execução real.",
       "version": "Texto compilado do Planalto conferido em 20/09/2026. Separar alterações relevantes da redação histórica, incluindo efeitos da Lei 13.146/2015, Lei 13.874/2019, Lei 14.382/2022, Lei 15.068/2024 e Lei 15.040/2024.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a26731813b8b6fd8301df79341"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181e8aa1ce760d9df00cb",
-      "url": "https://app.notion.com/p/3e0cf5a26731818ba862fc64779c938d",
+      "page_id": "3e0cf5a2-6731-818b-a862-fc64779c938d",
+      "url": "https://app.notion.com/p/L15-Lei-n-13-105-2015-C-digo-de-Processo-Civil-3e0cf5a26731818ba862fc64779c938d",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181e8aa1ce760d9df00cb",
       "operational_order": 15,
       "code": "L15",
       "internal_paths": [
@@ -639,7 +668,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L15 — Lei nº 13.105/2015 — Código de Processo Civil",
-      "material": "Lei nº 13.105/2015 — Código de Processo Civil",
+      "material": "L15 — Lei nº 13.105/2015 — Código de Processo Civil",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -650,9 +679,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -667,13 +697,14 @@
       "block": "Técnico — específico",
       "observations": "Página individual do Leis Primeiro, sem duplicação. Conteúdo ampliado para o padrão Seedf: 30 itens C/E, gabarito comentado, classificação de erros, 20 flashcards e D0/D7/D20. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto compilado consultado no Planalto em 20/09/2026; a fonte oficial indica referências às Leis nº 15.479/2026 e 15.484/2026. Conferir a redação vigente antes da revisão definitiva.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181e8aa1ce760d9df00cb"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181e6a469eee7de36b486",
-      "url": "https://app.notion.com/p/3e0cf5a2673181758ef6ce4e773a1889",
+      "page_id": "3e0cf5a2-6731-8175-8ef6-ce4e773a1889",
+      "url": "https://app.notion.com/p/L16-C-digo-Penal-Decreto-Lei-n-2-848-1940-3e0cf5a2673181758ef6ce4e773a1889",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181e6a469eee7de36b486",
       "operational_order": 16,
       "code": "L16",
       "internal_paths": [
@@ -682,7 +713,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L16 — Código Penal — Decreto-Lei nº 2.848/1940",
-      "material": "Código Penal — Decreto-Lei nº 2.848/1940",
+      "material": "L16 — Código Penal — Decreto-Lei nº 2.848/1940",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -693,9 +724,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -710,13 +742,14 @@
       "block": "Técnico — específico",
       "observations": "Página individual do Leis Primeiro, sem duplicação. Conteúdo ampliado para o padrão Seedf: recorte auditado, teoria dirigida, 30 itens C/E, gabarito comentado, classificação de erros, 20 flashcards e D0/D7/D20. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto compilado consultado no Planalto em 20/09/2026; conferir alterações recentes, incluindo art. 121-A e art. 121-B, mudanças no estelionato e dispositivos sobre instituições democráticas. Questões antigas devem ser confrontadas com a redação vigente.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181e6a469eee7de36b486"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181a0b52ee5108ca274b9",
-      "url": "https://app.notion.com/p/3e0cf5a26731815f8173ebd69321ee03",
+      "page_id": "3e0cf5a2-6731-815f-8173-ebd69321ee03",
+      "url": "https://app.notion.com/p/L17-C-digo-de-Processo-Penal-Decreto-Lei-n-3-689-1941-3e0cf5a26731815f8173ebd69321ee03",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181a0b52ee5108ca274b9",
       "operational_order": 17,
       "code": "L17",
       "internal_paths": [
@@ -725,7 +758,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L17 — Código de Processo Penal — Decreto-Lei nº 3.689/1941",
-      "material": "Código de Processo Penal — Decreto-Lei nº 3.689/1941",
+      "material": "L17 — Código de Processo Penal — Decreto-Lei nº 3.689/1941",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -736,9 +769,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -753,13 +787,14 @@
       "block": "Técnico — específico",
       "observations": "Página individual da biblioteca Leis Primeiro corrigida no padrão Seedf: teoria dirigida, mapa do edital, pegadinhas, 30 questões C/E com gabarito comentado oculto, classificação de erros, 20 flashcards e D0/D7/D20. Métricas continuam sem execução até a sessão real.",
       "version": "Texto compilado oficial consultado em 20/09/2026. Conferir alterações recentes nos arts. 310, 312, 394-A, 581 e 647-A antes de reaplicar questões antigas.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181a0b52ee5108ca274b9"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a26731818b8636c4a643167baa",
-      "url": "https://app.notion.com/p/3e0cf5a2673181349348d3cf29e7f1ce",
+      "page_id": "3e0cf5a2-6731-8134-9348-d3cf29e7f1ce",
+      "url": "https://app.notion.com/p/L18-Lei-n-8-069-1990-Estatuto-da-Crian-a-e-do-Adolescente-3e0cf5a2673181349348d3cf29e7f1ce",
+      "notion_url": "https://app.notion.com/p/3e0cf5a26731818b8636c4a643167baa",
       "operational_order": 18,
       "code": "L18",
       "internal_paths": [
@@ -768,7 +803,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L18 — Lei nº 8.069/1990 — Estatuto da Criança e do Adolescente",
-      "material": "Lei nº 8.069/1990 — Estatuto da Criança e do Adolescente",
+      "material": "L18 — Lei nº 8.069/1990 — Estatuto da Criança e do Adolescente",
       "group": "Técnico — específico",
       "priority": "P2 - Complementar",
       "status": "Não iniciado",
@@ -779,9 +814,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -796,13 +832,14 @@
       "block": "Técnico — específico",
       "observations": "Página individual da biblioteca Leis Primeiro corrigida no padrão Seedf: distinção entre recorte real do edital e decomposição editorial, teoria dirigida, mapa, prazos e números, pegadinhas, 30 questões C/E com gabarito comentado oculto, classificação de erros, 20 flashcards e D0/D7/D20. Métricas continuam sem execução até a sessão real.",
       "version": "Texto compilado oficial consultado em 20/09/2026. Conferir alterações posteriores ao edital de 2022, inclusive prioridade e assistência afetiva, medidas de proteção, Conselho Tutelar e art. 190-F.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a26731818b8636c4a643167baa"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181d18225e03ef388f815",
-      "url": "https://app.notion.com/p/3e0cf5a26731819f8474fa715a6db5be",
+      "page_id": "3e0cf5a2-6731-819f-8474-fa715a6db5be",
+      "url": "https://app.notion.com/p/L19-Lei-n-11-419-2006-informatiza-o-do-processo-judicial-3e0cf5a26731819f8474fa715a6db5be",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181d18225e03ef388f815",
       "operational_order": 19,
       "code": "L19",
       "internal_paths": [
@@ -811,7 +848,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L19 — Lei nº 11.419/2006 — informatização do processo judicial",
-      "material": "Lei nº 11.419/2006 — informatização do processo judicial",
+      "material": "L19 — Lei nº 11.419/2006 — informatização do processo judicial",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -822,9 +859,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -839,13 +877,14 @@
       "block": "Técnico — específico",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Texto oficial vigente da Lei nº 11.419/2006, conferido no Planalto em 20/09/2026; confrontar a lei federal com o Provimento Judicial do PJe do TJDFT (L20).",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181d18225e03ef388f815"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e0cf5a267318101b614c84077de1a9c",
-      "url": "https://app.notion.com/p/3e0cf5a267318124bd92cc56162a9a3f",
+      "page_id": "3e0cf5a2-6731-8124-bd92-cc56162a9a3f",
+      "url": "https://app.notion.com/p/L20-Provimento-Judicial-aplicado-ao-Processo-Judicial-Eletr-nico-3e0cf5a267318124bd92cc56162a9a3f",
+      "notion_url": "https://app.notion.com/p/3e0cf5a267318101b614c84077de1a9c",
       "operational_order": 20,
       "code": "L20",
       "internal_paths": [
@@ -854,7 +893,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L20 — Provimento Judicial aplicado ao Processo Judicial Eletrônico",
-      "material": "Provimento Judicial aplicado ao Processo Judicial Eletrônico",
+      "material": "L20 — Provimento Judicial aplicado ao Processo Judicial Eletrônico",
       "group": "Técnico — conhecimentos básicos",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -865,9 +904,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -882,13 +922,14 @@
       "block": "Técnico — conhecimentos básicos",
       "observations": "Página individual da biblioteca Leis Primeiro. Métricas permanecem sem execução até o estudo real.",
       "version": "Provimento 12/2017; alterações pelos Provimentos 19, 20, 21, 26, 29, 49, 50, 59, 60, 63, 66, 70 e 72. Texto oficial consolidado consultado em 20/09/2026.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": null,
-      "notion_url": "https://app.notion.com/p/3e0cf5a267318101b614c84077de1a9c"
+      "last_check": null
     },
     {
-      "page_id": "3e0cf5a2673181fab65ececd73cb1ad4",
-      "url": "https://app.notion.com/p/3e0cf5a2673181a4aedcf8c7533b78c7",
+      "page_id": "3e0cf5a2-6731-81a4-aedc-f8c7533b78c7",
+      "url": "https://app.notion.com/p/L21-Provimento-Geral-da-Corregedoria-Ju-zes-e-Of-cios-Judiciais-3e0cf5a2673181a4aedcf8c7533b78c7",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181fab65ececd73cb1ad4",
       "operational_order": 21,
       "code": "L21",
       "internal_paths": [
@@ -897,7 +938,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L21 — Provimento Geral da Corregedoria — Juízes e Ofícios Judiciais",
-      "material": "Provimento Geral da Corregedoria — Juízes e Ofícios Judiciais",
+      "material": "L21 — Provimento Geral da Corregedoria — Juízes e Ofícios Judiciais",
       "group": "Técnico — conhecimentos básicos",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -908,9 +949,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -925,13 +967,14 @@
       "block": "Técnico — conhecimentos básicos",
       "observations": "Página individual reformatada no padrão Seedf: 30 questões C/E, gabarito comentado oculto e 20 flashcards. D0, D7 e D20 permanecem não executados até o estudo real.",
       "version": "Texto-base de 2014; consolidação oficial auditada em 20/09/2026; alterações listadas até o Provimento 76, de 11/04/2025. Art. 178 vigente: 30 dias corridos desde 01/05/2025. Art. 175, V revogado pelo Provimento 70/2024.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181fab65ececd73cb1ad4"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e0cf5a26731817a8ec8fe2b38f13743",
-      "url": "https://app.notion.com/p/3e0cf5a2673181cfbe80ef560a1e4e5d",
+      "page_id": "3e0cf5a2-6731-81cf-be80-ef560a1e4e5d",
+      "url": "https://app.notion.com/p/L22-Lei-n-8-666-1993-licita-es-e-contratos-hist-rica-3e0cf5a2673181cfbe80ef560a1e4e5d",
+      "notion_url": "https://app.notion.com/p/3e0cf5a26731817a8ec8fe2b38f13743",
       "operational_order": 22,
       "code": "L22",
       "internal_paths": [
@@ -940,7 +983,7 @@
       "record_kind": "historical",
       "active": false,
       "title": "L22 — Lei nº 8.666/1993 — licitações e contratos (histórica)",
-      "material": "Lei nº 8.666/1993 — licitações e contratos (histórica)",
+      "material": "L22 — Lei nº 8.666/1993 — licitações e contratos (histórica)",
       "group": "Arquivo histórico",
       "priority": "P2 - Complementar",
       "status": "Manutenção",
@@ -951,9 +994,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 0,
+      "flashcards_status": "Sem meta",
       "cargos": [
         "Técnico Judiciário — Área Administrativa",
         "Analista Judiciário — Apoio Especializado — Administração"
@@ -969,13 +1013,14 @@
       "block": "Histórico — os dois cargos",
       "observations": "Arquivo histórico sem estudo ativo. Preserva somente o vínculo do edital TJDFT/FGV 2022 e a transição para a Lei nº 14.133/2021. Não criar questões, flashcards, D0, D7 ou D20 para a Lei nº 8.666/1993.",
       "version": "Lei nº 8.666/1993, publicada em 21/06/1993; regime histórico. Os arts. 89 a 108 foram revogados na publicação da Lei nº 14.133/2021; a lei foi revogada integralmente em 30/12/2023, preservados os regimes anteriores conforme as regras de transição. Auditoria em 20/09/2026.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e0cf5a26731817a8ec8fe2b38f13743"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e0cf5a26731814d8d45d3ab6e606fa2",
-      "url": "https://app.notion.com/p/3e0cf5a2673181a188f9f36062f9cb11",
+      "page_id": "3e0cf5a2-6731-81a1-88f9-f36062f9cb11",
+      "url": "https://app.notion.com/p/L23-Lei-n-14-456-2022-requisito-de-escolaridade-do-T-cnico-3e0cf5a2673181a188f9f36062f9cb11",
+      "notion_url": "https://app.notion.com/p/3e0cf5a26731814d8d45d3ab6e606fa2",
       "operational_order": 23,
       "code": "L23",
       "internal_paths": [
@@ -984,7 +1029,7 @@
       "record_kind": "support",
       "active": false,
       "title": "L23 — Lei nº 14.456/2022 — requisito de escolaridade do Técnico",
-      "material": "Lei nº 14.456/2022 — requisito de escolaridade do Técnico",
+      "material": "L23 — Lei nº 14.456/2022 — requisito de escolaridade do Técnico",
       "group": "Apoio do cargo",
       "priority": "P2 - Complementar",
       "status": "Manutenção",
@@ -995,9 +1040,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -1012,13 +1058,14 @@
       "block": "Apoio do cargo",
       "observations": "Norma de apoio à elegibilidade e ao requisito atual do Técnico Judiciário. Fora da trilha ativa do edital FGV/TJDFT 2022; não gerar meta de estudo, questões, flashcards, D0, D7 ou D20 como matéria. Manter separada para acompanhamento de requisitos de futuros editais.",
       "version": "Lei nº 14.456/2022: altera o art. 8º, II, da Lei nº 11.416/2006 para exigir curso de ensino superior completo para Técnico Judiciário do PJU; transforma 4 cargos vagos de Auxiliar e 192 de Técnico em 118 de Analista no TJDFT, sem aumento de despesa. Partes vetadas promulgadas em dezembro de 2022. Exigência mantida pelo STF no julgamento da ADI 7709 em 2025. Auditoria em 20/09/2026.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e0cf5a26731814d8d45d3ab6e606fa2"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e0cf5a2673181029fc2e00a46d276e6",
-      "url": "https://app.notion.com/p/3e1cf5a267318168ae1ff68dba914298",
+      "page_id": "3e1cf5a2-6731-8168-ae1f-f68dba914298",
+      "url": "https://app.notion.com/p/L24-Arquivo-n-o-estudado-Lei-n-10-520-2002-revogada-estudar-L06-3e1cf5a267318168ae1ff68dba914298",
+      "notion_url": "https://app.notion.com/p/3e0cf5a2673181029fc2e00a46d276e6",
       "operational_order": 24,
       "code": "L24",
       "internal_paths": [
@@ -1027,7 +1074,7 @@
       "record_kind": "historical",
       "active": false,
       "title": "L24 — Arquivo não estudado — Lei nº 10.520/2002 (revogada; estudar L06)",
-      "material": "Arquivo não estudado — Lei nº 10.520/2002 (revogada; estudar L06)",
+      "material": "L24 — Arquivo não estudado — Lei nº 10.520/2002 (revogada; estudar L06)",
       "group": "Arquivo histórico",
       "priority": "Radar",
       "status": "Manutenção",
@@ -1038,9 +1085,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 0,
+      "flashcards_status": "Sem meta",
       "cargos": [
         "Arquivo — não estudar",
         "a Lei nº 14.133/2021 está na L06"
@@ -1056,13 +1104,14 @@
       "block": "Arquivo histórico — não estudar",
       "observations": "Registro preservado apenas para rastreabilidade do mapeamento anterior e da correção editorial. A página de estudo foi convertida em redirecionamento para a L06. D0, D7 e D20 não se aplicam.",
       "version": "Unidade desativada em 20/09/2026 após auditoria. A Lei nº 10.520/2002 é revogada; a Lei nº 14.133/2021 já possui unidade própria e vigente na L06.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e0cf5a2673181029fc2e00a46d276e6"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e1cf5a26731815ca0e8eb91dd5571c5",
-      "url": "https://app.notion.com/p/3e1cf5a2673181bc85eedf3218fd5fc6",
+      "page_id": "3e1cf5a2-6731-81bc-85ee-df3218fd5fc6",
+      "url": "https://app.notion.com/p/L25-Lei-n-8-072-1990-Crimes-Hediondos-3e1cf5a2673181bc85eedf3218fd5fc6",
+      "notion_url": "https://app.notion.com/p/3e1cf5a26731815ca0e8eb91dd5571c5",
       "operational_order": 25,
       "code": "L25",
       "internal_paths": [
@@ -1071,7 +1120,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L25 — Lei nº 8.072/1990 — Crimes Hediondos",
-      "material": "Lei nº 8.072/1990 — Crimes Hediondos",
+      "material": "L25 — Lei nº 8.072/1990 — Crimes Hediondos",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -1082,9 +1131,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -1099,13 +1149,14 @@
       "block": "Técnico — específico",
       "observations": "Página individual criada no padrão Leis Primeiro/SEEDF. Unidade vinculada ao Técnico; não misturar com o Analista. D0, D7 e D20 permanecem sem marcação até o estudo real.",
       "version": "Lei nº 8.072/1990 em texto compilado; redação vigente conferida no Planalto em 20/09/2026. Questões antigas devem ser confrontadas com a lista atual.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e1cf5a26731815ca0e8eb91dd5571c5"
+      "last_check": "2026-09-20"
     },
     {
-      "page_id": "3e1cf5a2673181599685f2f91cd6a14d",
-      "url": "https://app.notion.com/p/3e1cf5a2673181b49cfbc74e9a731a49",
+      "page_id": "3e1cf5a2-6731-81b4-9cfb-c74e9a731a49",
+      "url": "https://app.notion.com/p/L26-Lei-n-13-869-2019-Abuso-de-Autoridade-3e1cf5a2673181b49cfbc74e9a731a49",
+      "notion_url": "https://app.notion.com/p/3e1cf5a2673181599685f2f91cd6a14d",
       "operational_order": 26,
       "code": "L26",
       "internal_paths": [
@@ -1114,7 +1165,7 @@
       "record_kind": "active",
       "active": true,
       "title": "L26 — Lei nº 13.869/2019 — Abuso de Autoridade",
-      "material": "Lei nº 13.869/2019 — Abuso de Autoridade",
+      "material": "L26 — Lei nº 13.869/2019 — Abuso de Autoridade",
       "group": "Técnico — específico",
       "priority": "P1 - Alta",
       "status": "Não iniciado",
@@ -1125,9 +1176,10 @@
       "hits": 0,
       "errors": 0,
       "doubtful_hits": 0,
-      "accuracy": null,
+      "accuracy": 0,
       "flashcards_done": 0,
       "flashcards_meta": 20,
+      "flashcards_status": "0/20",
       "cargos": [
         "Técnico Judiciário — Área Administrativa — sem especialidade"
       ],
@@ -1142,9 +1194,9 @@
       "block": "Técnico — específico",
       "observations": "Página individual criada no padrão Leis Primeiro/SEEDF. Unidade vinculada ao Técnico; não misturar com o Analista. D0, D7 e D20 permanecem sem marcação até o estudo real.",
       "version": "Lei nº 13.869/2019 em texto compilado; redação vigente conferida no Planalto em 20/09/2026, com Lei nº 14.321/2022 e partes vetadas promulgadas.",
+      "last_read": null,
       "last_audit": "2026-09-20",
-      "last_check": "2026-09-20",
-      "notion_url": "https://app.notion.com/p/3e1cf5a2673181599685f2f91cd6a14d"
+      "last_check": "2026-09-20"
     }
   ]
 }
