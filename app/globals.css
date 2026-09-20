@@ -496,6 +496,16 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
   outline: 3px solid rgba(243, 180, 76, .46);
   outline-offset: 3px;
 }
+.study-fab {
+  right: 18px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  border-color: rgba(166, 143, 255, .38);
+  color: #dcd5ff;
+}
+.study-fab:hover {
+  border-color: rgba(192, 178, 255, .72);
+  background: rgba(28, 35, 74, .98);
+}
 @media (max-width: 1000px) {
   .daily-day-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .daily-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -508,6 +518,9 @@ h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.25; }
     left: 12px;
     bottom: calc(12px + env(safe-area-inset-bottom));
     min-height: 48px;
+  }
+  .study-fab {
+    bottom: calc(70px + env(safe-area-inset-bottom));
   }
   .daily-intro-actions { justify-content: flex-start; }
   .daily-days-panel, .daily-focus-panel, .daily-rule-panel, .pre-edital-main, .pre-edital-side, .pre-edital-checklist, .pre-edital-sources { padding: 19px 17px; }

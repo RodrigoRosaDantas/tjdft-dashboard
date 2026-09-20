@@ -22,6 +22,24 @@ test("preserva o recorte legislativo TJDFT", async () => {
   assert.doesNotMatch(JSON.stringify(snapshot), /\b(?:SEEDF|TDAS|EDAS|SEDES)\b/i);
 });
 
+test("preserva a esteira intercalada de Português + RLM", async () => {
+  const snapshot = JSON.parse(await read("public/data/portugues-rlm.json"));
+  const expected = [
+    "P01", "P02", "P03", "RL01", "P04", "REV01", "P05", "P06", "RL02", "P07", "P08", "REV02",
+    "P09", "RL03", "P10", "P11", "P12", "REV03", "RL04", "P13", "P14", "P15", "RL05", "REV04",
+    "P16", "P17", "P18", "RL06", "RL07", "REV05", "RL08", "RL09", "RL10", "RL11", "RL12", "REV06", "RL13",
+  ];
+  assert.deepEqual(snapshot.sequence, expected);
+  assert.deepEqual(snapshot.units.map((unit) => unit.code), expected);
+  assert.equal(snapshot.units.length, 37);
+  assert.equal(snapshot.summary.content_units, 31);
+  assert.equal(snapshot.summary.review_units, 6);
+  assert.equal(snapshot.units.filter((unit) => unit.material_ready).length, snapshot.summary.material_ready);
+  assert.doesNotMatch(JSON.stringify(snapshot), /\b(?:SEEDF|TDAS|EDAS|SEDES)\b/i);
+  assert.doesNotMatch(JSON.stringify(snapshot), /"(?:status|d0|d7|d20)"\s*:/i);
+  assert.doesNotMatch(JSON.stringify(snapshot), /Histórico pessoal/i);
+});
+
 test("mantém a navegação principal separada da sequência D01–D14", async () => {
   const source = await read("app/dashboard-client.tsx");
   const navigationBlock = source.slice(source.indexOf("const navigation"), source.indexOf("const sectionIds"));
@@ -85,6 +103,9 @@ test("encontra flashcards reais no snapshot ativo", async () => {
 test("a preparação de Pages rejeita rotas achatadas", async () => {
   const source = await read("scripts/prepare-github-pages.mjs");
   for (const route of ["leis/index.html", "leis/l01/index.html", "leis/l02/index.html", "leis/flashcards/index.html"]) {
+    assert.match(source, new RegExp(route.replaceAll("/", "\\/")));
+  }
+  for (const route of ["portugues-rlm/index.html", "portugues-rlm/p01/index.html", "portugues-rlm/rl01/index.html", "portugues-rlm/rev01/index.html", "portugues-rlm/flashcards/index.html"]) {
     assert.match(source, new RegExp(route.replaceAll("/", "\\/")));
   }
   assert.match(source, /GitHub Pages route permaneceu achatada/);

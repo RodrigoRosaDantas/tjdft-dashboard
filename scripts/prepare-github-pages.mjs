@@ -60,13 +60,28 @@ async function assertPagesRoutes() {
     "leis/l01/index.html",
     "leis/l02/index.html",
     "leis/flashcards/index.html",
+    "portugues-rlm/index.html",
+    "portugues-rlm/p01/index.html",
+    "portugues-rlm/rl01/index.html",
+    "portugues-rlm/rev01/index.html",
+    "portugues-rlm/flashcards/index.html",
   ];
 
   for (const route of requiredRoutes) {
     await access(path.join(outputDirectory, route));
   }
 
-  const flatRouteFiles = ["leis.html", "leis/l01.html", "leis/l02.html", "leis/flashcards.html"];
+  const flatRouteFiles = [
+    "leis.html",
+    "leis/l01.html",
+    "leis/l02.html",
+    "leis/flashcards.html",
+    "portugues-rlm.html",
+    "portugues-rlm/p01.html",
+    "portugues-rlm/rl01.html",
+    "portugues-rlm/rev01.html",
+    "portugues-rlm/flashcards.html",
+  ];
   for (const route of flatRouteFiles) {
     try {
       await access(path.join(outputDirectory, route));
