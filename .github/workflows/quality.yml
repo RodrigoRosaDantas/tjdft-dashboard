@@ -7,6 +7,8 @@ on:
     paths:
       - "app/**"
       - "public/leis-enhanced.css"
+      - "public/data/**"
+      - "scripts/prepare-github-pages.mjs"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/quality.yml"
