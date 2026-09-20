@@ -59,8 +59,10 @@ const lawCodeByPageId = new Map(bankRows.map((row) => [compactId(row.study_url),
 const contentByCode = new Map();
 
 for (const row of bankRows) {
-  const tree = await getBlockTree(apiId(row.study_url));
-  const html = renderBlocks(tree, lawCodeByPageId).trim();
+  const shouldReadNotionBlocks = row.active || row.code === "L23";
+  const html = shouldReadNotionBlocks
+    ? renderBlocks(await getBlockTree(apiId(row.study_url)), lawCodeByPageId).trim()
+    : "";
   const content = html.length >= 40 ? html : fallbackContent(row);
   if (row.active && content.length < 40) {
     throw new Error("Study content for " + row.code + " is unexpectedly empty.");
