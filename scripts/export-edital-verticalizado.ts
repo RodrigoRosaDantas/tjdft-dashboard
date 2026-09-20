@@ -56,13 +56,12 @@ const axes=pages.map(page=>{
 
 const layers=Object.fromEntries([...axes.reduce((map,axis)=>map.set(axis.layer||'Sem camada',(map.get(axis.layer||'Sem camada')||0)+1),new Map<string,number>())]);
 const subjects=Object.fromEntries([...axes.reduce((map,axis)=>map.set(axis.subject,(map.get(axis.subject)||0)+1),new Map<string,number>())]);
-const snapshot={
+const snapshotWithoutTimestamp={
   schemaVersion:1,
   competitionId:'tjdft',
   title:'TJDFT — Edital verticalizado',
   version:'base-2022',
   kind:'historical-base',
-  generatedAt:new Date().toISOString(),
   source:{type:'notion',dataSourceId,pageUrl:sourcePageUrl,apiVersion},
   editorialPolicy:{
     official:false,
@@ -74,6 +73,17 @@ const snapshot={
   axes
 };
 
+let previousSnapshot:any=null;
+try{previousSnapshot=JSON.parse(await Deno.readTextFile(outputPath));}catch{/* primeiro snapshot */}
+const generatedAt=previousSnapshot?.generatedAt&&stableSnapshot(previousSnapshot)===stableSnapshot(snapshotWithoutTimestamp)
+  ? previousSnapshot.generatedAt
+  : new Date().toISOString();
+const snapshot={...snapshotWithoutTimestamp,generatedAt};
+
 await Deno.mkdir('public/data',{recursive:true});
 await Deno.writeTextFile(outputPath,JSON.stringify(snapshot,null,2)+'\n');
 console.log(`Edital TJDFT sanitizado: ${axes.length} eixos exportados para ${outputPath}.`);
+
+function stableSnapshot(value:any){
+  return JSON.stringify(value,(key,nested)=>key==='generatedAt'?undefined:nested);
+}

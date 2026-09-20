@@ -9,6 +9,12 @@ async function read(relativePath) {
   return readFile(path.join(root, relativePath), "utf8");
 }
 
+function headingText(html) {
+  return [...String(html || "").matchAll(/<h[1-3]\b[^>]*>([\s\S]*?)<\/h[1-3]>/gi)]
+    .map((match) => match[1].replaceAll(/<[^>]+>/g, " ").replaceAll(/\s+/g, " ").trim())
+    .join(" | ");
+}
+
 test("preserva o recorte legislativo TJDFT", async () => {
   const snapshot = JSON.parse(await read("public/data/leis-primeiro.json"));
   const expectedCodes = Array.from({ length: 26 }, (_, index) => `L${String(index + 1).padStart(2, "0")}`);
@@ -42,7 +48,7 @@ test("preserva a esteira intercalada de Português + RLM", async () => {
   }
   for (const unit of snapshot.units) {
     assert.doesNotMatch(unit.content_html || "", /NAVEGAÇÃO|NAVEGAÇÃO DA TRILHA|FIM DO (?:P|RL|REV)\d+/i, unit.code);
-    assert.doesNotMatch(unit.content_html || "", /<h[1-3]\b[^>]*>[\s\S]*?(?:Controle operacional|Sinal do histórico pessoal|Histórico e prioridade)[\s\S]*?<\/h[1-3]>/i, unit.code);
+    assert.doesNotMatch(headingText(unit.content_html), /(?:Controle operacional|Sinal do histórico pessoal|Histórico e prioridade)/i, unit.code);
     assert.doesNotMatch(unit.content_html || "", /O controle registra|Sinal do histórico pessoal|Leitura correta desse histórico|histórico pessoal/i, unit.code);
   }
 });
@@ -119,12 +125,13 @@ test("a preparação de Pages rejeita rotas achatadas", async () => {
 });
 
 test("mantém a sincronização viva com fallback e publicação controlada", async () => {
-  const [edgeFunction, workflow, backendWorkflow, panel, dashboard] = await Promise.all([
+  const [edgeFunction, workflow, backendWorkflow, panel, dashboard, editalExport] = await Promise.all([
     read("supabase/functions/tjdft-notion/index.ts"),
     read(".github/workflows/sync-notion.yml"),
     read(".github/workflows/deploy-supabase.yml"),
     read("app/sync-workflow-panel.tsx"),
     read("app/dashboard-client.tsx"),
+    read("scripts/export-edital-verticalizado.ts"),
   ]);
   assert.match(edgeFunction, /FORCE_REFRESH_COOLDOWN_MS/);
   assert.match(edgeFunction, /refreshPromise/);
@@ -145,4 +152,6 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(dashboard, /SNAPSHOT_REQUEST_TIMEOUT_MS/);
   assert.match(dashboard, /AbortController/);
   assert.match(dashboard, /clearTimeout\(timeout\)/);
+  assert.match(editalExport, /stableSnapshot/);
+  assert.match(editalExport, /previousSnapshot\?\.generatedAt/);
 });
