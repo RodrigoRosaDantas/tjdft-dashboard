@@ -43,5 +43,5 @@ jobs:
           deno-version: v2.x
       - name: Compilar aplicação e validar snapshot
         run: |
-          npm run test
+          GITHUB_PAGES=1 GITHUB_PAGES_BASE_PATH="/tjdft-dashboard" npm run test
           deno run --allow-read scripts/validate-tjdft-snapshot.mjs
