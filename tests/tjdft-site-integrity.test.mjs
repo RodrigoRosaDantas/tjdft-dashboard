@@ -68,9 +68,10 @@ test("a preparação de Pages rejeita rotas achatadas", async () => {
 });
 
 test("mantém a sincronização viva com fallback e publicação controlada", async () => {
-  const [edgeFunction, workflow, panel, dashboard] = await Promise.all([
+  const [edgeFunction, workflow, backendWorkflow, panel, dashboard] = await Promise.all([
     read("supabase/functions/tjdft-notion/index.ts"),
     read(".github/workflows/sync-notion.yml"),
+    read(".github/workflows/deploy-supabase.yml"),
     read("app/sync-workflow-panel.tsx"),
     read("app/dashboard-client.tsx"),
   ]);
@@ -82,6 +83,9 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(workflow, /cron: "\*\/15 \* \* \* \*"/);
   assert.match(workflow, /git pull --rebase origin main/);
   assert.doesNotMatch(workflow, /app\/leis\/\*\*/);
+  assert.match(backendWorkflow, /TJDFT_NOTION_TOKEN: \$\{\{ secrets\.TJDFT_NOTION_TOKEN \}\}/);
+  assert.match(backendWorkflow, /supabase secrets set --env-file/);
+  assert.match(backendWorkflow, /umask 077/);
   assert.match(panel, /Atualizar agora/);
   assert.match(panel, /Backup do GitHub carregado/);
   assert.match(panel, /Acompanhar workflow/);
