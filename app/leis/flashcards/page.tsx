@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
-type Law = { code: string; title: string; notion_url: string; content_html?: string; flashcards_meta?: number | string | null };
+type Law = { code: string; title: string; notion_url: string; record_kind?: "active" | "support" | "historical"; content_html?: string; flashcards_meta?: number | string | null };
 type Snapshot = { laws: Law[] };
 
 function flashcardHtml(law: Law) {
@@ -37,7 +37,7 @@ export default function FlashcardsPage() {
       {error ? <div className="flashcards-card">O snapshot não carregou. Abra o Notion pelo mapa principal.</div> : null}
       {!snapshot && !error ? <div className="flashcards-card">Carregando cartões…</div> : null}
       <section className="flashcards-grid">
-        {snapshot?.laws.map((law) => (
+        {snapshot?.laws.filter((law) => law.record_kind === "active").map((law) => (
           <article className="flashcards-card" key={law.code}>
             <div className="flashcards-card-top"><div><small>{law.code}</small><h2>{law.title}</h2></div><small>{law.flashcards_meta || 0} cartões-meta</small></div>
             <div className="flashcards-html" dangerouslySetInnerHTML={{ __html: flashcardHtml(law) }} />

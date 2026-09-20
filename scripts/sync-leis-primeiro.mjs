@@ -14,10 +14,10 @@ if (!token) throw new Error("NOTION_TOKEN is not configured.");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const request = async (endpoint, init = {}, attempt = 0) => {
-  const response = await fetch(`${NOTION_API_BASE}${endpoint}`, {
+  const response = await fetch(NOTION_API_BASE + endpoint, {
     ...init,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: "Bearer " + token,
       "Notion-Version": NOTION_VERSION,
       "Content-Type": "application/json",
       ...(init.headers || {}),
@@ -29,13 +29,12 @@ const request = async (endpoint, init = {}, attempt = 0) => {
     await sleep(Math.max(500, retryAfter * 1000));
     return request(endpoint, init, attempt + 1);
   }
-  if (!response.ok) throw new Error(`Notion API ${response.status}: ${body.slice(0, 300)}`);
+  if (!response.ok) throw new Error("Notion API " + response.status + ": " + body.slice(0, 300));
   return JSON.parse(body);
 };
 
-const [page, pageBlocks, databasePages] = await Promise.all([
-  request(`/pages/${LEIS_PAGE_ID}`),
-  getAllChildren(LEIS_PAGE_ID),
+const [page, databasePages] = await Promise.all([
+  request("/pages/" + LEIS_PAGE_ID),
   queryDataSource(LEGISLATION_DATA_SOURCE_ID),
 ]);
 
@@ -43,88 +42,81 @@ if (compactId(page.parent?.page_id) !== compactId(EXECUTION_PAGE_ID)) {
   throw new Error("Leis Primeiro must remain a direct child of Execução diária — TJDFT.");
 }
 
-const childPages = pageBlocks
-  .filter((block) => block.type === "child_page" && /^(?:L|D)\d{2}\b/i.test(block.child_page?.title || ""))
-  .map((block) => {
-    const rawCode = (block.child_page.title.match(/^(?:L|D)(\d{2})\b/i)?.[1] || "");
-    const number = Number(rawCode);
-    return {
-      page_id: block.id,
-      code: `L${String(number).padStart(2, "0")}`,
-      title: block.child_page.title.replace(/^(?:L|D)\d{2}\s*[—–-]\s*/i, "").trim(),
-      notion_url: notionPageUrl(block.id),
-    };
-  })
-  .filter((item) => item.code)
-  .sort((a, b) => Number(a.code.slice(1)) - Number(b.code.slice(1)));
+const bankRows = databasePages
+  .map(parseBankRow)
+  .filter((row) => row && row.study_url && row.operational_order > 0)
+  .sort((a, b) => a.operational_order - b.operational_order);
 
-const bankRows = databasePages.map(parseBankRow).filter(Boolean).sort((a, b) => a.operational_order - b.operational_order);
-const mappedRows = bankRows.filter((row) => row.operational_order < 900);
-const radarRows = bankRows.filter((row) => row.operational_order >= 900);
-const rowsByOrder = new Map(mappedRows.map((row) => [row.operational_order, row]));
-
-if (childPages.length !== 14) throw new Error(`Expected 14 D/L pages, found ${childPages.length}.`);
-
-const expectedOrders = Array.from(new Set(childPages.map((child) => operationalOrderForCode(child.code))));
-const missingOrders = expectedOrders.filter((order) => !rowsByOrder.has(order));
-if (missingOrders.length) throw new Error(`Missing legislation records for operational orders: ${missingOrders.join(", ")}.`);
-if (expectedOrders.length !== 14) throw new Error(`Expected 14 unique records mapped to L01-L14, found ${expectedOrders.length}.`);
-
-const lawCodeByPageId = new Map(childPages.map((child) => [compactId(child.page_id), child.code]));
-const contentByCode = new Map();
-for (const child of childPages) {
-  const tree = await getBlockTree(child.page_id);
-  const html = renderBlocks(tree, lawCodeByPageId).trim();
-  if (html.length < 40) throw new Error(`Study content for ${child.code} is unexpectedly empty.`);
-  contentByCode.set(child.code, html);
-  console.log(`${child.code}: conteúdo interno sincronizado (${html.length} caracteres HTML).`);
+const expectedCodes = Array.from({ length: 26 }, (_, index) => "L" + String(index + 1).padStart(2, "0"));
+const actualCodes = bankRows.map((row) => row.code);
+const missingCodes = expectedCodes.filter((code) => !actualCodes.includes(code));
+const duplicateCodes = actualCodes.filter((code, index) => actualCodes.indexOf(code) !== index);
+if (bankRows.length !== 26 || missingCodes.length || duplicateCodes.length) {
+  throw new Error("Expected exactly L01-L26 current records. Found " + actualCodes.join(", ") + ". Missing: " + missingCodes.join(", ") + ".");
 }
 
-const laws = childPages.map((child) => {
-  const row = rowsByOrder.get(Number(child.code.slice(1)));
-  if (!row) throw new Error(`No mapped row for ${child.code}.`);
-  return {
-    code: child.code,
-    page_id: child.page_id,
-    title: child.title,
-    group: groupFor(Number(child.code.slice(1))),
-    notion_url: child.notion_url,
-    internal_path: `./${child.code.toLowerCase()}/`,
-    bank_record_url: row.url,
-    operational_order: row.operational_order,
-    priority: row.priority,
-    official_url: row.official_url,
-    status: row.status,
-    question_target: row.question_target,
-    operational_target_total: row.question_target,
-    questions_done: row.questions_done,
-    flashcards_done: row.flashcards_done,
-    flashcards_meta: row.flashcards_meta,
-    next_step: row.next_step,
-    cargos: row.cargos,
-    action: row.action,
-    cut: row.cut,
-    alert: row.alert,
-    block: row.block,
-    observations: row.observations,
-    orientation_read: row.orientation_read,
-    d0: row.d0,
-    d7: row.d7,
-    d20: row.d20,
-    last_audit: row.last_audit,
-    shared_block: false,
-    shared_codes: [],
-    content_html: contentByCode.get(child.code),
-  };
-});
+const lawCodeByPageId = new Map(bankRows.map((row) => [compactId(row.study_url), row.code]));
+const contentByCode = new Map();
+
+for (const row of bankRows) {
+  const tree = await getBlockTree(compactId(row.study_url));
+  const html = renderBlocks(tree, lawCodeByPageId).trim();
+  const content = html.length >= 40 ? html : fallbackContent(row);
+  if (row.active && content.length < 40) {
+    throw new Error("Study content for " + row.code + " is unexpectedly empty.");
+  }
+  contentByCode.set(row.code, content);
+  console.log(row.code + ": conteúdo interno sincronizado (" + content.length + " caracteres HTML).");
+}
+
+const laws = bankRows.map((row) => ({
+  code: row.code,
+  page_id: compactId(row.study_url),
+  title: row.title,
+  material: row.material,
+  group: groupFor(row.code),
+  record_kind: recordKind(row),
+  active: row.active,
+  notion_url: row.study_url,
+  internal_path: "./" + row.code.toLowerCase() + "/",
+  bank_record_url: row.url,
+  operational_order: row.operational_order,
+  priority: row.priority,
+  official_url: row.official_url,
+  status: row.status,
+  question_target: row.question_target,
+  operational_target_total: row.question_target,
+  questions_done: row.questions_done,
+  flashcards_done: row.flashcards_done,
+  flashcards_meta: row.flashcards_meta,
+  next_step: row.action,
+  cargos: row.cargos,
+  action: row.action,
+  cut: row.cut,
+  alert: row.alert,
+  block: row.block,
+  observations: row.observations,
+  version: row.version,
+  orientation_read: row.orientation_read,
+  d0: row.d0,
+  d7: row.d7,
+  d20: row.d20,
+  last_audit: row.last_audit || row.last_check,
+  last_check: row.last_check,
+  next_review: row.next_review,
+  page_edited_at: null,
+  content_html: contentByCode.get(row.code),
+}));
 
 const priorities = bankRows.reduce((acc, row) => {
   acc[row.priority || "Sem prioridade"] = (acc[row.priority || "Sem prioridade"] || 0) + 1;
   return acc;
 }, {});
+const activeLaws = laws.filter((law) => law.record_kind === "active");
+const radarRows = laws.filter((law) => law.record_kind !== "active");
 
 const snapshot = {
-  schema_version: 3,
+  schema_version: 4,
   source: {
     kind: "notion",
     title: pageTitle(page) || "Leis Primeiro | TJDFT",
@@ -136,29 +128,47 @@ const snapshot = {
     internal_pages: true,
   },
   summary: {
-    pages: childPages.length,
+    pages: laws.length,
     bank_records: bankRows.length,
-    mapped_law_records: expectedOrders.length,
+    mapped_law_records: activeLaws.length,
+    active_records: activeLaws.length,
+    support_records: laws.filter((law) => law.record_kind === "support").length,
+    historical_records: laws.filter((law) => law.record_kind === "historical").length,
     radar_records: radarRows.length,
     priorities,
   },
   study_sequence: [
     "Orientação — leia o recorte prioritário, a vigência e o bloco sugerido da unidade.",
-    "Lei seca — abra a fonte oficial e leia diretamente o recorte indicado.",
+    "Lei seca — abra a fonte oficial vigente e leia diretamente o recorte indicado.",
     "Questões — cumpra a Questões-meta do banco canônico do TJDFT e registre o resultado.",
     "Flashcards — use os cartões da unidade para recuperação ativa, sem fabricar desempenho.",
     "D0 — feche leitura, questões, correções, cartões e registro real.",
     "D7/D20 — revise em paralelo e atualize a data da próxima revisão.",
   ],
-  advance_rule: "Avance após orientação + leitura oficial + questões + flashcards + D0; D7/D20 seguem em paralelo.",
+  advance_rule: "Avance na fila ativa após orientação + leitura oficial + questões + flashcards + D0; D7/D20 seguem em paralelo. Registros de apoio e históricos não bloqueiam a trilha.",
   laws,
-  radars: radarRows,
+  radars: radarRows.map((law) => ({
+    operational_order: law.operational_order,
+    code: law.code,
+    title: law.title,
+    priority: law.priority,
+    official_url: law.official_url,
+    status: law.status,
+    record_kind: law.record_kind,
+    question_target: law.question_target,
+    cargos: law.cargos,
+    action: law.action,
+    cut: law.cut,
+    alert: law.alert,
+    url: law.notion_url,
+  })),
   audit_notes: [
-    "14 páginas D01–D14 usam 14 registros diretamente mapeados no banco canônico do TJDFT.",
-    "A trilha combina Regimento Interno, Código de Ética, Lei nº 11.697/2008 e checkpoints.",
-    "As metas de questões e flashcards são planejamento; os feitos permanecem zero até haver execução.",
-    "D0, D7 e D20 são marcadores operacionais do Notion e não são preenchidos pelo sincronizador.",
-    "As páginas D01–D14 são publicadas como páginas internas do site; o Notion permanece como fonte operacional.",
+    "L01-L21, L25 e L26 são as unidades legislativas ativas; L23 permanece como apoio de requisito.",
+    "L22 e L24 permanecem como arquivo histórico e não entram na fila de estudo.",
+    "As páginas individuais vêm do Notion; o banco operacional continua sendo o registro canônico.",
+    "Técnico e Analista podem compartilhar a fonte, mas não compartilham execução, domínio ou desempenho.",
+    "Metas e marcadores permanecem sem execução até haver estudo real.",
+    "O GitHub é espelho versionado; o Notion permanece como fonte operacional.",
   ],
 };
 
@@ -167,8 +177,8 @@ const previousSnapshot = await readPreviousSnapshot(outputPath);
 if (previousSnapshot?.source?.synced_at && snapshotContent(previousSnapshot) === snapshotContent(snapshot)) {
   snapshot.source.synced_at = previousSnapshot.source.synced_at;
 }
-await writeFile(outputPath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
-console.log(`Leis Primeiro atualizado em ${outputPath}: ${laws.length} páginas internas, ${expectedOrders.length} registros mapeados, ${radarRows.length} radar(es).`);
+await writeFile(outputPath, JSON.stringify(snapshot, null, 2) + "\n", "utf8");
+console.log("Leis Primeiro atualizado: " + laws.length + " páginas Lxx, " + activeLaws.length + " ativas, " + radarRows.length + " fora da fila.");
 
 async function readPreviousSnapshot(filePath) {
   try {
@@ -183,19 +193,13 @@ function snapshotContent(value) {
   return JSON.stringify(value, (key, nested) => key === "synced_at" ? undefined : nested);
 }
 
-function operationalOrderForCode(code) {
-  const number = Number(String(code).replace(/^L/i, ""));
-  if (!Number.isInteger(number) || number < 1 || number > 14) throw new Error(`Invalid law code: ${code}`);
-  return number;
-}
-
 async function getAllChildren(blockId) {
   const results = [];
   let cursor = null;
   do {
     const query = new URLSearchParams({ page_size: "100" });
     if (cursor) query.set("start_cursor", cursor);
-    const response = await request(`/blocks/${blockId}/children?${query}`);
+    const response = await request("/blocks/" + blockId + "/children?" + query);
     results.push(...(response.results || []));
     cursor = response.has_more ? response.next_cursor : null;
   } while (cursor);
@@ -220,7 +224,7 @@ async function queryDataSource(dataSourceId) {
   do {
     const body = { page_size: 100 };
     if (cursor) body.start_cursor = cursor;
-    const response = await request(`/data_sources/${dataSourceId}/query`, {
+    const response = await request("/data_sources/" + dataSourceId + "/query", {
       method: "POST",
       body: JSON.stringify(body),
     });
@@ -329,32 +333,69 @@ function internalLawHref(url, lawMap) {
 
 function parseBankRow(page) {
   const properties = page.properties || {};
+  const material = propertyText(properties, "Material ou norma");
+  const match = material.match(/^(L\d{2})\s*[—–-]\s*(.*)$/i);
   const operationalOrder = propertyNumber(properties, "Ordem");
-  if (!operationalOrder) return null;
+  const studyUrl = propertyUrlOrText(properties, "Página de estudo");
+  if (!match || !operationalOrder || !studyUrl) return null;
   return {
     url: page.url || notionPageUrl(page.id),
+    study_url: studyUrl,
+    code: match[1].toUpperCase(),
+    material,
+    title: material,
     operational_order: operationalOrder,
-    title: propertyText(properties, "Material ou norma"),
+    active: propertyCheckbox(properties, "Leis Primeiro"),
     priority: propertyText(properties, "Prioridade"),
-    official_url: propertyUrl(properties, "Fonte oficial"),
+    official_url: propertyUrlOrText(properties, "Fonte oficial"),
     status: propertyText(properties, "Status"),
     question_target: propertyNumber(properties, "Questões-meta"),
     questions_done: propertyRollupNumber(properties, "Questões feitas"),
     flashcards_done: propertyNumber(properties, "Flashcards feitos"),
     flashcards_meta: propertyNumber(properties, "Flashcards-meta"),
     next_step: propertyText(properties, "Ação atual"),
-    cargos: propertyMultiSelect(properties, "Cargos"),
+    cargos: propertyCargoList(properties),
     action: propertyText(properties, "Ação atual"),
     cut: propertyText(properties, "Recorte prioritário"),
     alert: propertyText(properties, "Vigência / alerta"),
     block: propertyText(properties, "Bloco sugerido"),
     observations: propertyText(properties, "Observações"),
+    version: propertyText(properties, "Versão ou alteração"),
     orientation_read: propertyCheckbox(properties, "Orientação lida"),
     d0: propertyCheckbox(properties, "D0"),
     d7: propertyCheckbox(properties, "D7"),
     d20: propertyCheckbox(properties, "D20"),
     last_audit: propertyDate(properties, "Última auditoria"),
+    last_check: propertyDate(properties, "Última checagem"),
+    next_review: propertyDate(properties, "Próxima revisão"),
   };
+}
+
+function recordKind(row) {
+  if (row.active) return "active";
+  if (row.code === "L23") return "support";
+  return "historical";
+}
+
+function groupFor(code) {
+  const number = Number(String(code).replace(/^L/i, ""));
+  if (number <= 9) return "Núcleo comum";
+  if (number === 10) return "Específico dos dois cargos";
+  if (number === 11) return "Analista — específico";
+  if (number === 12) return "Analista — conhecimentos básicos";
+  if (number >= 13 && number <= 19) return "Técnico — específico";
+  if (number === 20 || number === 21) return "Técnico — conhecimentos básicos";
+  if (number === 22 || number === 24) return "Arquivo histórico";
+  if (number === 23) return "Apoio do cargo";
+  if (number >= 25) return "Técnico — específico";
+  return "Outros";
+}
+
+function fallbackContent(row) {
+  if (row.code === "L24") {
+    return "<h2>Arquivo histórico — não estudar</h2><p>A Lei nº 10.520/2002 está revogada. Esta unidade permanece apenas para rastreabilidade; para licitações e contratos vigentes, estude a <a href=\"../l06/\">L06 — Lei nº 14.133/2021</a>.</p><p><strong>Não gerar leitura, questões, flashcards ou revisão para a L24.</strong></p>";
+  }
+  return "<h2>" + escapeHtml(groupFor(row.code)) + "</h2><p>" + escapeHtml(row.observations || row.alert || "Consulte o registro operacional no Notion.") + "</p>";
 }
 
 function propertyText(properties, name) {
@@ -367,7 +408,12 @@ function propertyText(properties, name) {
   if (property.formula?.type === "string") return property.formula.string || "";
   return "";
 }
-function propertyNumber(properties, name) { const value = properties?.[name]?.number; return typeof value === "number" && Number.isFinite(value) ? value : 0; }
+
+function propertyNumber(properties, name) {
+  const value = properties?.[name]?.number;
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
 function propertyRollupNumber(properties, name) {
   const rollup = properties?.[name]?.rollup;
   if (!rollup) return 0;
@@ -379,25 +425,52 @@ function propertyRollupNumber(properties, name) {
   }, 0);
   return 0;
 }
-function propertyFormula(properties, name) {
-  const formula = properties?.[name]?.formula;
-  if (!formula) return null;
-  if (formula.type === "number") return typeof formula.number === "number" ? formula.number : null;
-  if (formula.type === "string") return formula.string || "";
-  if (formula.type === "boolean") return Boolean(formula.boolean);
-  if (formula.type === "date") return formula.date?.start || null;
-  return null;
+
+function propertyUrlOrText(properties, name) {
+  const property = properties?.[name];
+  if (!property) return "";
+  if (property.url) return property.url;
+  if (property.rich_text) {
+    for (const item of property.rich_text) {
+      const href = item.href || item.text?.link?.url;
+      if (href) return href;
+      const value = item.plain_text || item.text?.content || "";
+      if (/^https?:\/\//i.test(value)) return value;
+    }
+  }
+  return "";
 }
-function propertyUrl(properties, name) { return properties?.[name]?.url || ""; }
-function propertyMultiSelect(properties, name) { return (properties?.[name]?.multi_select || []).map((item) => item.name).filter(Boolean); }
-function propertyCheckbox(properties, name) { return Boolean(properties?.[name]?.checkbox); }
-function propertyDate(properties, name) { return properties?.[name]?.date?.start || null; }
-function pageTitle(page) { const title = Object.values(page?.properties || {}).find((property) => property?.type === "title" || property?.title); return title?.title?.map((item) => item.plain_text || item.text?.content || "").join("") || ""; }
-function notionPageUrl(value) { return `https://app.notion.com/p/${compactId(value)}`; }
-function compactId(value) { return String(value || "").replaceAll("-", "").toLowerCase(); }
-function escapeHtml(value = "") { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;"); }
-function groupFor(number) {
-  if ([2, 5, 9, 12].includes(number)) return "Ética e integridade";
-  if ([7, 13, 14].includes(number)) return "Integração e atualização";
-  return "Estrutura TJDFT";
+
+function propertyCargoList(properties) {
+  const property = properties?.["Cargo-alvo"];
+  if (property?.multi_select) return property.multi_select.map((item) => item.name).filter(Boolean);
+  return propertyText(properties, "Cargo-alvo").split(/\s*;\s*/).map((item) => item.trim()).filter(Boolean);
+}
+
+function propertyCheckbox(properties, name) {
+  return Boolean(properties?.[name]?.checkbox);
+}
+
+function propertyDate(properties, name) {
+  return properties?.[name]?.date?.start || null;
+}
+
+function pageTitle(page) {
+  const title = Object.values(page?.properties || {}).find((property) => property?.type === "title" || property?.title);
+  return title?.title?.map((item) => item.plain_text || item.text?.content || "").join("") || "";
+}
+
+function notionPageUrl(value) {
+  return "https://app.notion.com/p/" + compactId(value);
+}
+
+function compactId(value) {
+  return String(value || "").replaceAll("-", "").toLowerCase();
+}
+
+function escapeHtml(value = "") {
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+function groupForNumber(number) {
+  return groupFor("L" + String(number).padStart(2, "0"));
 }

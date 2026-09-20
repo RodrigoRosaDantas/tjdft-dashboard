@@ -16,8 +16,12 @@ import {
 type Law = {
   code: string;
   title: string;
+  material?: string;
   group: string;
+  record_kind?: "active" | "support" | "historical";
+  active?: boolean;
   notion_url: string;
+  internal_path?: string;
   bank_record_url?: string;
   operational_order?: number;
   priority?: string;
@@ -42,10 +46,12 @@ type Law = {
   flashcards_done?: number;
   flashcards_meta?: number | string | null;
   next_step?: string;
+  version?: string;
 };
 
 type Radar = {
   operational_order: number;
+  code?: string;
   title: string;
   priority: string;
   official_url: string;
@@ -81,8 +87,18 @@ type Snapshot = {
   audit_notes?: string[];
 };
 
-const groups = ["Todos", "Estrutura TJDFT", "Ética e integridade", "Integração e atualização"];
-const priorities = ["Todas", "P0 - Nuclear", "P1 - Alta", "P2 - Complementar", "Radar forte", "Radar"];
+const groups = [
+  "Todos",
+  "Núcleo comum",
+  "Específico dos dois cargos",
+  "Analista — específico",
+  "Analista — conhecimentos básicos",
+  "Técnico — específico",
+  "Técnico — conhecimentos básicos",
+  "Arquivo histórico",
+  "Apoio do cargo",
+];
+const priorities = ["Todas", "P0 - Nuclear", "P1 - Alta", "P2 - Complementar", "Radar"];
 
 function slug(value = "") {
   return value
@@ -113,7 +129,7 @@ function priorityShort(value?: string) {
 }
 
 function isRadarLaw(law: Law) {
-  return /radar/i.test(`${law.action || ""} ${law.priority || ""}`);
+  return law.record_kind !== "active" || /radar/i.test(`${law.action || ""} ${law.priority || ""}`);
 }
 
 function numberValue(value: number | string | null | undefined) {
@@ -226,11 +242,11 @@ export default function LeisPrimeiroPage() {
   ];
   const radarLaws = snapshot?.laws.filter(isRadarLaw) || [];
   const groupNames = groups.slice(1);
-  const totalQuestions = (snapshot?.laws || []).reduce(
+  const totalQuestions = operationalUnits(snapshot?.laws || []).reduce(
     (sum, law) => sum + (law.question_target || 0),
     0,
   );
-  const mappedRecords = snapshot?.summary.mapped_law_records ?? snapshot?.summary.mapped_operational_records ?? 14;
+  const mappedRecords = snapshot?.summary.mapped_law_records ?? snapshot?.summary.mapped_operational_records ?? 23;
   const radarRecords = snapshot?.summary.radar_records ?? snapshot?.radars?.length ?? 0;
   const currentChecks = [
     { label: "Orientação", done: Boolean(currentState?.orientation) },
@@ -264,7 +280,7 @@ export default function LeisPrimeiroPage() {
         <aside className="laws-next-card">
           <div className="laws-next-top"><div><p className="laws-kicker">PRÓXIMA AÇÃO</p><span>Bloco atual · {currentLaw?.code || "—"}</span></div><span className="laws-next-badge">{String(currentStage).padStart(2, "0")} / 05</span></div>
           <div className="laws-next-law"><span className="laws-next-code">{currentLaw?.code || "—"}</span><h2>{currentLaw?.title || "Aguardando dados"}</h2></div>
-          <div className="laws-next-context"><span>{currentLaw ? `${currentLaw.code} / ${snapshot?.laws.length || 14}` : "—"}</span><span>{currentState?.questionTarget || 0} questões-meta</span><span>{currentLaw?.group || "Aguardando"}</span></div>
+          <div className="laws-next-context"><span>{currentLaw ? `${currentLaw.code} / ${snapshot?.laws.length || 26}` : "—"}</span><span>{currentState?.questionTarget || 0} questões-meta</span><span>{currentLaw?.group || "Aguardando"}</span></div>
           <div className="laws-next-focus"><span>{String(currentStage).padStart(2, "0")}</span><div><small>FAÇA AGORA</small><strong>{currentStep}</strong></div></div>
           <p>Feche orientação, leitura, questões, flashcards e D0 antes de avançar. D7/D20 seguem em paralelo.</p>
           <div className="laws-checkpoints">{currentChecks.map(({ label, done }) => <span className={`laws-checkpoint ${done ? "is-done" : ""}`} key={label}>{done ? "✓" : "○"} {label}</span>)}</div>
@@ -289,7 +305,7 @@ export default function LeisPrimeiroPage() {
       <section className="laws-status-strip" aria-label="Estado da trilha">
         <article className="laws-stat-progress"><div className="laws-stat-top"><span className="laws-stat-icon">01</span><span>BLOCOS FECHADOS</span></div><strong>{completedBlocks}/{executableLaws.length}</strong><small>por D0 · D7/D20 não bloqueiam</small></article>
         <article className="laws-stat-questions"><div className="laws-stat-top"><span className="laws-stat-icon">02</span><span>QUESTÕES DE META</span></div><strong>{snapshot ? totalQuestions : "—"}</strong><small>na sequência executável</small></article>
-        <article className="laws-stat-map"><div className="laws-stat-top"><span className="laws-stat-icon">03</span><span>NORMAS NO MAPA</span></div><strong>{snapshot?.summary.pages ?? 14}</strong><small>L01–L14 · 3 trilhas</small></article>
+        <article className="laws-stat-map"><div className="laws-stat-top"><span className="laws-stat-icon">03</span><span>NORMAS NO MAPA</span></div><strong>{snapshot?.summary.pages ?? 26}</strong><small>L01–L26 · fila ativa + apoio/histórico</small></article>
         <article className="laws-stat-source"><div className="laws-stat-top"><span className="laws-stat-icon">04</span><span>FONTE VIVA</span></div><strong>Notion</strong><small>{mappedRecords} mapeados · {radarRecords} radar</small></article>
       </section>
 
@@ -342,7 +358,7 @@ export default function LeisPrimeiroPage() {
         <div className="laws-disclosure-body">
         <div className="laws-audit-grid">
           {(snapshot?.audit_notes || [
-            "14 páginas D01–D14 usam 14 registros operacionais mapeados no banco canônico do TJDFT.",
+            "L01–L26 usam os registros legislativos atuais do banco canônico do TJDFT; 23 entram na fila ativa.",
             "A sequência combina Regimento Interno, Código de Ética, Lei nº 11.697/2008 e checkpoints de integração.",
             "Flashcards, D0, D7 e D20 aparecem na página de cada unidade; métricas só mudam com execução real.",
             "O radar permanece separado da fila diária para não disputar atenção com a próxima norma.",
@@ -353,11 +369,11 @@ export default function LeisPrimeiroPage() {
       </details>
 
       <details className="laws-panel laws-disclosure laws-map-panel" id="mapa-detalhado">
-        <summary><span><b>📚 CONSULTA RÁPIDA</b><strong>Mapa detalhado L01–L14</strong><small>Uma linha por norma: ação, prioridade, meta e revisões.</small></span><span>abrir mapa</span></summary>
+        <summary><span><b>📚 CONSULTA RÁPIDA</b><strong>Mapa detalhado L01–L26</strong><small>Uma linha por norma: ação, prioridade, meta e revisões.</small></span><span>abrir mapa</span></summary>
         <div className="laws-disclosure-body">
         <div className="laws-heading laws-list-heading">
-          <div><p className="laws-kicker">ORDEM REAL DE ESTUDO</p><h2>L01–L14</h2><p>Busque por lei, tema, cargo ou alerta. Abra o cartão para ver recorte, vigência, observações e o estado das revisões.</p></div>
-          <span className="laws-result-count">{filtered.length} de {snapshot?.laws.length ?? 34}</span>
+          <div><p className="laws-kicker">ORDEM REAL DE ESTUDO</p><h2>L01–L26</h2><p>Busque por lei, tema, cargo ou alerta. Abra o cartão para ver recorte, vigência, observações e o estado das revisões.</p></div>
+          <span className="laws-result-count">{filtered.length} de {snapshot?.laws.length ?? 26}</span>
         </div>
 
         <div className="laws-toolbar">
@@ -390,12 +406,16 @@ export default function LeisPrimeiroPage() {
                       <h4>{law.title}</h4>
                       <div className="law-meta-row"><span>{law.action || "Estudar"}</span><span>•</span><span>{law.status || "Não iniciado"}</span>{law.operational_order ? <><span>•</span><span>ordem {law.operational_order}</span></> : null}</div>
                       <div className="law-cargos">{(law.cargos || []).map((cargo) => <span key={cargo}>{cargo}</span>)}</div>
-                      <div className="law-progress" aria-label={`Estado de revisão de ${law.code}`}>
-                        <span className={law.orientation_read ? "is-done" : ""}>Orientação {law.orientation_read ? "✓" : "—"}</span>
-                        <span className={law.d0 ? "is-done" : ""}>D0 {law.d0 ? "✓" : "—"}</span>
-                        <span className={law.d7 ? "is-done" : ""}>D7 {law.d7 ? "✓" : "—"}</span>
-                        <span className={law.d20 ? "is-done" : ""}>D20 {law.d20 ? "✓" : "—"}</span>
-                      </div>
+                      {law.record_kind !== "active" ? (
+                        <div className="law-inactive-note">{law.record_kind === "support" ? "Apoio do cargo · fora da fila ativa" : "Arquivo histórico · não estudar"}</div>
+                      ) : (
+                        <div className="law-progress" aria-label={`Estado de revisão de ${law.code}`}>
+                          <span className={law.orientation_read ? "is-done" : ""}>Orientação {law.orientation_read ? "✓" : "—"}</span>
+                          <span className={law.d0 ? "is-done" : ""}>D0 {law.d0 ? "✓" : "—"}</span>
+                          <span className={law.d7 ? "is-done" : ""}>D7 {law.d7 ? "✓" : "—"}</span>
+                          <span className={law.d20 ? "is-done" : ""}>D20 {law.d20 ? "✓" : "—"}</span>
+                        </div>
+                      )}
                       {(law.cut || law.alert || law.block || law.observations) ? (
                         <button
                           className="law-details-button"
@@ -417,7 +437,8 @@ export default function LeisPrimeiroPage() {
                       ) : null}
                       {law.shared_block ? <div className="law-shared-note"><CircleAlert size={14} /> L30–L32 compartilham uma única meta operacional de 10 questões.</div> : null}
                       <div className="law-actions">
-                        <a href={law.notion_url} target="_blank" rel="noreferrer">Página da lei <ExternalLink size={14} /></a>
+                        {law.internal_path ? <a href={law.internal_path}>Abrir no site <ExternalLink size={14} /></a> : null}
+                        <a href={law.notion_url} target="_blank" rel="noreferrer">Página no Notion <ExternalLink size={14} /></a>
                         {law.bank_record_url ? <a href={law.bank_record_url} target="_blank" rel="noreferrer">Registro operacional <ExternalLink size={14} /></a> : null}
                         {law.official_url ? <a href={law.official_url} target="_blank" rel="noreferrer">Fonte oficial <ExternalLink size={14} /></a> : null}
                       </div>
@@ -431,11 +452,11 @@ export default function LeisPrimeiroPage() {
         </div>
       </details>
 
-      {(radarLaws.length || snapshot?.radars?.length) ? (
+      {radarLaws.length ? (
         <section className="laws-panel laws-radar" id="radar">
-          <div className="laws-heading"><div><p className="laws-kicker">RADAR · FORA DA FILA DIÁRIA</p><h2>Monitorar sem disputar atenção</h2><p>Itens de vigência, carreira e atualização normativa permanecem separados da execução.</p></div><span className="laws-chip priority-radar">{radarLaws.length + (snapshot?.radars?.length || 0)} itens</span></div>
+          <div className="laws-heading"><div><p className="laws-kicker">RADAR · FORA DA FILA DIÁRIA</p><h2>Monitorar sem disputar atenção</h2><p>Itens de vigência, carreira e atualização normativa permanecem separados da execução.</p></div><span className="laws-chip priority-radar">{radarLaws.length} itens</span></div>
           {radarLaws.map((law) => <article key={law.code}><div><strong>{law.code} · {law.title}</strong><span>{law.priority || "Radar"} · meta {law.question_target || 0}</span></div><a href={`./${law.code.toLowerCase()}/`}>Abrir página <ExternalLink size={14} /></a></article>)}
-          {(snapshot?.radars || []).map((radar) => <article key={radar.operational_order}><div><strong>R{radar.operational_order} · {radar.title}</strong><span>{radar.priority} · fora da sequência L01–L14</span></div><a href={radar.official_url || radar.url} target="_blank" rel="noreferrer">Abrir fonte <ExternalLink size={14} /></a></article>)}
+          
         </section>
       ) : null}
 

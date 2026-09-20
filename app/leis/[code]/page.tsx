@@ -3,7 +3,7 @@ import LawDetailClient from "./law-detail-client";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return Array.from({ length: 14 }, (_, index) => ({
+  return Array.from({ length: 26 }, (_, index) => ({
     code: `l${String(index + 1).padStart(2, "0")}`,
   }));
 }
