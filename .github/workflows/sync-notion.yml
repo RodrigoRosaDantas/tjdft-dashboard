@@ -1,6 +1,7 @@
 name: Sincronizar snapshot TJDFT
 
 on:
+  # Mantém o disparo manual disponível para atualizações editoriais do Notion.
   workflow_dispatch:
   push:
     branches: [main]
