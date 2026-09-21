@@ -317,3 +317,255 @@
   .portugues-detail-hero { padding: 23px 17px 20px; border-radius: 18px; }
   .portugues-detail-hero h1 { font-size: clamp(30px, 8.8vw, 38px); }
 }
+
+/* Página principal da trilha: cabeçalho compacto e método legível em telas estreitas. */
+.laws-page.portugues-page .laws-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.laws-page.portugues-page .laws-back {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.laws-page.portugues-page .laws-topbar-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+.laws-page.portugues-page .laws-sync {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border: 1px solid rgba(117, 103, 223, .22);
+  border-radius: 9px;
+  font-size: 10px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.laws-page.portugues-page .laws-sync .laws-live-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #36bfae;
+}
+.portugues-sync-date { font-variant-numeric: tabular-nums; }
+.portugues-sync-short { display: none; }
+.portugues-page .laws-hero h1 { color: #fff !important; }
+
+.laws-page.portugues-page .portugues-method {
+  width: 100%;
+  max-width: 1220px;
+  box-sizing: border-box;
+  margin: 0 auto 18px;
+  padding: clamp(21px, 3vw, 30px);
+  border: 1px solid #d9deec;
+  border-radius: 19px;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 14px 30px rgba(40, 45, 75, .055);
+}
+.laws-page.portugues-page .portugues-method .laws-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 22px;
+}
+.laws-page.portugues-page .portugues-method .laws-heading > div { min-width: 0; }
+.laws-page.portugues-page .portugues-method .laws-heading .laws-kicker {
+  margin: 0;
+  color: #716bb5;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+.laws-page.portugues-page .portugues-method .laws-heading h2 {
+  margin: 8px 0 8px;
+  color: var(--track-ink) !important;
+  font-size: clamp(25px, 3vw, 34px) !important;
+  line-height: 1.14;
+  letter-spacing: -.02em;
+}
+.laws-page.portugues-page .portugues-method .laws-heading p:not(.laws-kicker) {
+  max-width: 760px;
+  margin: 0;
+  color: #687187;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.laws-page.portugues-page .portugues-method .laws-heading > svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+.laws-page.portugues-page .portugues-method .laws-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+.laws-page.portugues-page .portugues-method .laws-step {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 13px;
+  box-sizing: border-box;
+  border: 1px solid #e0e3ed;
+  border-radius: 13px;
+  background: #fbfbff;
+}
+.laws-page.portugues-page .portugues-method .laws-step > span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #4f47a6;
+  background: #ece9ff;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+.laws-page.portugues-page .portugues-method .laws-step p {
+  min-width: 0;
+  margin: 2px 0 0;
+  color: #3f4860;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.laws-page.portugues-page .portugues-method .laws-rule {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 1px solid #e0e3ed;
+  border-radius: 11px;
+  color: #5a6376;
+  background: #f7f8fc;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.laws-page.portugues-page .portugues-method .laws-rule svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #7567df;
+}
+.laws-page.portugues-page .portugues-method .laws-rule strong { color: #3b4165; }
+.laws-page.portugues-page .portugues-method .laws-rule > span { min-width: 0; }
+
+@media (max-width: 900px) {
+  .laws-page.portugues-page .portugues-method .laws-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .laws-page.portugues-page .laws-topbar {
+    height: auto !important;
+    min-height: 60px;
+    padding: 10px 0;
+    align-items: center;
+    gap: 8px;
+  }
+  .laws-page.portugues-page .laws-back {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .laws-page.portugues-page .laws-topbar-tools { gap: 5px; }
+  .laws-page.portugues-page .laws-sync {
+    flex: 0 0 auto;
+    max-width: none;
+    padding: 6px 8px;
+    font-size: 9px;
+    line-height: 1;
+  }
+  .laws-page.portugues-page .portugues-sync-source,
+  .laws-page.portugues-page .portugues-sync-separator,
+  .laws-page.portugues-page .portugues-sync-date {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .laws-page.portugues-page .portugues-sync-short {
+    display: inline;
+    font-weight: 800;
+  }
+  .laws-page.portugues-page .portugues-method {
+    margin-bottom: 14px;
+    padding: 20px 16px 18px;
+    border-radius: 16px;
+  }
+  .laws-page.portugues-page .portugues-method .laws-heading {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .laws-page.portugues-page .portugues-method .laws-heading > svg {
+    width: 18px;
+    height: 18px;
+    padding: 7px;
+    margin-top: 0;
+    border-radius: 10px;
+    background: #ece9ff;
+  }
+  .laws-page.portugues-page .portugues-method .laws-heading h2 {
+    margin-top: 7px;
+    font-size: 24px !important;
+    line-height: 1.16;
+  }
+  .laws-page.portugues-page .portugues-method .laws-heading p:not(.laws-kicker) {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .laws-page.portugues-page .portugues-method .laws-steps {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .laws-page.portugues-page .portugues-method .laws-step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 9px;
+    padding: 12px;
+  }
+  .laws-page.portugues-page .portugues-method .laws-step > span {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+  .laws-page.portugues-page .portugues-method .laws-step p { font-size: 13px; line-height: 1.45; }
+  .laws-page.portugues-page .portugues-method .laws-rule {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    gap: 7px;
+    margin-top: 13px;
+    padding: 11px 12px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+}

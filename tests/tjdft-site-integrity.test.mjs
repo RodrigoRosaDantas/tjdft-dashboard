@@ -161,3 +161,19 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(editalExport, /previousSnapshot\?\.generatedAt/);
   assert.match(workflow, /deno run --allow-net --allow-env --allow-read --allow-write scripts\/export-edital-verticalizado\.ts/);
 });
+
+test("mantém a trilha Português + RLM legível no celular", async () => {
+  const [page, styles] = await Promise.all([
+    read("app/portugues-rlm/page.tsx"),
+    read("app/portugues-rlm/portugues-rlm.css"),
+  ]);
+  assert.match(page, /portugues-sync-source/);
+  assert.match(page, /portugues-sync-short/);
+  assert.match(page, /className="laws-panel portugues-method"/);
+  assert.match(page, /portugues-method-step/);
+  assert.match(styles, /portugues-page \.laws-sync/);
+  assert.match(styles, /portugues-method \.laws-steps/);
+  assert.match(styles, /portugues-method \.laws-rule/);
+  assert.match(styles, /portugues-page \.laws-hero h1 \\{ color: #fff !important; \\}/);
+  assert.match(styles, /@media \\(max-width: 700px\\)/);
+});

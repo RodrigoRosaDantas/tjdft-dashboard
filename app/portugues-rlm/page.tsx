@@ -92,7 +92,16 @@ export default function PortuguesRlmPage() {
     <main className="laws-page portugues-page">
       <header className="laws-topbar">
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Dashboard TJDFT</a>
-        <div className="laws-topbar-tools"><ReadingSettings /><div className="laws-sync"><span className="laws-live-dot" /> Notion → GitHub · {formatDate(snapshot?.source.synced_at)}</div></div>
+        <div className="laws-topbar-tools">
+          <ReadingSettings />
+          <div className="laws-sync" aria-label={`Sincronização Notion para GitHub: ${formatDate(snapshot?.source.synced_at)}`}>
+            <span className="laws-live-dot" aria-hidden="true" />
+            <span className="portugues-sync-source">Notion → GitHub</span>
+            <span className="portugues-sync-separator" aria-hidden="true">·</span>
+            <time className="portugues-sync-date" dateTime={snapshot?.source.synced_at || undefined}>{formatDate(snapshot?.source.synced_at)}</time>
+            <span className="portugues-sync-short" aria-hidden="true">Sincronizado</span>
+          </div>
+        </div>
       </header>
 
       <section className="laws-hero">
@@ -136,10 +145,10 @@ export default function PortuguesRlmPage() {
         <article className="laws-stat-source portugues-stat-source"><div className="laws-stat-top"><span className="laws-stat-icon">04</span><span>FONTE OPERACIONAL</span></div><strong>Notion</strong><small>GitHub publica o espelho</small></article>
       </section>
 
-      <section className="laws-panel" id="metodo">
+      <section className="laws-panel portugues-method" id="metodo">
         <div className="laws-heading"><div><p className="laws-kicker">MÉTODO DE ESTUDO</p><h2>Página que ensina, banco que controla.</h2><p>O site leva para o material completo e preserva o Notion como registro de execução.</p></div><BookOpen size={21} color="#5e54bd" /></div>
         <div className="laws-steps">
-          {(snapshot?.study_sequence || ["Teoria", "Macetes e alertas", "Questões", "Caderno de erros", "Flashcards", "D0 / D7 / D20"]).map((step, index) => <article className="laws-step" key={step}><span>{index + 1}</span><p>{step}</p></article>)}
+          {(snapshot?.study_sequence || ["Teoria", "Macetes e alertas", "Questões", "Caderno de erros", "Flashcards", "D0 / D7 / D20"]).map((step, index) => <article className="laws-step portugues-method-step" key={step}><span aria-hidden="true">{index + 1}</span><p>{step}</p></article>)}
         </div>
         <div className="laws-rule"><Sparkles size={18} /><strong>Regra:</strong><span>{snapshot?.advance_rule || "A Ordem da esteira decide a navegação; a execução real fica no Notion."}</span></div>
       </section>
