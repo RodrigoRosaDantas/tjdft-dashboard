@@ -427,7 +427,10 @@ function sanitizePublicStudyHtml(value = "") {
 
   // Preserve the pedagogical label without publishing a personal-history
   // marker that can reveal the source of the prioritisation.
-  html = html.replace(/hist[óo]rico\s+pessoal/gi, "diagnóstico editorial");
+  html = html
+    .replace(/controle\s+operacional/gi, "registro de estudo")
+    .replace(/hist[óo]rico\s+pessoal/gi, "diagnóstico editorial")
+    .replace(/sinal\s+do\s+hist[óo]rico\s+pessoal/gi, "diagnóstico editorial");
   return html.replace(/\s{2,}/g, " ").trim();
 }
 

@@ -49,7 +49,7 @@ test("preserva a esteira intercalada de Português + RLM", async () => {
   for (const unit of snapshot.units) {
     assert.doesNotMatch(unit.content_html || "", /NAVEGAÇÃO|NAVEGAÇÃO DA TRILHA|FIM DO (?:P|RL|REV)\d+/i, unit.code);
     assert.doesNotMatch(headingText(unit.content_html), /(?:Controle operacional|Sinal do histórico pessoal|Histórico e prioridade)/i, unit.code);
-    assert.doesNotMatch(unit.content_html || "", /O controle registra|Sinal do histórico pessoal|Leitura correta desse histórico|histórico pessoal/i, unit.code);
+    assert.doesNotMatch(unit.content_html || "", /controle\s+operacional|O controle registra|Sinal do histórico pessoal|Leitura correta desse histórico|histórico pessoal/i, unit.code);
   }
 });
 
