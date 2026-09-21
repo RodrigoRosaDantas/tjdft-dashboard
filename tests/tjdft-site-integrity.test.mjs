@@ -154,4 +154,5 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(dashboard, /clearTimeout\(timeout\)/);
   assert.match(editalExport, /stableSnapshot/);
   assert.match(editalExport, /previousSnapshot\?\.generatedAt/);
+  assert.match(workflow, /deno run --allow-net --allow-env --allow-read --allow-write scripts\/export-edital-verticalizado\.ts/);
 });

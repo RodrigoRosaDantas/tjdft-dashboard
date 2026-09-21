@@ -55,7 +55,7 @@ jobs:
       - name: Gerar snapshots a partir do Notion privado
         run: |
           deno run --allow-net --allow-env --allow-read --allow-write supabase/functions/tjdft-notion/sync.ts
-          deno run --allow-net --allow-env --allow-write scripts/export-edital-verticalizado.ts
+          deno run --allow-net --allow-env --allow-read --allow-write scripts/export-edital-verticalizado.ts
           node scripts/sync-leis-primeiro.mjs
           node scripts/sync-portugues-rlm.mjs
           node scripts/sync-legislation-bank.mjs
