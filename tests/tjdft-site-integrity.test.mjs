@@ -50,6 +50,11 @@ test("preserva a esteira intercalada de Português + RLM", async () => {
     assert.doesNotMatch(unit.content_html || "", /NAVEGAÇÃO|NAVEGAÇÃO DA TRILHA|FIM DO (?:P|RL|REV)\d+/i, unit.code);
     assert.doesNotMatch(headingText(unit.content_html), /(?:Controle operacional|Sinal do histórico pessoal|Histórico e prioridade)/i, unit.code);
     assert.doesNotMatch(unit.content_html || "", /controle\s+operacional|O controle registra|Sinal do histórico pessoal|Leitura correta desse histórico|histórico pessoal/i, unit.code);
+    const headingIds = [...(unit.content_html || "").matchAll(/<h[23]\b[^>]*\bid="([^"]+)"[^>]*>/gi)].map((match) => match[1]);
+    const indexBlock = (unit.content_html || "").match(/<details\b[^>]*\bstudy-index\b[^>]*>[\s\S]*?<\/details>/i)?.[0] || "";
+    const indexHrefs = [...indexBlock.matchAll(/href="#([^"]+)"/gi)].map((match) => match[1]);
+    assert.ok(indexBlock, `Índice da aula ausente: ${unit.code}`);
+    assert.deepEqual(indexHrefs, headingIds, `Índice sem correspondência com os títulos: ${unit.code}`);
   }
 });
 

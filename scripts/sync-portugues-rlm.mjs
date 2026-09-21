@@ -79,7 +79,8 @@ const contentByCode = new Map();
 for (const row of rows.slice().sort((left, right) => left.canonical_order - right.canonical_order)) {
   const tree = await getBlockTree(apiId(row.study_url));
   const rendered = sanitizePublicStudyHtml(renderBlocks(tree, codeByPageId).trim());
-  const content = rendered.length >= 80 ? rendered : fallbackContent(row);
+  const baseContent = rendered.length >= 80 ? rendered : fallbackContent(row);
+  const content = withStudyIndex(baseContent, row.code);
   if (row.material_ready && content.length < 500) {
     throw new Error(`Material pronto sem conteúdo suficiente: ${row.code}.`);
   }
@@ -329,6 +330,37 @@ function fallbackContent(row) {
     ? "O conteúdo editorial foi marcado como pronto, mas o espelho ainda não trouxe blocos suficientes. Abra a fonte operacional para conferir a página completa."
     : "Esta unidade ainda está em desenvolvimento editorial. O site mostra a posição oficial na esteira e o Notion permanece como fonte de trabalho.";
   return `<h2>${escapeHtml(row.title)}</h2><p>${escapeHtml(state)}</p><p><a href="${escapeHtml(row.study_url)}" target="_blank" rel="noreferrer">Abrir a página completa no Notion ↗</a></p>`;
+}
+
+function withStudyIndex(html, code) {
+  const headings = [];
+  let headingNumber = 0;
+  const anchoredHtml = String(html || "").replace(/<h([23])\b[^>]*>([\s\S]*?)<\/h\1>/gi, (heading, level, inner) => {
+    const label = stripHtml(inner);
+    if (!label) return heading;
+    headingNumber += 1;
+    const id = `${String(code).toLowerCase()}-${slugifyHeading(label)}-${headingNumber}`;
+    headings.push({ id, label, level: Number(level) });
+    return `<h${level} id="${id}">${inner}</h${level}>`;
+  });
+
+  if (!headings.length) return anchoredHtml;
+
+  const indexHtml = `<details class="study-toggle study-index"><summary>🧭 Índice da aula</summary><nav class="study-index-nav" aria-label="Seções da aula"><ol>${headings.map((heading) => `<li class="study-index-level-${heading.level}"><a href="#${heading.id}">${escapeHtml(heading.label)}</a></li>`).join("")}</ol></nav></details>`;
+  const existingIndex = /<details\b[^>]*class=["'][^"']*\bstudy-toggle\b[^"']*["'][^>]*>\s*<summary>[\s\S]*?Índice da aula[\s\S]*?<\/summary>[\s\S]*?<\/details>/i;
+  return existingIndex.test(anchoredHtml)
+    ? anchoredHtml.replace(existingIndex, indexHtml)
+    : indexHtml + anchoredHtml;
+}
+
+function slugifyHeading(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "secao";
 }
 
 function propertyText(properties, name) {

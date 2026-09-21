@@ -199,6 +199,13 @@
 .portugues-detail-grid .study-html .study-toggle[open] summary { border-bottom: 1px solid #e4e6ef; }
 .portugues-detail-grid .study-html .study-toggle > :not(summary) { margin-right: 15px; margin-left: 15px; }
 .portugues-detail-grid .study-html .study-toggle > :last-child { margin-bottom: 15px; }
+.portugues-detail-grid .study-html .study-index { margin-bottom: 22px; }
+.portugues-detail-grid .study-html .study-index-nav { padding: 0 15px 14px; }
+.portugues-detail-grid .study-html .study-index-nav ol { margin: 11px 0 0; padding-left: 1.45em; }
+.portugues-detail-grid .study-html .study-index-nav li { margin: .35em 0; padding-left: .15em; }
+.portugues-detail-grid .study-html .study-index-nav li.study-index-level-3 { margin-left: 1em; font-size: .94em; }
+.portugues-detail-grid .study-html .study-index-nav a { color: #4d45a5; text-decoration: none; }
+.portugues-detail-grid .study-html .study-index-nav a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .portugues-detail-grid .study-html .study-todo {
   display: flex;
   align-items: flex-start;
@@ -260,6 +267,8 @@
   .portugues-detail-grid .study-html th,
   .portugues-detail-grid .study-html td { min-width: 140px; padding: 9px 10px; font-size: 13px; }
   .portugues-detail-grid .study-html .study-toggle summary { padding: 13px 14px; }
+  .portugues-detail-grid .study-html .study-index-nav { padding: 0 14px 14px; }
+  .portugues-detail-grid .study-html .study-index-nav li.study-index-level-3 { margin-left: .45em; }
   .portugues-detail-side { padding: 18px; border-radius: 15px; }
   .portugues-detail-nav { margin-top: 14px; }
   .portugues-detail-nav a { min-height: 44px; }
