@@ -171,7 +171,7 @@ test("mantém a trilha Português + RLM legível no celular", async () => {
   assert.match(page, /portugues-sync-short/);
   assert.match(page, /className="laws-panel portugues-method"/);
   assert.match(page, /portugues-method-step/);
-  assert.match(styles, /portugues-page \.laws-hero h1 \{ color: #fff !important; \}/);
+  assert.match(styles, /portugues-page \.laws-sync/);
   assert.match(styles, /portugues-method \.laws-steps/);
   assert.match(styles, /portugues-method \.laws-rule/);
   assert.match(styles, /portugues-page \.laws-hero h1 \{ color: #fff !important; \}/);
