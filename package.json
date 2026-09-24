@@ -11,7 +11,7 @@
     "start": "vinext start",
     "test": "GITHUB_PAGES=1 GITHUB_PAGES_BASE_PATH=/tjdft-dashboard npm run build && node --test tests/*.test.mjs",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
