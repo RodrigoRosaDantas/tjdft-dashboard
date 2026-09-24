@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { buildTJDFTIntelligence, evidenceClass } from "../app/intelligence/tjdft-intelligence.mjs";
 
 const seq=["P01","P02","P03","RL01","P04","REV01","P05","P06","RL02","P07","P08","REV02","P09","RL03","P10","P11","P12","REV03","RL04","P13","P14","P15","RL05","REV04","P16","P17","P18","RL06","RL07","REV05","RL08","RL09","RL10","RL11","RL12","REV06","RL13"];
-const base=()=>({dashboard:{source:{synced_at:"2026-09-24T09:00:00Z"},dashboard:{phase:"pré-edital",jobs:2},execution:{c01:{days:[],totals:{},subjects:[]}}},portuguese:{sequence:seq,units:seq.map((code,i)=>({code,canonical_order:i+1,title:code,material_ready:i===0,internal_path:\`/portugues-rlm/\${code.toLowerCase()}/\`}))},laws:{laws:[]},edital:{items:[]}});
+const base=()=>({dashboard:{source:{synced_at:"2026-09-24T09:00:00Z"},dashboard:{phase:"pré-edital",jobs:2},execution:{c01:{days:[],totals:{},subjects:[]}}},portuguese:{sequence:seq,units:seq.map((code,i)=>({code,canonical_order:i+1,title:code,material_ready:i===0,internal_path:`/portugues-rlm/${code.toLowerCase()}/`}))},laws:{laws:[]},edital:{items:[]}});
 
 test("ausência não vira zero de desempenho",()=>{const m=buildTJDFTIntelligence(base(),"2026-09-24T10:00:00Z");assert.equal(m.execution.precision,null);assert.equal(m.strengths.length,0);assert.equal(m.weaknesses.length,0);});
 test("3/3 permanece amostra muito pequena",()=>assert.equal(evidenceClass(3,1).key,"very-small"));
