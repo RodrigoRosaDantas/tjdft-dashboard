@@ -7,6 +7,7 @@ on:
       - "tests/**"
       - "scripts/prepare-github-pages.mjs"
       - ".github/workflows/study-os-qa.yml"
+      - ".github/workflows/post-deploy-smoke.yml"
   push:
     branches: [main]
   workflow_dispatch:
