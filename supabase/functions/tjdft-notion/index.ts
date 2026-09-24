@@ -401,6 +401,8 @@ function buildExecutionSnapshot(
   const dayStats = new Map<string, AnyRecord>();
   const subjects = new Map<string, AnyRecord>();
   for (const item of questions) {
+    const day = item.day;
+    if (!day) continue;
     const properties = item.page.properties || {};
     const result = propertyText(properties, "Resultado");
     const done = propertyNumber(properties, ["Questões reais", "Questões feitas"]) ||
@@ -412,12 +414,12 @@ function buildExecutionSnapshot(
     const doubts = propertyNumber(properties, "Acertos com dúvida") ||
       (propertyCheckbox(properties, "Acerto com dúvida") ? 1 : 0) ||
       (/dúvida|duvida/i.test(result) ? 1 : 0);
-    const stats = dayStats.get(item.day) || { done: 0, correct: 0, errors: 0, doubts: 0 };
+    const stats = dayStats.get(day) || { done: 0, correct: 0, errors: 0, doubts: 0 };
     stats.done += done;
     stats.correct += correct;
     stats.errors += errors;
     stats.doubts += doubts;
-    dayStats.set(item.day, stats);
+    dayStats.set(day, stats);
 
     const subject = propertyText(properties, "Matéria") || "Sem matéria";
     const row = subjects.get(subject) || {
@@ -777,8 +779,8 @@ function buildOperationalSnapshot(
       doubts: totalDoubts,
       annulled: answered.length - effectiveQuestions.length,
       precision: effectiveQuestions.length ? totalCorrect / effectiveQuestions.length : null,
-      by_subject: Array.from(bySubject.values()).map((row) => ({ ...row, subject: row.key })).sort((a, b) => b.total - a.total),
-      by_cargo: Array.from(byCargo.values()).map((row) => ({ ...row, cargo: row.key })).sort((a, b) => b.total - a.total),
+      by_subject: Array.from(bySubject.values()).map((row: AnyRecord): AnyRecord => ({ ...row, subject: row.key })).sort((a: AnyRecord, b: AnyRecord) => (Number(b.total) || 0) - (Number(a.total) || 0)),
+      by_cargo: Array.from(byCargo.values()).map((row: AnyRecord): AnyRecord => ({ ...row, cargo: row.key })).sort((a: AnyRecord, b: AnyRecord) => (Number(b.total) || 0) - (Number(a.total) || 0)),
       by_date: Array.from(byDate.values()).map((row) => ({ ...row, date: row.key })).sort((a, b) => a.date.localeCompare(b.date)),
     },
     errors: {
@@ -911,7 +913,7 @@ function extractSequentialMaterials(text: string, sourceUrl: string) {
       detail: "Material sequencial atemporal do Notion.",
       href: sourceUrl,
     };
-  }).filter(Boolean).sort((a, b) => a.order - b.order);
+  }).filter((item): item is AnyRecord => Boolean(item)).sort((a, b) => a.order - b.order);
 }
 
 function buildMaterialsSnapshot(
@@ -935,7 +937,7 @@ function buildMaterialsSnapshot(
     .map((line) => line.trim())
     .filter((line) => /^D\d{2}\b/i.test(line))
     .map((line) => parseReadingDay(line, materialPages))
-    .filter(Boolean);
+    .filter((item): item is AnyRecord => Boolean(item));
   const legislationByDay = new Map(legislation.map((item) => [item.day, item]));
   const days = Array.from(new Set([...materialTitles.keys(), ...legislationByDay.keys()])).map((day) => {
     const law = legislationByDay.get(day);
