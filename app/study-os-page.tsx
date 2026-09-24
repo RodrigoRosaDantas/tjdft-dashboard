@@ -90,18 +90,23 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
       {m.sequence.units.map((u:any)=><a key={u.code} href={(root?"./":"../")+"portugues-rlm/"+u.code.toLowerCase()+"/"}><b>{u.canonical_order}. {u.code}</b><span>{u.title}</span><em>{u.study_state||"sem estado operacional"} · D0 {u.d0==null?"—":u.d0?"✓":"○"} · D7 {u.d7==null?"—":u.d7?"✓":"○"} · D20 {u.d20==null?"—":u.d20?"✓":"○"} · {u.material_ready?"material pronto":"em edição"}</em></a>)}
     </div></section>}
 
-    {view==="agenda" && <section className="os-card os-table-card"><h2>Agenda unificada</h2><Notice>Sem datas reais suficientes, itens sem vencimento não são classificados artificialmente como atrasados.</Notice><div className="os-list">{m.agenda.map((a:any,i:number)=><div key={a.code+i}><b>{a.code}</b><span>{a.title}</span><em>{a.state}{a.date?` · ${a.date}`:" · data —"}</em></div>)}</div></section>}
+    {view==="agenda" && <section className="os-card os-table-card"><h2>Agenda unificada</h2><Notice>Vencida/hoje só existe quando há data real. REV sem data permanece programada.</Notice><div className="os-list">{m.agenda.map((a:any,i:number)=><div key={a.code+i}><b>{a.code}</b><span>{a.title}</span><em>{a.state} · {shortDate(a.date)}</em></div>)}</div></section>}
 
-    {view==="revisoes" && <section className="os-card os-table-card"><h2>REV01–REV06</h2><Notice>D0/D7/D20 só entram como “hoje” ou “vencida” quando houver data real confiável.</Notice><div className="os-list">{m.reviews.map((r:any)=><div key={r.code}><b>{r.code}</b><span>{r.title}</span><em>{r.materialReady?"material pronto":"em edição"} · execução: —</em></div>)}</div></section>}
+    {view==="revisoes" && <div className="os-grid">
+      <section className="os-card os-wide"><h2>REV01–REV06 · revisões formais</h2><div className="os-list">{m.reviews.map((r:any)=><div key={r.code}><b>{r.code}</b><span>{r.title}</span><em>{r.status} · {r.materialReady?"material pronto":"em edição"}</em></div>)}</div></section>
+      <section className="os-card os-wide"><h2>Revisões datadas</h2><Notice>D0/D7/D20 não recebem datas inventadas. Questões e erros entram aqui apenas quando o Notion traz Próxima revisão.</Notice><div className="os-list">{m.agenda.filter((item:any)=>item.date).map((item:any,i:number)=><div key={item.code+i}><b>{item.type}</b><span>{item.title}</span><em>{item.state} · {shortDate(item.date)}</em></div>)}</div></section>
+    </div>}
 
     {view==="erros" && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Fragilidades ativas</h2>{m.weaknesses.length?m.weaknesses.map((w:any)=><p key={w.subject}><b>{w.subject}</b> · {w.reason}</p>):<Notice>Não há fragilidade sustentada pela amostra pública atual. Isso não significa “zero erros”.</Notice>}</section>
-      <section className="os-card"><h2>Regra</h2><p>Erro fechado/validado não continua ativo. Sem status confiável, o site não fabrica reincidência.</p></section>
+      <section className="os-card os-wide"><h2>Erros ativos</h2>{m.activeErrors.length?<div className="os-list">{m.activeErrors.map((item:any,i:number)=><div key={i}><b>{item.severity||"Sem gravidade"}</b><span>{item.topic||item.subject}{item.pattern?" · "+item.pattern:""}</span><em>{item.state}{item.recurrence?" · reincidência "+item.recurrence:""}{item.review_at?" · "+shortDate(item.review_at):""}</em></div>)}</div>:<Notice>{m.errorCount===0?"O Notion confirma zero erro ativo.":"Não há erro ativo publicável com evidência suficiente."}</Notice>}</section>
+      <section className="os-card"><h2>Fragilidades estatísticas</h2><p>{m.weaknesses.length?m.weaknesses.map((w:any)=>w.subject+" ("+w.questions+" questões)").join(", "):"Nenhuma fragilidade declarada por amostra."}</p></section>
+      <section className="os-card"><h2>Regra de fechamento</h2><p>Resolvido e Arquivado saem da fila ativa. Reincidência e gravidade aumentam prioridade; ausência de registro não vira “zero erro”.</p></section>
     </div>}
 
     {view==="desempenho" && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Leitura conservadora</h2><p>Precisão: <b>{percent(m.execution.precision)}</b> · questões: <b>{m.execution.questions||"—"}</b> · sessões datadas: <b>{m.execution.sessions||"—"}</b>.</p><p>Tendência: {m.execution.trend}.</p></section>
-      <section className="os-card"><h2>Forças</h2><p>{m.strengths.length?m.strengths.map((x:any)=>x.subject).join(", "):"Nenhuma força declarada com a evidência atual."}</p></section>
+      <section className="os-card os-wide"><h2>Leitura conservadora</h2><p>Precisão: <b>{percent(m.execution.precision)}</b> · questões: <b>{m.execution.questions||"—"}</b> · dias datados: <b>{m.execution.sessions||"—"}</b> · tempo: <b>{m.execution.minutes?m.execution.minutes+" min":"—"}</b>.</p><p>Tendência: <b>{m.execution.trend}</b>{m.execution.trendDetail.delta==null?"":" · variação "+(m.execution.trendDetail.delta*100).toFixed(1)+" p.p."}.</p></section>
+      <section className="os-card os-wide"><h2>Por matéria</h2>{m.execution.bySubject.length?<div className="os-list">{m.execution.bySubject.map((row:any)=><div key={row.subject}><b>{row.subject}</b><span>{row.questions} questões · {percent(row.precision)}</span><em>{row.evidence.label}</em></div>)}</div>:<Notice>Sem questões respondidas para comparar matérias.</Notice>}</section>
+      <section className="os-card"><h2>Forças sustentadas</h2><p>{m.strengths.length?m.strengths.map((x:any)=>x.subject).join(", "):"Nenhuma força declarada com a evidência atual."}</p></section>
       <section className="os-card"><h2>Qualidade da amostra</h2><p>{m.execution.evidence.label} · confiança {m.execution.evidence.confidence}.</p></section>
     </div>}
 
