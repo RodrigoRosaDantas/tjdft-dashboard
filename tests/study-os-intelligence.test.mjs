@@ -24,3 +24,108 @@ test("snapshot envelhecido vira risco, não desempenho",()=>{const x=base();x.da
 test("lei histórica não reaparece ativa",()=>{const x=base();x.laws.laws=[{code:"L24",record_kind:"historical",active:true}];assert.ok(buildTJDFTIntelligence(x).quality.issues.some(i=>i.code==="revoked-active"));});
 test("REV permanece nas posições canônicas",()=>{const m=buildTJDFTIntelligence(base());assert.deepEqual(m.reviews.map(r=>r.code),["REV01","REV02","REV03","REV04","REV05","REV06"]);});
 test("sem data real tendência é insuficiente",()=>assert.match(buildTJDFTIntelligence(base()).execution.trend,/insuficiente/));
+
+
+function operationalBase() {
+  const x=base();
+  x.dashboard.operational={
+    schema_version:2,
+    trail:{
+      total:37,sequence_valid:true,
+      checkpoints:{d0:0,d7:0,d20:0},
+      status_counts:{"Não estudado":37},
+      items:seq.map((code,index)=>({code,title:code,order:index+1,state:"Não estudado",material_ready:true,d0:false,d7:false,d20:false})),
+      next:{code:"P01",title:"P01",order:1,state:"Não estudado",d0:false},
+    },
+    continuity:{active:null,activities_with_evidence:0,minutes:0,questions:0},
+    questions:{total:0,correct:0,errors:0,doubts:0,annulled:0,precision:null,by_subject:[],by_cargo:[],by_date:[]},
+    errors:{active_count:0,by_subject:[],top:[]},
+    reviews:{dated:[],formal:seq.filter(code=>code.startsWith("REV")).map((code)=>({code,title:code,order:seq.indexOf(code)+1,state:"Não estudado"}))},
+    coverage:{
+      tecnico:{matrix:12,mapped:0,studied:0,consolidated:0,practiced_questions:0,subjects:["Língua Portuguesa","Direito Administrativo"]},
+      analista:{matrix:9,mapped:0,studied:0,consolidated:0,practiced_questions:0,subjects:["Língua Portuguesa","Administração Geral"]},
+      cargos:["Técnico","Analista"],
+    },
+    integrity:{duplicate_trail_orders:0,invalid_times:0,sequence_valid:true},
+    aliases:{safe:[{alias:"portugues",canonical:"Língua Portuguesa"}],ambiguous:[]},
+  };
+  return x;
+}
+
+test("D0 concluído avança para a próxima posição canônica",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.trail.items[0].d0=true;
+  x.dashboard.operational.trail.checkpoints.d0=1;
+  x.dashboard.operational.trail.next=x.dashboard.operational.trail.items[1];
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.nextAction.code,"P02");
+  assert.equal(m.trail.d0,1);
+});
+
+test("atividade em andamento prevalece sobre próxima unidade",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.continuity.active={activity:"Questões de Português",day:"D01",state:"Em andamento",next_action:"Concluir bloco de questões"};
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.nextAction.kind,"resume");
+  assert.equal(m.nextAction.code,"D01");
+});
+
+test("zero erro ativo explícito não é confundido com ausência",()=>{
+  const m=buildTJDFTIntelligence(operationalBase());
+  assert.equal(m.errorCount,0);
+  assert.equal(m.activeErrors.length,0);
+});
+
+test("erro crítico ativo vira risco prioritário",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.errors={active_count:1,by_subject:[{subject:"Português",count:1}],top:[{state:"Aberto",subject:"Língua Portuguesa",topic:"Crase",severity:"Crítica",recurrence:2,action:"Revisar fonte"}]};
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.risks[0].severity,"critical");
+  assert.match(m.risks[0].title,/Crase/);
+});
+
+test("revisão datada é classificada como vencida, hoje ou próxima",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.reviews.dated=[
+    {type:"ERRO",title:"A",subject:"Português",date:"2026-09-23T12:00:00.000Z"},
+    {type:"QUESTÃO",title:"B",subject:"RLM",date:"2026-09-24T12:00:00.000Z"},
+    {type:"QUESTÃO",title:"C",subject:"RLM",date:"2026-09-25T12:00:00.000Z"},
+  ];
+  const m=buildTJDFTIntelligence(x,"2026-09-24T10:00:00-03:00");
+  assert.deepEqual(m.agenda.filter(item=>item.date).map(item=>item.state),["vencida","hoje","próxima"]);
+});
+
+test("cobertura de Técnico e Analista permanece isolada",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.coverage.tecnico={...x.dashboard.operational.coverage.tecnico,studied:3,consolidated:1,practiced_questions:20};
+  x.dashboard.operational.coverage.analista={...x.dashboard.operational.coverage.analista,studied:1,consolidated:0,practiced_questions:4};
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.coverage.tecnico.studied,3);
+  assert.equal(m.coverage.analista.studied,1);
+  assert.equal(m.coverage.common.subjects.includes("Língua Portuguesa"),true);
+  assert.equal(m.coverage.common.subjects.includes("Direito Administrativo"),false);
+});
+
+test("tendência só aparece com série temporal minimamente robusta",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.questions={
+    total:32,correct:27,errors:5,doubts:0,annulled:0,precision:27/32,
+    by_subject:[{subject:"Língua Portuguesa",total:32,correct:27,errors:5,doubts:0,annulled:0}],
+    by_cargo:[],
+    by_date:[
+      {date:"2026-09-20",total:8,correct:6,errors:2,annulled:0},
+      {date:"2026-09-21",total:8,correct:6,errors:2,annulled:0},
+      {date:"2026-09-22",total:8,correct:7,errors:1,annulled:0},
+      {date:"2026-09-23",total:8,correct:8,errors:0,annulled:0},
+    ],
+  };
+  const m=buildTJDFTIntelligence(x);
+  assert.notEqual(m.execution.trend,"amostra temporal insuficiente");
+  assert.equal(m.execution.trendDetail.state,"melhora");
+});
+
+test("alias seguro é exposto sem criar fusão ambígua",()=>{
+  const m=buildTJDFTIntelligence(operationalBase());
+  assert.equal(m.aliases.safe[0].canonical,"Língua Portuguesa");
+  assert.deepEqual(m.aliases.ambiguous,[]);
+});
