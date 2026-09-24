@@ -52,11 +52,17 @@ jobs:
         run: |
           set -euo pipefail
           base="https://rodrigorosadantas.github.io/tjdft-dashboard"
-          curl -fsSL --retry 4 "$base/" | grep -qi "Central de comando"
-          curl -fsSL --retry 4 "$base/hoje/" | grep -qi "Executar agora"
-          curl -fsSL --retry 4 "$base/mentor/" | grep -qi "Por que esta decisão"
-          curl -fsSL --retry 4 "$base/desempenho/" | grep -qi "ausência"
-          curl -fsSL --retry 4 "$base/leis/" | grep -qi "Leis Primeiro"
-          curl -fsSL --retry 4 "$base/portugues-rlm/" | grep -qi "Português Primeiro"
-          curl -fsSL --retry 4 "$base/manifest.webmanifest" | grep -qi '"display"'
-          curl -fsSL --retry 4 "$base/data/tjdft-snapshot.json" | grep -qi '"kind": "notion"'
+          check_marker() {
+            local route="$1"
+            local marker="$2"
+            curl -fsSL --retry 4 --connect-timeout 10 --max-time 30 "$base$route" -o /tmp/marker
+            grep -qi "$marker" /tmp/marker
+          }
+          check_marker "/" "Central de comando"
+          check_marker "/hoje/" "Executar agora"
+          check_marker "/mentor/" "Por que esta decisão"
+          check_marker "/desempenho/" "ausência"
+          check_marker "/leis/" "Leis Primeiro"
+          check_marker "/portugues-rlm/" "Português Primeiro"
+          check_marker "/manifest.webmanifest" '"display"'
+          check_marker "/data/tjdft-snapshot.json" '"kind": "notion"'
