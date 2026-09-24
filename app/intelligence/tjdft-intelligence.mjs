@@ -17,10 +17,71 @@ export function evidenceClass(questions = 0, sessions = 0) {
   return { key:"strong", label:"amostra forte", confidence:"alta" };
 }
 
+function localDateKey(value = new Date()) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.valueOf())) return null;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone:"America/Sao_Paulo", year:"numeric", month:"2-digit", day:"2-digit",
+  }).formatToParts(date);
+  const part = (type) => parts.find((item) => item.type === type)?.value;
+  return [part("year"), part("month"), part("day")].join("-");
+}
+
+function reviewState(date, today) {
+  if (!date) return "programada";
+  const key = String(date).slice(0, 10);
+  if (!today) return "programada";
+  if (key < today) return "vencida";
+  if (key === today) return "hoje";
+  return "próxima";
+}
+
+function trendFromSeries(series, totalQuestions) {
+  const dated = [...(series || [])]
+    .filter((row) => row?.date && Number(row.total) > 0)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  if (dated.length < 3 || totalQuestions < 25) {
+    return { state:"insuficiente", label:"amostra temporal insuficiente", delta:null, periods:dated.length };
+  }
+  const split = Math.floor(dated.length / 2);
+  const summarize = (rows) => {
+    const total = rows.reduce((sum, row) => sum + (Number(row.total) || 0) - (Number(row.annulled) || 0), 0);
+    const correct = rows.reduce((sum, row) => sum + (Number(row.correct) || 0), 0);
+    return total > 0 ? correct / total : null;
+  };
+  const previous = summarize(dated.slice(0, split));
+  const recent = summarize(dated.slice(split));
+  if (previous == null || recent == null) {
+    return { state:"insuficiente", label:"amostra temporal insuficiente", delta:null, periods:dated.length };
+  }
+  const delta = recent - previous;
+  const state = Math.abs(delta) < 0.05 ? "estável" : delta > 0 ? "melhora" : "queda";
+  return {
+    state,
+    label: state === "estável" ? "estável" : state === "melhora" ? "melhora recente" : "queda recente",
+    delta,
+    periods:dated.length,
+  };
+}
+
 export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws = {}, edital = {} }, now = new Date()) {
-  const units = [...(portuguese.units || [])].sort((a,b)=>(a.canonical_order||0)-(b.canonical_order||0));
-  const sequence = portuguese.sequence || units.map(u=>u.code);
-  const sequenceValid = JSON.stringify(sequence) === JSON.stringify(CANONICAL);
+  const op = dashboard.operational || null;
+  const editorialUnits = [...(portuguese.units || [])].sort((a,b)=>(a.canonical_order||0)-(b.canonical_order||0));
+  const opTrail = new Map((op?.trail?.items || []).map((item) => [item.code, item]));
+  const units = editorialUnits.map((unit) => {
+    const live = opTrail.get(unit.code);
+    return {
+      ...unit,
+      study_state: live?.state || null,
+      d0: live?.d0 ?? null,
+      d7: live?.d7 ?? null,
+      d20: live?.d20 ?? null,
+    };
+  });
+  const sequence = op?.trail?.items?.length
+    ? op.trail.items.map((item) => item.code)
+    : (portuguese.sequence || editorialUnits.map((unit) => unit.code));
+  const sequenceValid = op?.trail?.sequence_valid ?? (JSON.stringify(sequence) === JSON.stringify(CANONICAL));
   const executionDays = dashboard.execution?.c01?.days || [];
   const executed = executionDays.filter(d => (n(d.done) || 0) > 0 || Boolean(d.executed_at));
   const totals = dashboard.execution?.c01?.totals || {};
