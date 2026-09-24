@@ -65,6 +65,19 @@ async function assertPagesRoutes() {
     "portugues-rlm/rl01/index.html",
     "portugues-rlm/rev01/index.html",
     "portugues-rlm/flashcards/index.html",
+    "hoje/index.html",
+    "mentor/index.html",
+    "trilha/index.html",
+    "agenda/index.html",
+    "revisoes/index.html",
+    "erros/index.html",
+    "desempenho/index.html",
+    "riscos/index.html",
+    "tecnico/index.html",
+    "analista/index.html",
+    "qualidade-dados/index.html",
+    "sincronizacao/index.html",
+    "painel-legado/index.html",
   ];
 
   for (const route of requiredRoutes) {
@@ -81,6 +94,19 @@ async function assertPagesRoutes() {
     "portugues-rlm/rl01.html",
     "portugues-rlm/rev01.html",
     "portugues-rlm/flashcards.html",
+    "hoje.html",
+    "mentor.html",
+    "trilha.html",
+    "agenda.html",
+    "revisoes.html",
+    "erros.html",
+    "desempenho.html",
+    "riscos.html",
+    "tecnico.html",
+    "analista.html",
+    "qualidade-dados.html",
+    "sincronizacao.html",
+    "painel-legado.html",
   ];
   for (const route of flatRouteFiles) {
     try {
