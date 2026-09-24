@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import ReadingSettings from "../../reading-settings";
 
@@ -44,6 +44,26 @@ function kindLabel(kind: Law["record_kind"]) {
   return "Unidade ativa";
 }
 
+function addResponsiveTableLabels(html: string) {
+  if (typeof document === "undefined" || !html) return html;
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  for (const table of template.content.querySelectorAll("table")) {
+    const rows = [...table.querySelectorAll("tr")];
+    const headerRow = rows.find((row) => row.querySelector("th"));
+    const labels = headerRow
+      ? [...headerRow.querySelectorAll("th,td")].map((cell) => cell.textContent?.trim() || "")
+      : [];
+    headerRow?.setAttribute("data-table-header", "true");
+    for (const row of rows) {
+      [...row.querySelectorAll(":scope > td, :scope > th")].forEach((cell, index) => {
+        cell.setAttribute("data-label", labels[index] || `Coluna ${index + 1}`);
+      });
+    }
+  }
+  return template.innerHTML;
+}
+
 export default function LawDetailClient({ code }: { code: string }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [error, setError] = useState(false);
@@ -60,7 +80,7 @@ export default function LawDetailClient({ code }: { code: string }) {
 
   const law = snapshot?.laws.find((item) => item.code.toLowerCase() === code.toLowerCase());
   const isActive = law?.record_kind === "active";
-  const html = law?.content_html || (law ? fallbackHtml(law) : "");
+  const html = useMemo(() => addResponsiveTableLabels(law?.content_html || (law ? fallbackHtml(law) : "")), [law]);
 
   if (error) {
     return (

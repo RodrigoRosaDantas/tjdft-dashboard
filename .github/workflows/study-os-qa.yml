@@ -4,8 +4,12 @@ on:
   pull_request:
     paths:
       - "app/**"
+      - "public/**"
       - "tests/**"
-      - "scripts/prepare-github-pages.mjs"
+      - "scripts/**"
+      - "supabase/functions/tjdft-notion/**"
+      - "package.json"
+      - "package-lock.json"
       - ".github/workflows/study-os-qa.yml"
       - ".github/workflows/post-deploy-smoke.yml"
   push:
@@ -19,6 +23,48 @@ jobs:
   visual-qa:
     name: Visual QA
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+        env:
+          GITHUB_PAGES: "1"
+          GITHUB_PAGES_BASE_PATH: /tjdft-dashboard
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Montar preview com o base path real do Pages
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tjdft-preview/tjdft-dashboard
+          cp -a dist/client/. /tmp/tjdft-preview/tjdft-dashboard/
+          npx --yes serve@14 /tmp/tjdft-preview -l 4173 > /tmp/tjdft-serve.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/tjdft-dashboard/ -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/tjdft-serve.log
+          exit 1
+      - name: Validar layout, âncoras, links e rotas em 6 tamanhos
+        run: npm run qa:visual
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/tjdft-dashboard
+          VISUAL_QA_OUTPUT: artifacts/visual
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tjdft-study-os-visual-qa
+          path: artifacts/visual
+          if-no-files-found: warn
+          retention-days: 14
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -31,54 +77,21 @@ jobs:
         env:
           GITHUB_PAGES: "1"
           GITHUB_PAGES_BASE_PATH: /tjdft-dashboard
-      - name: Servir export estático
-        run: npx --yes serve@14 dist/client -l 4173 > /tmp/tjdft-serve.log 2>&1 &
       - name: Instalar Chromium
-        run: npx --yes playwright@1.55.0 install --with-deps chromium
-      - name: Capturar rotas estratégicas em 6 resoluções
-        shell: bash
+        run: npx playwright install --with-deps chromium
+      - name: Montar preview com o base path real do Pages
         run: |
           set -euo pipefail
-          mkdir -p artifacts/visual
-          routes=( "" "hoje" "mentor" "trilha" "portugues-rlm" "portugues-rlm/p01" "leis" "leis/l01" "desempenho" "riscos" "erros" "revisoes" "tecnico" "analista" "sincronizacao" )
-          sizes=( "360,800" "390,844" "412,915" "768,1024" "1024,1366" "1440,900" )
-          for route in "${routes[@]}"; do
-            safe=${route//\//-}; [ -n "$safe" ] || safe=home
-            for size in "${sizes[@]}"; do
-              tag=${size/,/x}
-              npx --yes playwright@1.55.0 screenshot --browser=chromium --viewport-size="$size" "http://127.0.0.1:4173/${route:+$route/}" "artifacts/visual/${safe}-${tag}.png"
-            done
+          mkdir -p /tmp/tjdft-preview/tjdft-dashboard
+          cp -a dist/client/. /tmp/tjdft-preview/tjdft-dashboard/
+          npx --yes serve@14 /tmp/tjdft-preview -l 4173 > /tmp/tjdft-serve.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/tjdft-dashboard/ -o /dev/null; then exit 0; fi
+            sleep 1
           done
-      - uses: actions/upload-artifact@v4
-        with:
-          name: tjdft-study-os-visual-qa
-          path: artifacts/visual
-
-  e2e:
-    name: E2E
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-      - run: npm ci
-      - run: npm test
+          cat /tmp/tjdft-serve.log
+          exit 1
+      - name: Percorrer fluxos de execução e retorno à sequência
+        run: npm run qa:e2e
         env:
-          GITHUB_PAGES: "1"
-          GITHUB_PAGES_BASE_PATH: /tjdft-dashboard
-      - name: Validar Study OS e fluxos
-        shell: bash
-        run: |
-          set -euo pipefail
-          for route in index hoje mentor trilha portugues-rlm leis desempenho riscos erros revisoes tecnico analista sincronizacao; do
-            file="dist/client/${route}/index.html"
-            [ "$route" = "index" ] && file="dist/client/index.html"
-            test -s "$file"
-          done
-          grep -qi "Central de comando" dist/client/index.html
-          grep -qi "Executar agora" dist/client/hoje/index.html
-          grep -qi "Por que esta decisão" dist/client/mentor/index.html
-          grep -qi "ausência" dist/client/desempenho/index.html
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/tjdft-dashboard

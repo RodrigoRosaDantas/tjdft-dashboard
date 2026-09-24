@@ -88,7 +88,10 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(dashboard, /aria-current/);
   assert.match(dashboard, /STUDY_CHECKLIST_STORAGE_KEY/);
   assert.match(dashboard, /daily-checklist/);
+  assert.match(dashboard, /function dayHasExecution/);
+  assert.match(dashboard, /const dayDone = hasEvidence \? day\.done : null/);
   assert.match(lawDetail, /ReadingSettings/);
+  assert.match(lawDetail, /addResponsiveTableLabels/);
   assert.match(flashcards, /ReadingSettings/);
   assert.match(flashcards, /extractFlashcardHtml/);
   assert.match(flashcards, /extractFlashcardPairs/);
@@ -96,16 +99,41 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(flashcards, /Filtrar flashcards por lei/);
   assert.match(flashcards, /D20/);
   assert.match(lawsPage, /formatLawCodeRanges/);
+  assert.match(lawsPage, /id="radar"/);
   assert.match(lawsPage, /setMapOpen\(true\)/);
   assert.match(lawsPage, /open=\{mapOpen\}/);
   assert.match(preferences, /tjdft-dashboard:reading-preferences:v1/);
   assert.doesNotMatch(preferences, /innerHTML\s*=/);
   assert.match(serviceWorker, /network-first/i);
-  assert.match(serviceWorker, /tjdft-pages-v2/);
+  assert.match(serviceWorker, /async function cacheResponse/);
+  assert.match(serviceWorker, /await cache\.put\(cacheKeyFor\(request\), response\.clone\(\)\)/);
+  assert.match(serviceWorker, /tjdft-pages-v3/);
+  assert.match(serviceWorker, /portugues-rlm\/\$\{code\}\/`/);
+  assert.match(serviceWorker, /\.\/data\/portugues-rlm\.json/);
   assert.match(serviceWorker, /search\s*=\s*""/);
   assert.match(registration, /navigator\.serviceWorker\.register/);
   assert.match(manifest, /"display": "standalone"/);
   assert.match(manifest, /"scope": "\.\/"/);
+  const lawStyles = await read("app/leis/law-detail.css");
+  assert.match(lawStyles, /td::before\s*\{\s*content:\s*attr\(data-label\)/);
+  assert.match(lawStyles, /tr\[data-table-header="true"\]/);
+});
+
+test("o exportador mantém desconhecidos como null e não duplica séries temporais", async () => {
+  const edge = await read("supabase/functions/tjdft-notion/index.ts");
+  const legacyExecution = edge.slice(edge.indexOf("function buildExecutionSnapshot"), edge.indexOf("const CANONICAL_TRAIL"));
+  assert.equal((legacyExecution.match(/by_subject_date:/g) || []).length, 1);
+  assert.equal((legacyExecution.match(/by_cargo_date:/g) || []).length, 1);
+  assert.match(legacyExecution, /known_annulled/);
+  assert.match(legacyExecution, /known_errors \? row\.errors : null/);
+  assert.match(legacyExecution, /if \(!day\) continue/);
+  assert.match(legacyExecution, /known_correct \? row\.correct : null/);
+  assert.match(edge, /total: answered\.length \? answered\.length : null/);
+  assert.match(edge, /invalidDayTimes = dayPages\.map\(parseExecutionDay\)/);
+  assert.match(edge, /buildOperationalSnapshot\(unitPages, activityPages, dayPages, questionPages/);
+  assert.match(edge, /unclassified_errors: unclassifiedErrors/);
+  assert.match(edge, /missing_trail_orders: missingTrailOrders/);
+  assert.match(edge, /executed_questions: execution\?\.c01\?\.totals\?\.done \?\? null/);
 });
 
 test("encontra flashcards reais no snapshot ativo", async () => {
@@ -120,6 +148,10 @@ test("encontra flashcards reais no snapshot ativo", async () => {
 
 test("a preparação de Pages rejeita rotas achatadas", async () => {
   const source = await read("scripts/prepare-github-pages.mjs");
+  const cleanup = await read("scripts/clean-build-output.mjs");
+  const packageConfig = JSON.parse(await read("package.json"));
+  assert.match(packageConfig.scripts.build, /clean-build-output\.mjs && vinext build/);
+  assert.match(cleanup, /rm\("dist",\s*\{\s*recursive:\s*true,\s*force:\s*true\s*\}\)/);
   for (const route of ["leis/index.html", "leis/l01/index.html", "leis/l02/index.html", "leis/flashcards/index.html"]) {
     assert.match(source, new RegExp(route.replaceAll("/", "\\/")));
   }
@@ -127,6 +159,15 @@ test("a preparação de Pages rejeita rotas achatadas", async () => {
     assert.match(source, new RegExp(route.replaceAll("/", "\\/")));
   }
   assert.match(source, /GitHub Pages route permaneceu achatada/);
+});
+
+test("Visual QA e E2E esperam os snapshots das listas antes de inspecionar links", async () => {
+  const [visual, e2e] = await Promise.all([
+    read("scripts/visual-qa.mjs"),
+    read("scripts/e2e-study-os.mjs"),
+  ]);
+  assert.match(visual, /waitForFunction\(\(\) => !\/\\bCarregando\\b\/i/);
+  assert.match(e2e, /waitForFunction\(\(\) => !\/\\bCarregando\\b\/i/);
 });
 
 test("mantém a sincronização viva com fallback e publicação controlada", async () => {

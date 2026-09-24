@@ -13,6 +13,7 @@ on:
       - "public/sw.js"
       - "public/manifest.webmanifest"
       - "public/data/**"
+      - "supabase/**"
       - "scripts/prepare-github-pages.mjs"
       - "tests/**"
       - "package.json"
@@ -54,7 +55,10 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Verificar Edge Function TJDFT
+        run: deno check --config supabase/functions/tjdft-notion/deno.json supabase/functions/tjdft-notion/index.ts
       - name: Compilar aplicação e validar snapshot
         run: |
           GITHUB_PAGES=1 GITHUB_PAGES_BASE_PATH="/tjdft-dashboard" npm run test
+          node scripts/validate-portugues-rlm.mjs
           deno run --allow-read scripts/validate-tjdft-snapshot.mjs
