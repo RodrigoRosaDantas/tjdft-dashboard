@@ -83,27 +83,50 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     : (portuguese.sequence || editorialUnits.map((unit) => unit.code));
   const sequenceValid = op?.trail?.sequence_valid ?? (JSON.stringify(sequence) === JSON.stringify(CANONICAL));
   const executionDays = dashboard.execution?.c01?.days || [];
-  const executed = executionDays.filter(d => (n(d.done) || 0) > 0 || Boolean(d.executed_at));
+  const executed = executionDays.filter((day) => (n(day.done) || 0) > 0 || Boolean(day.executed_at));
   const totals = dashboard.execution?.c01?.totals || {};
-  const questions = n(totals.done) ?? executed.reduce((s,d)=>s+(n(d.done)||0),0);
-  const correct = n(totals.correct) ?? executed.reduce((s,d)=>s+(n(d.correct)||0),0);
-  const errors = n(totals.errors) ?? executed.reduce((s,d)=>s+(n(d.errors)||0),0);
-  const minutes = n(totals.minutes) ?? executed.reduce((s,d)=>s+(n(d.minutes)||0),0);
-  const sessions = executed.filter(d=>d.executed_at).length;
+  const opQuestions = op?.questions || null;
+  const questions = opQuestions ? (n(opQuestions.total) || 0) : (n(totals.done) ?? executed.reduce((sum, day) => sum + (n(day.done) || 0), 0));
+  const correct = opQuestions ? (n(opQuestions.correct) || 0) : (n(totals.correct) ?? executed.reduce((sum, day) => sum + (n(day.correct) || 0), 0));
+  const errors = opQuestions ? (n(opQuestions.errors) || 0) : (n(totals.errors) ?? executed.reduce((sum, day) => sum + (n(day.errors) || 0), 0));
+  const doubts = opQuestions ? (n(opQuestions.doubts) || 0) : (n(totals.doubts) ?? executed.reduce((sum, day) => sum + (n(day.doubts) || 0), 0));
+  const minutes = op?.continuity ? (n(op.continuity.minutes) || 0) : (n(totals.minutes) ?? executed.reduce((sum, day) => sum + (n(day.minutes) || 0), 0));
+  const sessions = opQuestions
+    ? (opQuestions.by_date || []).filter((row) => Number(row.total) > 0).length
+    : executed.filter((day) => day.executed_at).length;
   const evidence = evidenceClass(questions, sessions);
-  const precision = pct(correct, questions);
+  const precision = opQuestions?.precision ?? pct(correct, questions);
+  const trend = trendFromSeries(opQuestions?.by_date || [], questions);
 
   // Editorial availability is not execution evidence.
-  const readyUnits = units.filter(u=>u.material_ready);
-  const firstReady = readyUnits[0] || units[0] || null;
-  const partial = executed.find(d => (n(d.done)||0) > 0 && (n(d.progress)||0) < 1);
-  const nextAction = partial ? {
+  const readyUnits = editorialUnits.filter((unit) => unit.material_ready);
+  const firstReady = readyUnits[0] || editorialUnits[0] || null;
+  const activeActivity = op?.continuity?.active || null;
+  const nextTrail = op?.trail?.next || null;
+  const partial = executed.find((day) => (n(day.done) || 0) > 0 && (n(day.progress) || 0) < 1);
+  const nextAction = activeActivity ? {
+    kind:"resume",
+    label:"RETOMAR SESSÃO",
+    code:activeActivity.day || null,
+    title:activeActivity.next_action || activeActivity.activity || "Retomar atividade em andamento",
+    href:"painel-legado/",
+    reason:"Existe uma atividade marcada como em andamento no Notion. Continuidade prevalece sobre abrir conteúdo novo.",
+    confidence:"alta",
+  } : partial ? {
     kind:"resume",
     label:"RETOMAR UNIDADE",
     code:partial.day,
     title:partial.title,
-    href:partial.href || null,
+    href:partial.href || "painel-legado/",
     reason:"Há execução parcial registrada. Continuidade prevalece sobre abrir conteúdo novo.",
+    confidence:"alta",
+  } : nextTrail ? {
+    kind:"canonical",
+    label:"PRÓXIMA AÇÃO",
+    code:nextTrail.code,
+    title:nextTrail.title,
+    href:`portugues-rlm/${String(nextTrail.code).toLowerCase()}/`,
+    reason:"É a primeira posição da Ordem 1–37 sem D0 concluído. Material pronto não foi confundido com estudo realizado.",
     confidence:"alta",
   } : firstReady ? {
     kind:"canonical",
@@ -111,10 +134,8 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     code:firstReady.code,
     title:firstReady.title,
     href:`portugues-rlm/${String(firstReady.code).toLowerCase()}/`,
-    reason: executed.length
-      ? "É a primeira unidade disponível da sequência canônica sem evidência pública de conclusão desta trilha."
-      : "É a primeira unidade canônica com material disponível; o snapshot público ainda não traz execução da esteira 1–37.",
-    confidence: executed.length ? "moderada" : "baixa",
+    reason:"É a primeira unidade editorial disponível; ainda não há estado operacional suficiente da esteira.",
+    confidence:"baixa",
   } : {
     kind:"wait", label:"SEM AÇÃO AUTOMÁTICA", code:null, title:"Aguardando material e evidência",
     href:null, reason:"Não há material disponível suficiente para recomendar avanço.", confidence:"não calculável"
