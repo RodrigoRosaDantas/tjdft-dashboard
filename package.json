@@ -10,7 +10,8 @@
     "build": "vinext build && node scripts/prepare-github-pages.mjs",
     "start": "vinext start",
     "test": "GITHUB_PAGES=1 GITHUB_PAGES_BASE_PATH=/tjdft-dashboard npm run build && node --test tests/*.test.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
