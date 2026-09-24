@@ -10,6 +10,10 @@ const CYCLE_PAGE_ID = "3d6cf5a2-6731-8173-814f-f0d8b20134e5";
 const DAYS_DATA_SOURCE_ID = "a06ef2a6-c492-4800-a556-8ebf562b1e4e";
 const QUESTIONS_DATA_SOURCE_ID = "76f5f5ec-fc73-4f6e-86b1-69eeeb6cdc37";
 const ERRORS_DATA_SOURCE_ID = "b4abcf79-27a8-46bc-a917-739a1e1811c4";
+const EXECUTIONS_DATA_SOURCE_ID = "063faa8a-502f-440c-be64-87be151a666d";
+const PORTUGUESE_UNITS_DATA_SOURCE_ID = "f89ae5e0-4cc3-49f7-ae82-6c84f38a81e5";
+const CONTENTS_DATA_SOURCE_ID = "01da7685-5903-4a48-ae8e-987a7d35b447";
+const CARGOS_DATA_SOURCE_ID = "3014ed18-cb49-4de7-a2c6-9c3cd5ba5d12";
 const CACHE_TTL_MS = 60_000;
 const FORCE_REFRESH_COOLDOWN_MS = 15_000;
 const MAX_NOTION_CONCURRENCY = 4;
@@ -509,6 +513,299 @@ function buildExecutionSnapshot(
   };
 }
 
+
+const CANONICAL_TRAIL = [
+  "P01", "P02", "P03", "RL01", "P04", "REV01", "P05", "P06", "RL02", "P07", "P08", "REV02",
+  "P09", "RL03", "P10", "P11", "P12", "REV03", "RL04", "P13", "P14", "P15", "RL05", "REV04",
+  "P16", "P17", "P18", "RL06", "RL07", "REV05", "RL08", "RL09", "RL10", "RL11", "RL12", "REV06", "RL13",
+];
+
+const SUBJECT_ALIASES: Record<string, string> = {
+  "portugues": "Língua Portuguesa",
+  "lingua portuguesa": "Língua Portuguesa",
+  "língua portuguesa": "Língua Portuguesa",
+  "rlm": "Raciocínio Lógico-Matemático",
+  "raciocinio logico": "Raciocínio Lógico-Matemático",
+  "raciocínio lógico": "Raciocínio Lógico-Matemático",
+  "raciocinio logico-matematico": "Raciocínio Lógico-Matemático",
+  "raciocínio lógico-matemático": "Raciocínio Lógico-Matemático",
+  "etica": "Ética e Conduta",
+  "ética": "Ética e Conduta",
+  "etica e conduta": "Ética e Conduta",
+  "ética e conduta": "Ética e Conduta",
+  "regimento interno": "Regimento Interno",
+  "organizacao judiciaria": "Organização Judiciária",
+  "organização judiciária": "Organização Judiciária",
+};
+
+function normalizeSubjectKey(value: string) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function canonicalSubject(value: string) {
+  const raw = String(value || "").trim();
+  if (!raw) return "Sem matéria";
+  return SUBJECT_ALIASES[normalizeSubjectKey(raw)] || raw;
+}
+
+function publicDate(value: string | null) {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.valueOf()) ? null : parsed.toISOString();
+}
+
+function statusCount<T extends { state?: string }>(items: T[]) {
+  return items.reduce((out: AnyRecord, item) => {
+    const key = item.state || "Sem estado";
+    out[key] = (out[key] || 0) + 1;
+    return out;
+  }, {});
+}
+
+function buildOperationalSnapshot(
+  unitPages: AnyRecord[],
+  activityPages: AnyRecord[],
+  questionPages: AnyRecord[],
+  errorPages: AnyRecord[],
+  contentPages: AnyRecord[],
+  cargoPages: AnyRecord[],
+) {
+  const trailItems = unitPages.map((page) => {
+    const properties = page.properties || {};
+    const code = propertyText(properties, "Código").toUpperCase();
+    if (!CANONICAL_TRAIL.includes(code)) return null;
+    return {
+      code,
+      title: propertyText(properties, "Unidade") || code,
+      order: propertyNumber(properties, "Ordem da esteira"),
+      track: propertyText(properties, "Trilha"),
+      block: propertyText(properties, "Bloco 5+1"),
+      priority: propertyText(properties, "Prioridade"),
+      state: propertyText(properties, "Status") || "Não estudado",
+      material_ready: propertyCheckbox(properties, "Material pronto"),
+      d0: propertyCheckbox(properties, "D0"),
+      d7: propertyCheckbox(properties, "D7"),
+      d20: propertyCheckbox(properties, "D20"),
+    };
+  }).filter(Boolean).sort((a, b) => (a?.order || 0) - (b?.order || 0)) as AnyRecord[];
+
+  const sequence = trailItems.map((item) => item.code);
+  const sequenceValid = CANONICAL_TRAIL.every((code, index) => sequence[index] === code) &&
+    sequence.length === CANONICAL_TRAIL.length;
+  const nextTrail = trailItems.find((item) => !/Dominado/i.test(item.state)) || null;
+  const formalReviews = trailItems.filter((item) => /^REV\d{2}$/.test(item.code));
+
+  const activities = activityPages.map((page) => {
+    const p = page.properties || {};
+    const status = propertyText(p, "Status");
+    const result = propertyText(p, "Resultado da atividade");
+    const date = publicDate(propertyDate(p, ["Data executada", "Data planejada"]));
+    return {
+      type: propertyText(p, "Tipo") || "Atividade",
+      state: result || status || "Não iniciado",
+      status,
+      subject: canonicalSubject(propertyText(p, "Matéria")),
+      date,
+      minutes: propertyNumber(p, "Minutos reais"),
+      questions: propertyNumber(p, "Questões reais"),
+      next_action: propertyText(p, "Próxima ação"),
+    };
+  }).filter((item) =>
+    item.date || item.minutes > 0 || item.questions > 0 || /Em execução|Em andamento|Concluída|Concluído|Revisar/i.test(item.state + " " + item.status)
+  );
+  const activeActivity = activities.find((item) => /Em execução|Em andamento/i.test(item.state + " " + item.status)) || null;
+
+  const answered = questionPages.map((page) => {
+    const p = page.properties || {};
+    const result = propertyText(p, "Resultado");
+    if (!result || /Não respondida/i.test(result)) return null;
+    return {
+      result,
+      doubt: propertyCheckbox(p, "Acerto com dúvida"),
+      subject: canonicalSubject(propertyText(p, "Matéria")),
+      topic: propertyText(p, "Assunto") || null,
+      cargo: propertyText(p, "Cargo-alvo") || null,
+      answered_at: publicDate(propertyDate(p, "Data da resolução")),
+      review_at: publicDate(propertyDate(p, "Próxima revisão")),
+      review_destination: propertyText(p, "Destino de revisão") || null,
+      corrected_state: propertyText(p, "Estado após correção") || null,
+      correction_action: propertyText(p, "Ação pós-correção") || null,
+      seconds: propertyNumber(p, "Tempo em segundos"),
+    };
+  }).filter(Boolean) as AnyRecord[];
+
+  const bySubject = new Map<string, AnyRecord>();
+  const byCargo = new Map<string, AnyRecord>();
+  const byDate = new Map<string, AnyRecord>();
+  for (const q of answered) {
+    const correct = /Acerto/i.test(q.result) ? 1 : 0;
+    const error = /Erro/i.test(q.result) ? 1 : 0;
+    const annulled = /Anulada/i.test(q.result) ? 1 : 0;
+    const update = (map: Map<string, AnyRecord>, key: string) => {
+      const row = map.get(key) || { key, total: 0, correct: 0, errors: 0, doubts: 0, annulled: 0, seconds: 0 };
+      row.total += 1;
+      row.correct += correct;
+      row.errors += error;
+      row.doubts += q.doubt ? 1 : 0;
+      row.annulled += annulled;
+      row.seconds += q.seconds || 0;
+      row.precision = row.total - row.annulled > 0 ? row.correct / (row.total - row.annulled) : null;
+      map.set(key, row);
+    };
+    update(bySubject, q.subject);
+    if (q.cargo) update(byCargo, q.cargo);
+    if (q.answered_at) update(byDate, q.answered_at.slice(0, 10));
+  }
+  const effectiveQuestions = answered.filter((q) => !/Anulada/i.test(q.result));
+  const totalCorrect = effectiveQuestions.filter((q) => /Acerto/i.test(q.result)).length;
+  const totalErrors = effectiveQuestions.filter((q) => /Erro/i.test(q.result)).length;
+  const totalDoubts = effectiveQuestions.filter((q) => q.doubt).length;
+
+  const activeErrors = errorPages.map((page) => {
+    const p = page.properties || {};
+    const state = propertyText(p, "Estado");
+    if (!state || /Resolvido|Arquivado/i.test(state)) return null;
+    return {
+      state,
+      subject: canonicalSubject(propertyText(p, "Matéria")),
+      topic: propertyText(p, "Assunto") || null,
+      pattern: propertyText(p, "Padrão do erro") || null,
+      causes: propertyText(p, "Causa") || null,
+      severity: propertyText(p, "Gravidade") || "Sem gravidade",
+      recurrence: propertyNumber(p, "Reincidência"),
+      review_at: publicDate(propertyDate(p, "Próxima revisão")),
+      review_kind: propertyText(p, "Revisão recomendada") || null,
+      action: propertyText(p, "Ação corretiva") || null,
+      cargo: propertyText(p, "Cargo-alvo") || null,
+      occurred_at: publicDate(propertyDate(p, "Data do erro")),
+    };
+  }).filter(Boolean) as AnyRecord[];
+
+  const severityOrder: Record<string, number> = { "Crítica": 4, "Alta": 3, "Média": 2, "Baixa": 1, "Sem gravidade": 0 };
+  activeErrors.sort((a, b) =>
+    (severityOrder[b.severity] || 0) - (severityOrder[a.severity] || 0) ||
+    (b.recurrence || 0) - (a.recurrence || 0)
+  );
+  const errorBySubject = Array.from(activeErrors.reduce((map: Map<string, number>, item) => {
+    map.set(item.subject, (map.get(item.subject) || 0) + 1);
+    return map;
+  }, new Map<string, number>())).map(([subject, count]) => ({ subject, count }))
+    .sort((a, b) => b.count - a.count);
+
+  const contents = contentPages.map((page) => {
+    const p = page.properties || {};
+    return {
+      cargo: propertyText(p, "Cargo-alvo"),
+      level: propertyText(p, "Nível"),
+      status: propertyText(p, "Status") || "Não iniciado",
+      domain: propertyText(p, "Estado de domínio") || "Sem evidência",
+      covered: propertyCheckbox(p, "Cobertura registrada"),
+      subject: canonicalSubject(propertyText(p, "Matéria")),
+    };
+  }).filter((item) => item.cargo && !/Fora da versão/i.test(item.status));
+
+  const cargoNames = cargoPages.map((page) => propertyText(page.properties || {}, "Cargo")).filter(Boolean);
+  const coverageFor = (needle: string) => {
+    const rows = contents.filter((item) => item.cargo.includes(needle));
+    const cargoQuestionRows = answered.filter((item) => String(item.cargo || "").includes(needle));
+    return {
+      matrix: rows.length,
+      mapped: rows.filter((item) => item.covered).length,
+      studied: rows.filter((item) => !/Não iniciado/i.test(item.status)).length,
+      consolidated: rows.filter((item) => /Consolidado/i.test(item.status) || /Consolidado|Manutenção/i.test(item.domain)).length,
+      practiced_questions: cargoQuestionRows.filter((item) => !/Anulada/i.test(item.result)).length,
+      subjects: Array.from(new Set(rows.map((item) => item.subject))).sort(),
+    };
+  };
+
+  const datedReviews = [
+    ...answered.filter((q) => q.review_at).map((q) => ({
+      type: "QUESTÃO",
+      title: q.topic || q.subject,
+      subject: q.subject,
+      date: q.review_at,
+      origin: q.review_destination || "Questão",
+    })),
+    ...activeErrors.filter((e) => e.review_at).map((e) => ({
+      type: "ERRO",
+      title: e.topic || e.subject,
+      subject: e.subject,
+      date: e.review_at,
+      origin: e.review_kind || "Caderno de erros",
+    })),
+  ].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+  const invalidTimes = activities.filter((item) => item.minutes < 0).length;
+  const invalidQuestionTimes = answered.filter((item) => item.seconds < 0).length;
+  const duplicateTrailOrders = trailItems.filter((item, index, all) =>
+    all.findIndex((candidate) => candidate.order === item.order) !== index
+  ).length;
+
+  return {
+    schema_version: 2,
+    trail: {
+      sequence_valid: sequenceValid,
+      total: trailItems.length,
+      status_counts: statusCount(trailItems),
+      material_ready: trailItems.filter((item) => item.material_ready).length,
+      checkpoints: {
+        d0: trailItems.filter((item) => item.d0).length,
+        d7: trailItems.filter((item) => item.d7).length,
+        d20: trailItems.filter((item) => item.d20).length,
+      },
+      next: nextTrail,
+      items: trailItems,
+      formal_reviews: formalReviews,
+    },
+    continuity: {
+      active: activeActivity,
+      activities_with_evidence: activities.length,
+      minutes: activities.reduce((sum, item) => sum + Math.max(0, item.minutes || 0), 0),
+      questions: activities.reduce((sum, item) => sum + Math.max(0, item.questions || 0), 0),
+    },
+    questions: {
+      total: effectiveQuestions.length,
+      correct: totalCorrect,
+      errors: totalErrors,
+      doubts: totalDoubts,
+      annulled: answered.length - effectiveQuestions.length,
+      precision: effectiveQuestions.length ? totalCorrect / effectiveQuestions.length : null,
+      by_subject: Array.from(bySubject.values()).map((row) => ({ ...row, subject: row.key })).sort((a, b) => b.total - a.total),
+      by_cargo: Array.from(byCargo.values()).map((row) => ({ ...row, cargo: row.key })).sort((a, b) => b.total - a.total),
+      by_date: Array.from(byDate.values()).map((row) => ({ ...row, date: row.key })).sort((a, b) => a.date.localeCompare(b.date)),
+    },
+    errors: {
+      active_count: activeErrors.length,
+      by_subject: errorBySubject,
+      top: activeErrors.slice(0, 8),
+    },
+    reviews: {
+      dated: datedReviews.slice(0, 30),
+      formal: formalReviews.map((item) => ({ code: item.code, title: item.title, order: item.order, state: item.state })),
+    },
+    coverage: {
+      tecnico: coverageFor("Técnico"),
+      analista: coverageFor("Analista"),
+      cargos: cargoNames,
+    },
+    integrity: {
+      duplicate_trail_orders: duplicateTrailOrders,
+      invalid_times: invalidTimes + invalidQuestionTimes,
+      sequence_valid: sequenceValid,
+    },
+    aliases: {
+      safe: Object.entries(SUBJECT_ALIASES).map(([alias, canonical]) => ({ alias, canonical })),
+      ambiguous: [],
+    },
+  };
+}
+
+
 const META_BY_DAY: AnyRecord = {
   D01: "8 C/E · 75–90 min",
   D02: "8 C/E · 75–90 min",
@@ -731,21 +1028,28 @@ export async function buildSnapshot(token: string) {
   }
 
   let execution = null;
+  let operational = null;
   let executionHashText = "";
   try {
-    const [dayPages, questionPages, errorPages] = await Promise.all([
+    const [dayPages, questionPages, errorPages, activityPages, unitPages, contentPages, cargoPages] = await Promise.all([
       queryDataSource(DAYS_DATA_SOURCE_ID, request),
       queryDataSource(QUESTIONS_DATA_SOURCE_ID, request),
       queryDataSource(ERRORS_DATA_SOURCE_ID, request),
+      queryDataSource(EXECUTIONS_DATA_SOURCE_ID, request),
+      queryDataSource(PORTUGUESE_UNITS_DATA_SOURCE_ID, request),
+      queryDataSource(CONTENTS_DATA_SOURCE_ID, request),
+      queryDataSource(CARGOS_DATA_SOURCE_ID, request),
     ]);
     execution = buildExecutionSnapshot(dayPages, questionPages, errorPages);
-    executionHashText = JSON.stringify([dayPages, questionPages, errorPages].map((pages) =>
+    operational = buildOperationalSnapshot(unitPages, activityPages, questionPages, errorPages, contentPages, cargoPages);
+    executionHashText = JSON.stringify([dayPages, questionPages, errorPages, activityPages, unitPages, contentPages, cargoPages].map((pages) =>
       pages.map((item) => ({ id: item.id, edited: item.last_edited_time, properties: item.properties }))
     ));
   } catch (error) {
-    console.error("TJDFT execution sync unavailable:", error instanceof Error ? error.message : "unknown error");
+    console.error("TJDFT operational sync unavailable:", error instanceof Error ? error.message : "unknown error");
   }
   if (!execution || execution.c01.days.length < 10) execution = fallback?.execution || execution;
+  if (!operational) operational = fallback?.operational || null;
 
   const contentHash = await sha256(
     [sourceText, materialsText, sequenceText, executionHashText].filter(Boolean).join("\n"),
@@ -782,6 +1086,7 @@ export async function buildSnapshot(token: string) {
     },
     materials,
     execution,
+    operational,
     notice: "Dados consultados em tempo real no Notion. O site expõe apenas um índice sanitizado de materiais, fontes e execução do CTJ-002.",
   };
 }
