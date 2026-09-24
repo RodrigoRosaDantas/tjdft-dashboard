@@ -49,7 +49,7 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     label:"PRÓXIMA AÇÃO",
     code:firstReady.code,
     title:firstReady.title,
-    href:firstReady.internal_path ? firstReady.internal_path.replace(/^\/+/,"") : `portugues-rlm/${String(firstReady.code).toLowerCase()}/`,
+    href:`portugues-rlm/${String(firstReady.code).toLowerCase()}/`,
     reason: executed.length
       ? "É a primeira unidade disponível da sequência canônica sem evidência pública de conclusão desta trilha."
       : "É a primeira unidade canônica com material disponível; o snapshot público ainda não traz execução da esteira 1–37.",
