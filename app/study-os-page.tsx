@@ -11,6 +11,12 @@ const labels: Record<View,string> = {
 };
 
 function percent(v:number|null){ return v==null ? "—" : `${Math.round(v*100)}%`; }
+function count(v:number|null|undefined){ return v==null ? "—" : String(v); }
+function shortDate(v:string|null|undefined){
+  if(!v) return "data —";
+  const date=new Date(v);
+  return Number.isNaN(date.valueOf()) ? "data —" : new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeZone:"America/Sao_Paulo"}).format(date);
+}
 function route(root:boolean, slug:string){ return root ? `./${slug}/` : `../${slug}/`; }
 
 function Metric({label,value,detail}:{label:string;value:string|number;detail:string}) {
@@ -31,7 +37,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     <header className="os-topbar">
       <a className="os-brand" href={base}><b>TJDFT</b><span>Study OS</span></a>
       <nav aria-label="Navegação operacional">
-        {nav.slice(0,6).map(([id,slug])=><a key={id} className={view===id?"active":""} href={route(root,slug)}>{labels[id]}</a>)}
+        {nav.map(([id,slug])=><a key={id} className={view===id?"active":""} href={route(root,slug)}>{labels[id]}</a>)}
         <a href={route(root,"leis")}>Leis</a><a href={route(root,"portugues-rlm")}>Português + RLM</a>
       </nav>
     </header>
@@ -52,17 +58,17 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     <section className="os-metrics">
       <Metric label="Questões com evidência" value={m.execution.questions || "—"} detail={m.execution.evidence.label}/>
       <Metric label="Precisão" value={percent(m.execution.precision)} detail={m.execution.precision==null?"não calculável":"sobre execução registrada"}/>
-      <Metric label="Materiais prontos" value={m.meta.editorialReady} detail="publicado ≠ estudado"/>
-      <Metric label="Leis ativas" value={m.meta.lawActive} detail="históricas fora da fila ativa"/>
+      <Metric label="Progresso D0" value={m.trail.d0==null?"—":`${m.trail.d0}/${m.sequence.total}`} detail="material pronto ≠ estudado"/>
+      <Metric label="Erros ativos" value={count(m.errorCount)} detail={m.errorCount==null?"aguardando snapshot operacional":"resolvidos/arquivados ficam fora"}/>
     </section>
 
     {view==="home" && <div className="os-grid">
       <section className="os-card"><h2>O que faço agora?</h2><p>{m.nextAction.reason}</p><a href={route(root,"hoje")}>Abrir Hoje →</a></section>
-      <section className="os-card"><h2>Onde estou?</h2><p>{m.sequence.total} posições na esteira canônica. O site distingue material pronto de execução real.</p><a href={route(root,"trilha")}>Ver trilha →</a></section>
-      <section className="os-card"><h2>Onde estou errando?</h2><p>{m.weaknesses.length? `${m.weaknesses.length} fragilidade(s) sustentada(s).`:"Sem fragilidade sustentada pela amostra atual."}</p><a href={route(root,"erros")}>Caderno de erros →</a></section>
-      <section className="os-card"><h2>Onde estou bem?</h2><p>{m.strengths.length? `${m.strengths.length} força(s) sustentada(s).`:"Amostra insuficiente para declarar forças."}</p><a href={route(root,"desempenho")}>Desempenho →</a></section>
-      <section className="os-card"><h2>Existe risco?</h2><p>{m.risks.length? `${m.risks.length} sinal(is), sem alarmismo.`:"Nenhum risco sustentado."}</p><a href={route(root,"riscos")}>Riscos →</a></section>
-      <section className="os-card"><h2>Sistema</h2><p>{m.quality.issues.length} observação(ões) de qualidade de dados.</p><a href={route(root,"qualidade-dados")}>Auditar dados →</a></section>
+      <section className="os-card"><h2>Onde estou?</h2><p>{m.trail.d0==null?"Ainda sem resumo operacional publicado.":`${m.trail.d0} de ${m.sequence.total} posições com D0 concluído.`} D7: {count(m.trail.d7)} · D20: {count(m.trail.d20)}.</p><a href={route(root,"trilha")}>Ver trilha →</a></section>
+      <section className="os-card"><h2>Onde estou errando?</h2><p>{m.errorCount!=null?`${m.errorCount} erro(s) ativo(s).`:"Caderno operacional ainda sem resumo público."} {m.weaknesses.length?`${m.weaknesses.length} fragilidade(s) com amostra suficiente.`:"Sem fragilidade estatística sustentada."}</p><a href={route(root,"erros")}>Caderno de erros →</a></section>
+      <section className="os-card"><h2>Onde estou bem?</h2><p>{m.strengths.length?m.strengths.map((item:any)=>item.subject).join(", "):"Amostra insuficiente para declarar forças."}</p><a href={route(root,"desempenho")}>Desempenho →</a></section>
+      <section className="os-card"><h2>Revisões</h2><p>{m.agenda.filter((item:any)=>item.state==="vencida").length} vencida(s) · {m.agenda.filter((item:any)=>item.state==="hoje").length} para hoje. Itens sem data ficam apenas programados.</p><a href={route(root,"revisoes")}>Abrir revisões →</a></section>
+      <section className="os-card"><h2>Sistema e riscos</h2><p>{m.risks.length} sinal(is) · {m.quality.issues.length} observação(ões) de integridade.</p><a href={route(root,"riscos")}>Ver riscos →</a> · <a href={route(root,"qualidade-dados")}>qualidade →</a></section>
     </div>}
 
     {view==="hoje" && <div className="os-grid">
