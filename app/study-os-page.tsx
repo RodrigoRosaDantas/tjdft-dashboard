@@ -1,4 +1,5 @@
 
+import type { ReactNode } from "react";
 import { getStudyOsModel } from "./study-os-model";
 
 type View = "home"|"hoje"|"mentor"|"trilha"|"agenda"|"revisoes"|"erros"|"desempenho"|"riscos"|"tecnico"|"analista"|"qualidade"|"sincronizacao";
@@ -15,7 +16,7 @@ function route(root:boolean, slug:string){ return root ? \`./\${slug}/\` : \`../
 function Metric({label,value,detail}:{label:string;value:string|number;detail:string}) {
   return <article className="os-metric"><span>{label}</span><strong>{value}</strong><small>{detail}</small></article>;
 }
-function Notice({children}:{children:React.ReactNode}) { return <div className="os-notice">{children}</div>; }
+function Notice({children}:{children:ReactNode}) { return <div className="os-notice">{children}</div>; }
 
 export default function StudyOsPage({view,root=false}:{view:View;root?:boolean}) {
   const m=getStudyOsModel();
