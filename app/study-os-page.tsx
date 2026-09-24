@@ -10,8 +10,8 @@ const labels: Record<View,string> = {
   qualidade:"Qualidade dos dados", sincronizacao:"Sincronização",
 };
 
-function percent(v:number|null){ return v==null ? "—" : \`\${Math.round(v*100)}%\`; }
-function route(root:boolean, slug:string){ return root ? \`./\${slug}/\` : \`../\${slug}/\`; }
+function percent(v:number|null){ return v==null ? "—" : `${Math.round(v*100)}%`; }
+function route(root:boolean, slug:string){ return root ? `./${slug}/` : `../${slug}/`; }
 
 function Metric({label,value,detail}:{label:string;value:string|number;detail:string}) {
   return <article className="os-metric"><span>{label}</span><strong>{value}</strong><small>{detail}</small></article>;
@@ -26,7 +26,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     ["erros","erros"],["desempenho","desempenho"],["riscos","riscos"],["tecnico","tecnico"],["analista","analista"],
     ["qualidade","qualidade-dados"],["sincronizacao","sincronizacao"],
   ];
-  const actionHref = m.nextAction?.href ? (root ? \`./\${m.nextAction.href}\` : \`../\${m.nextAction.href}\`) : route(root,"portugues-rlm");
+  const actionHref = m.nextAction?.href ? (root ? `./${m.nextAction.href}` : `../${m.nextAction.href}`) : route(root,"portugues-rlm");
   return <main className="study-os">
     <header className="os-topbar">
       <a className="os-brand" href={base}><b>TJDFT</b><span>Study OS</span></a>
@@ -44,7 +44,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </section>
 
     {(view==="home"||view==="hoje"||view==="mentor") && <section className="os-action">
-      <div><span className="os-pill">{m.nextAction.label}</span><h2>{m.nextAction.code ? \`\${m.nextAction.code} · \` : ""}{m.nextAction.title}</h2>
+      <div><span className="os-pill">{m.nextAction.label}</span><h2>{m.nextAction.code ? `${m.nextAction.code} · ` : ""}{m.nextAction.title}</h2>
       <p>{m.nextAction.reason}</p><div className="os-evidence"><span>Confiança: <b>{m.nextAction.confidence}</b></span><span>Amostra: <b>{m.execution.evidence.label}</b></span><span>Ordem 1–37: <b>{m.sequence.valid?"íntegra":"divergente"}</b></span></div></div>
       <a className="os-cta" href={actionHref}>Executar agora →</a>
     </section>}
@@ -59,9 +59,9 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     {view==="home" && <div className="os-grid">
       <section className="os-card"><h2>O que faço agora?</h2><p>{m.nextAction.reason}</p><a href={route(root,"hoje")}>Abrir Hoje →</a></section>
       <section className="os-card"><h2>Onde estou?</h2><p>{m.sequence.total} posições na esteira canônica. O site distingue material pronto de execução real.</p><a href={route(root,"trilha")}>Ver trilha →</a></section>
-      <section className="os-card"><h2>Onde estou errando?</h2><p>{m.weaknesses.length? \`\${m.weaknesses.length} fragilidade(s) sustentada(s).\`:"Sem fragilidade sustentada pela amostra atual."}</p><a href={route(root,"erros")}>Caderno de erros →</a></section>
-      <section className="os-card"><h2>Onde estou bem?</h2><p>{m.strengths.length? \`\${m.strengths.length} força(s) sustentada(s).\`:"Amostra insuficiente para declarar forças."}</p><a href={route(root,"desempenho")}>Desempenho →</a></section>
-      <section className="os-card"><h2>Existe risco?</h2><p>{m.risks.length? \`\${m.risks.length} sinal(is), sem alarmismo.\`:"Nenhum risco sustentado."}</p><a href={route(root,"riscos")}>Riscos →</a></section>
+      <section className="os-card"><h2>Onde estou errando?</h2><p>{m.weaknesses.length? `${m.weaknesses.length} fragilidade(s) sustentada(s).`:"Sem fragilidade sustentada pela amostra atual."}</p><a href={route(root,"erros")}>Caderno de erros →</a></section>
+      <section className="os-card"><h2>Onde estou bem?</h2><p>{m.strengths.length? `${m.strengths.length} força(s) sustentada(s).`:"Amostra insuficiente para declarar forças."}</p><a href={route(root,"desempenho")}>Desempenho →</a></section>
+      <section className="os-card"><h2>Existe risco?</h2><p>{m.risks.length? `${m.risks.length} sinal(is), sem alarmismo.`:"Nenhum risco sustentado."}</p><a href={route(root,"riscos")}>Riscos →</a></section>
       <section className="os-card"><h2>Sistema</h2><p>{m.quality.issues.length} observação(ões) de qualidade de dados.</p><a href={route(root,"qualidade-dados")}>Auditar dados →</a></section>
     </div>}
 
@@ -78,10 +78,10 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </div>}
 
     {view==="trilha" && <section className="os-card os-table-card"><h2>Português Primeiro + RLM Preventivo</h2><div className="os-list">
-      {m.sequence.units.map((u:any)=><a key={u.code} href={root?\`./portugues-rlm/\${u.code.toLowerCase()}/\`:\`../portugues-rlm/\${u.code.toLowerCase()}/\`}><b>{u.canonical_order}. {u.code}</b><span>{u.title}</span><em>{u.material_ready?"material pronto":"em edição"} · execução: —</em></a>)}
+      {m.sequence.units.map((u:any)=><a key={u.code} href={root?`./portugues-rlm/${u.code.toLowerCase()}/`:`../portugues-rlm/${u.code.toLowerCase()}/`}><b>{u.canonical_order}. {u.code}</b><span>{u.title}</span><em>{u.material_ready?"material pronto":"em edição"} · execução: —</em></a>)}
     </div></section>}
 
-    {view==="agenda" && <section className="os-card os-table-card"><h2>Agenda unificada</h2><Notice>Sem datas reais suficientes, itens sem vencimento não são classificados artificialmente como atrasados.</Notice><div className="os-list">{m.agenda.map((a:any,i:number)=><div key={a.code+i}><b>{a.code}</b><span>{a.title}</span><em>{a.state}{a.date?\` · \${a.date}\`:" · data —"}</em></div>)}</div></section>}
+    {view==="agenda" && <section className="os-card os-table-card"><h2>Agenda unificada</h2><Notice>Sem datas reais suficientes, itens sem vencimento não são classificados artificialmente como atrasados.</Notice><div className="os-list">{m.agenda.map((a:any,i:number)=><div key={a.code+i}><b>{a.code}</b><span>{a.title}</span><em>{a.state}{a.date?` · ${a.date}`:" · data —"}</em></div>)}</div></section>}
 
     {view==="revisoes" && <section className="os-card os-table-card"><h2>REV01–REV06</h2><Notice>D0/D7/D20 só entram como “hoje” ou “vencida” quando houver data real confiável.</Notice><div className="os-list">{m.reviews.map((r:any)=><div key={r.code}><b>{r.code}</b><span>{r.title}</span><em>{r.materialReady?"material pronto":"em edição"} · execução: —</em></div>)}</div></section>}
 
