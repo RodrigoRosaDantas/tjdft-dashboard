@@ -72,19 +72,22 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </div>}
 
     {view==="hoje" && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Plano de execução</h2><ol><li>Abrir a unidade recomendada.</li><li>Executar teoria/questões conforme a página.</li><li>Registrar a execução no Notion.</li><li>Fechar erros e revisão sem alterar a sequência canônica.</li></ol></section>
-      <section className="os-card"><h2>Revisões</h2><p>REV01–REV06 permanecem nas posições canônicas. Sem data real de execução, D7/D20 não são inventados.</p></section>
-      <section className="os-card"><h2>Continuidade</h2><p>{m.nextAction.kind==="resume"?"Há sessão parcial: retomar prevalece.":"Não há sessão parcial pública identificada."}</p></section>
+      <section className="os-card os-wide"><h2>Plano de execução</h2><ol><li>{m.nextAction.kind==="resume"?"Retomar a sessão em andamento.":"Abrir a próxima unidade canônica."}</li><li>Executar teoria e questões conforme a página.</li><li>Registrar a execução real no Notion.</li><li>Fechar erros e D0; D7/D20 seguem em paralelo sem quebrar a Ordem 1–37.</li></ol></section>
+      <section className="os-card"><h2>Ponto mais fraco</h2><p>{m.weaknesses[0]?<><b>{m.weaknesses[0].subject}</b> · {m.weaknesses[0].reason}</>:"Nenhum ponto fraco declarado sem amostra suficiente."}</p><a href={route(root,"desempenho")}>Ver evidências →</a></section>
+      <section className="os-card"><h2>Revisões do dia</h2><p>{m.agenda.filter((item:any)=>item.state==="vencida").length} vencida(s) · {m.agenda.filter((item:any)=>item.state==="hoje").length} para hoje.</p><a href={route(root,"revisoes")}>Abrir fila →</a></section>
+      <section className="os-card"><h2>Erro prioritário</h2><p>{m.activeErrors[0]?<><b>{m.activeErrors[0].topic||m.activeErrors[0].subject}</b> · {m.activeErrors[0].severity} {m.activeErrors[0].action?"· "+m.activeErrors[0].action:""}</>:"Nenhum erro ativo no resumo operacional."}</p><a href={route(root,"erros")}>Caderno de erros →</a></section>
+      <section className="os-card"><h2>Acessos rápidos</h2><p><a href={route(root,"portugues-rlm")}>Português + RLM →</a><br/><a href={route(root,"leis")}>Leis Primeiro →</a><br/><a href={route(root,"painel-legado")}>Painel detalhado →</a></p></section>
     </div>}
 
     {view==="mentor" && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Por que esta decisão?</h2><p>{m.nextAction.reason}</p><ul><li>sequência canônica preservada: {m.sequence.valid?"sim":"não"}</li><li>confiança: {m.nextAction.confidence}</li><li>amostra: {m.execution.evidence.label}</li><li>tendência: {m.execution.trend}</li></ul></section>
-      <section className="os-card"><h2>Impacto</h2><p>O Mentor pode inserir intervenção curta por fragilidade, mas sempre retorna à Ordem 1–37.</p></section>
-      <section className="os-card"><h2>Caixa-preta?</h2><p>Não. Motivo, evidência, confiança e próxima ação são exibidos juntos.</p></section>
+      <section className="os-card os-wide"><h2>Por que esta decisão?</h2><p>{m.nextAction.reason}</p><div className="os-decision-grid"><div><span>Ação</span><b>{m.nextAction.label}</b></div><div><span>Confiança</span><b>{m.nextAction.confidence}</b></div><div><span>Amostra</span><b>{m.execution.evidence.label}</b></div><div><span>Tendência</span><b>{m.execution.trend}</b></div></div></section>
+      <section className="os-card"><h2>Impacto esperado</h2><p>{m.nextAction.kind==="resume"?"Evitar dispersão e concluir o que já começou.":m.weaknesses[0]?"Avançar a esteira sem ignorar "+m.weaknesses[0].subject+", que permanece como intervenção curta.":"Avançar a esteira sem criar uma fragilidade artificial."}</p></section>
+      <section className="os-card"><h2>Proteções da decisão</h2><ul><li>Ordem 1–37: {m.sequence.valid?"íntegra":"divergente"}</li><li>Material pronto não conta como estudo.</li><li>Erro resolvido/arquivado não entra como risco ativo.</li><li>Técnico e Analista não compartilham domínio por inferência.</li></ul></section>
+      <section className="os-card os-wide"><h2>Evidências usadas</h2><p>{m.execution.questions?String(m.execution.questions)+" questões · "+count(m.execution.sessions)+" dia(s) com data · "+percent(m.execution.precision)+" de precisão.":"Sem amostra de questões suficiente."} {m.errorCount!=null?String(m.errorCount)+" erro(s) ativo(s).":"Caderno ativo ainda sem resumo."}</p></section>
     </div>}
 
-    {view==="trilha" && <section className="os-card os-table-card"><h2>Português Primeiro + RLM Preventivo</h2><div className="os-list">
-      {m.sequence.units.map((u:any)=><a key={u.code} href={root?`./portugues-rlm/${u.code.toLowerCase()}/`:`../portugues-rlm/${u.code.toLowerCase()}/`}><b>{u.canonical_order}. {u.code}</b><span>{u.title}</span><em>{u.material_ready?"material pronto":"em edição"} · execução: —</em></a>)}
+    {view==="trilha" && <section className="os-card os-table-card"><h2>Português Primeiro + RLM Preventivo</h2><Notice>A Ordem da esteira continua canônica. D0 fecha a passagem inicial; D7 e D20 seguem em paralelo.</Notice><div className="os-list">
+      {m.sequence.units.map((u:any)=><a key={u.code} href={(root?"./":"../")+"portugues-rlm/"+u.code.toLowerCase()+"/"}><b>{u.canonical_order}. {u.code}</b><span>{u.title}</span><em>{u.study_state||"sem estado operacional"} · D0 {u.d0==null?"—":u.d0?"✓":"○"} · D7 {u.d7==null?"—":u.d7?"✓":"○"} · D20 {u.d20==null?"—":u.d20?"✓":"○"} · {u.material_ready?"material pronto":"em edição"}</em></a>)}
     </div></section>}
 
     {view==="agenda" && <section className="os-card os-table-card"><h2>Agenda unificada</h2><Notice>Sem datas reais suficientes, itens sem vencimento não são classificados artificialmente como atrasados.</Notice><div className="os-list">{m.agenda.map((a:any,i:number)=><div key={a.code+i}><b>{a.code}</b><span>{a.title}</span><em>{a.state}{a.date?` · ${a.date}`:" · data —"}</em></div>)}</div></section>}
