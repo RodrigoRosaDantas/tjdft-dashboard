@@ -113,16 +113,22 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     {view==="riscos" && <section className="os-card os-table-card"><h2>Riscos sustentados</h2>{!m.risks.length?<Notice>Nenhum risco sustentado.</Notice>:<div className="os-list">{m.risks.map((r:any,i:number)=><div key={i}><b>{r.title}</b><span>{r.detail}</span><em>{r.evidence}</em></div>)}</div>}</section>}
 
     {(view==="tecnico"||view==="analista") && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Cobertura · {labels[view]}</h2><p>Itens da matriz de referência: <b>{m.coverage[view].matrix}</b>.</p><div className="os-evidence"><span>estudado: <b>—</b></span><span>praticado: <b>—</b></span><span>consolidado: <b>—</b></span></div><Notice>Quantidade mapeada não é domínio. Técnico e Analista não contaminam cobertura mutuamente.</Notice></section>
-      <section className="os-card"><h2>Núcleo comum</h2><p>{m.coverage.common.matrix} item(ns) explicitamente compartilhados na matriz pública.</p></section>
+      <section className="os-card os-wide"><h2>Cobertura · {labels[view]}</h2><div className="os-decision-grid"><div><span>Matriz</span><b>{count(m.coverage[view].matrix)}</b></div><div><span>Mapeado</span><b>{count(m.coverage[view].mapped)}</b></div><div><span>Estudado</span><b>{count(m.coverage[view].studied)}</b></div><div><span>Praticado</span><b>{count(m.coverage[view].practiced_questions)} q.</b></div><div><span>Consolidado</span><b>{count(m.coverage[view].consolidated)}</b></div></div><Notice>Contagem de matriz, estudo, prática e consolidação são dimensões diferentes. Um cargo não herda domínio do outro.</Notice></section>
+      <section className="os-card"><h2>Núcleo comum detectado</h2><p>{m.coverage.common.subjects?.length?m.coverage.common.subjects.join(", "):"Sem interseção operacional declarada suficiente."}</p></section>
       <section className="os-card"><h2>Legislação</h2><p>{m.coverage.laws.active} normas ativas · {m.coverage.laws.historical} históricas/fora da fila ativa.</p></section>
+      <section className="os-card os-wide"><h2>Matérias mapeadas</h2><p>{m.coverage[view].subjects?.length?m.coverage[view].subjects.join(" · "):"Matriz ainda sem matérias sanitizadas publicadas."}</p></section>
     </div>}
 
-    {view==="qualidade" && <section className="os-card os-table-card"><h2>Auditoria de dados</h2><div className="os-list">{m.quality.issues.map((q:any)=><div key={q.code}><b>{q.severity.toUpperCase()} · {q.code}</b><span>{q.message}</span><em>não corrigido silenciosamente no Notion</em></div>)}</div></section>}
+    {view==="qualidade" && <div className="os-grid">
+      <section className="os-card os-wide"><h2>Auditoria de dados</h2>{m.quality.issues.length?<div className="os-list">{m.quality.issues.map((q:any)=><div key={q.code}><b>{q.severity.toUpperCase()} · {q.code}</b><span>{q.message}</span><em>não corrigido silenciosamente no Notion</em></div>)}</div>:<Notice>Nenhuma inconsistência detectada pelos gates atuais.</Notice>}</section>
+      <section className="os-card"><h2>Vocabulário seguro</h2><p>{m.aliases.safe?.length||0} alias(es) explícito(s). Alias ambíguo nunca é fundido automaticamente.</p></section>
+      <section className="os-card"><h2>Snapshot</h2><p>Status: <b>{m.quality.sourceStatus||"—"}</b> · schema operacional: <b>{m.meta.operationalSchema||"—"}</b>.</p></section>
+    </div>}
 
     {view==="sincronizacao" && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Contrato de fonte</h2><p><b>Notion → GitHub/snapshot → inteligência → site.</b></p><p>Supabase permanece camada auxiliar de leitura/integração; não substitui silenciosamente o Notion.</p></section>
-      <section className="os-card"><h2>Snapshot</h2><p>Última sincronização: {m.quality.sourceSyncedAt||"—"}.</p></section>
+      <section className="os-card os-wide"><h2>Contrato de fonte</h2><p><b>Notion → snapshot sanitizado no GitHub → inteligência → site.</b></p><p>Supabase é camada auxiliar para leitura ao vivo e persistência de contingência; não substitui silenciosamente o Notion.</p></section>
+      <section className="os-card"><h2>Snapshot público</h2><p>Versão operacional: {m.meta.operationalSchema||"legada"} · conteúdo sincronizado: {m.quality.sourceSyncedAt||"—"}.</p></section>
+      <section className="os-card"><h2>Privacidade operacional</h2><p>Histórico pessoal e texto bruto de questões/erros não entram no snapshot de inteligência. O site recebe agregados e sinais necessários à decisão.</p></section>
       <section className="os-card"><h2>Plano B</h2><a href={base+"painel-legado/"}>Abrir painel detalhado →</a></section>
     </div>}
 
