@@ -597,7 +597,7 @@ function buildOperationalSnapshot(
   const sequence = trailItems.map((item) => item.code);
   const sequenceValid = CANONICAL_TRAIL.every((code, index) => sequence[index] === code) &&
     sequence.length === CANONICAL_TRAIL.length;
-  const nextTrail = trailItems.find((item) => !/Dominado/i.test(item.state)) || null;
+  const nextTrail = trailItems.find((item) => !item.d0) || null;
   const formalReviews = trailItems.filter((item) => /^REV\d{2}$/.test(item.code));
 
   const activities = activityPages.map((page) => {
@@ -607,6 +607,8 @@ function buildOperationalSnapshot(
     const date = publicDate(propertyDate(p, ["Data executada", "Data planejada"]));
     return {
       type: propertyText(p, "Tipo") || "Atividade",
+      activity: propertyText(p, "Atividade") || propertyText(p, "Dia de execução") || "Atividade",
+      day: propertyText(p, "Dia de execução") || null,
       state: result || status || "Não iniciado",
       status,
       subject: canonicalSubject(propertyText(p, "Matéria")),
