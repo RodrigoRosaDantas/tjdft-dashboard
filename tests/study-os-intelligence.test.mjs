@@ -405,3 +405,25 @@ test("sem total de anuladas conhecido não há precisão por disciplina",()=>{
   assert.equal(m.execution.bySubject[0].precision,null);
   assert.equal(m.strengths.length,0);
 });
+
+test("questões anuladas fecham o total bruto e saem da precisão",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.questions={
+    total:12,correct:8,errors:3,doubts:null,annulled:1,precision:8/11,
+    by_subject:[{subject:"Português",total:12,correct:8,errors:3,annulled:1,sessions:2}],
+    by_cargo:[],by_date:[],
+  };
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.execution.questions,11);
+  assert.equal(m.execution.attemptedQuestions,12);
+  assert.equal(m.execution.annulled,1);
+  assert.equal(m.execution.precision,8/11);
+  assert.equal(m.execution.bySubject[0].questions,11);
+  assert.equal(m.execution.bySubject[0].precision,8/11);
+});
+
+test("tempo negativo preservado como inválido continua visível após normalização",()=>{
+  const x=base();
+  x.dashboard.execution.c01.days=[{day:"D01",status:"Concluído",done:null,correct:null,errors:null,minutes:null,invalid_time:true}];
+  assert.ok(buildTJDFTIntelligence(x).quality.issues.some((issue)=>issue.code==="negative-time"));
+});

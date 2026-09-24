@@ -138,12 +138,14 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   const sessions = sessionKeys.size ? sessionKeys.size : null;
   const opTotal = n(opQuestions?.total);
   const legacyTotal = n(totals.done) ?? sumKnown(observedDays.map((day) => day.done));
-  const opHasQuestions = opTotal > 0 || n(op?.continuity?.questions) > 0;
+  const opActivityQuestions = n(op?.continuity?.questions);
+  const opHasQuestions = opTotal > 0 || opActivityQuestions > 0;
   const legacyHasQuestions = legacyTotal > 0 || observedDays.some((day) => day.executed_at && n(day.done) === 0);
   const useOperationalQuestions = opHasQuestions || (!legacyHasQuestions && Boolean(opQuestions));
   const hasQuestionEvidence = opHasQuestions || legacyHasQuestions;
+  const operationalTotal = opTotal ?? opActivityQuestions ?? sumKnown(opByDate.map((row) => row.total));
   const questions = hasQuestionEvidence
-    ? (useOperationalQuestions ? opTotal ?? sumKnown(opByDate.map((row) => row.total)) : legacyTotal)
+    ? (useOperationalQuestions ? operationalTotal : legacyTotal)
     : null;
   const correct = hasQuestionEvidence
     ? (useOperationalQuestions ? n(opQuestions?.correct) : n(totals.correct) ?? sumKnown(observedDays.map((day) => day.correct)))
@@ -160,16 +162,17 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     : observedDays.length
       ? (n(totals.minutes) ?? sumKnown(observedDays.map((day) => day.minutes)))
       : null;
-  const effectiveQuestions = questions != null && n(totals.annulled) != null && !useOperationalQuestions
-    ? Math.max(0, questions - n(totals.annulled))
+  const annulled = useOperationalQuestions
+    ? n(opQuestions?.annulled) ?? sumKnown(opByDate.map((row) => row.annulled))
+    : n(totals.annulled) ?? sumKnown(observedDays.map((day) => day.annulled));
+  const effectiveQuestions = questions != null && annulled != null
+    ? Math.max(0, questions - annulled)
     : questions;
-  const legacyCountsValid = useOperationalQuestions || outcomeCountsReconcile(questions, correct, errors, totals.annulled);
+  const legacyCountsValid = outcomeCountsReconcile(questions, correct, errors, annulled);
   const trustedCorrect = legacyCountsValid ? correct : null;
   const trustedErrors = legacyCountsValid ? errors : null;
   const evidence = evidenceClass(effectiveQuestions, sessions);
-  const precision = useOperationalQuestions
-    ? n(opQuestions?.precision) ?? pct(correct, questions)
-    : legacyCountsValid ? pct(correct, effectiveQuestions) : null;
+  const precision = legacyCountsValid ? pct(correct, effectiveQuestions) : null;
   const legacySeries = observedDays
     .filter((day) => day.executed_at && n(day.done) > 0)
     .map((day) => ({ date:day.executed_at, total:day.done, correct:day.correct, annulled:n(day.annulled) }));
@@ -440,13 +443,13 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   if (!datedSessionKeys.size) issues.push({severity:"info",code:"real-date-absent",message:"Sem datas reais de resolução suficientes para calcular tendência."});
   if (sessions != null && sessions > datedSessionKeys.size) issues.push({severity:"medium",code:"execution-without-date",message:"Há execução registrada sem data real; ela conta como continuidade, mas não entra na tendência temporal."});
   if (questions != null && questions > 0 && !legacyCountsValid) issues.push({severity:"high",code:"incomplete-correction",message:"Há questões sem correção completa ou contagens que fechem; o sistema preservou o total, mas não calculou precisão."});
-  if (!useOperationalQuestions && questions != null && correct != null && errors != null && n(totals.annulled) != null && !outcomeCountsReconcile(questions, correct, errors, totals.annulled)) {
+  if (questions != null && correct != null && errors != null && annulled != null && !legacyCountsValid) {
     issues.push({severity:"high",code:"question-total-sum",message:"Acertos, erros e anuladas não fecham com o total respondido."});
   }
   for (const d of executionDays) {
     const done=n(d.done), c=n(d.correct), e=n(d.errors);
     if (done!=null && c!=null && e!=null && c+e!==done) issues.push({severity:"high",code:"question-sum",message:`${d.day}: acertos + erros divergem do total executado.`});
-    if (n(d.minutes)<0) issues.push({severity:"high",code:"negative-time",message:`${d.day}: tempo negativo.`});
+    if (d.invalid_time === true || n(d.minutes)<0) issues.push({severity:"high",code:"negative-time",message:`${d.day}: tempo negativo.`});
   }
   if (n(op?.integrity?.duplicate_trail_orders) > 0) issues.push({severity:"critical",code:"duplicate-trail-order",message:"Há Ordem da esteira duplicada no Notion."});
   if (n(op?.integrity?.invalid_times) > 0) issues.push({severity:"high",code:"invalid-time",message:"Há tempo negativo em registros operacionais."});
@@ -524,7 +527,7 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
       next:nextTrail,
     },
     execution:{
-      sessions,questions,correct:trustedCorrect,errors:trustedErrors,doubts,minutes,precision,evidence,
+      sessions,questions:effectiveQuestions,attemptedQuestions:questions,annulled,correct:trustedCorrect,errors:trustedErrors,doubts,minutes,precision,evidence,
       trend:trend.label,
       trendDetail:trend,
       bySubject:performance,

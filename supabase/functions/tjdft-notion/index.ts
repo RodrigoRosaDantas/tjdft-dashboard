@@ -397,6 +397,7 @@ function parseExecutionDay(page: AnyRecord) {
     doubts,
     annulled,
     minutes: rawMinutes != null && rawMinutes > 0 ? rawMinutes : null,
+    invalid_time: rawMinutes != null && rawMinutes < 0,
     precision: precision(correct, done != null && annulled != null ? done - annulled : null),
     progress: planned != null && planned > 0 && done != null ? done / planned : null,
     href: propertyUrl(properties, "Página do dia") || page.url || notionPageUrl(page.id),
@@ -433,6 +434,8 @@ function buildExecutionSnapshot(
   const answers: AnyRecord[] = [];
 
   for (const item of questions) {
+    const day = item.day;
+    if (!day) continue;
     const properties = item.properties;
     const result = propertyText(properties, "Resultado");
     const isCorrect = /correta|certa|acert/i.test(result) && !/errada|erro/i.test(result);
@@ -469,14 +472,18 @@ function buildExecutionSnapshot(
     const subjectKey = answer.subject;
     const subject = subjects.get(subjectKey) || {
       subject: subjectKey, planned_values: [], done: 0, correct: 0, errors: 0,
-      doubts: 0, annulled: 0, known_annulled: true, rows: 0, answered_rows: 0,
+      doubts: 0, annulled: 0, known_correct: true, known_errors: true,
+      known_doubts: true, known_annulled: true, rows: 0, answered_rows: 0,
     };
     subject.rows += 1;
     subject.answered_rows += 1;
     subject.done += done;
-    subject.correct = correct == null ? null : subject.correct == null ? correct : subject.correct + correct;
-    subject.errors = errors == null ? null : subject.errors == null ? errors : subject.errors + errors;
-    subject.doubts = doubts == null ? null : subject.doubts == null ? doubts : subject.doubts + doubts;
+    if (correct == null) subject.known_correct = false;
+    else if (subject.known_correct) subject.correct += correct;
+    if (errors == null) subject.known_errors = false;
+    else if (subject.known_errors) subject.errors += errors;
+    if (doubts == null) subject.known_doubts = false;
+    else if (subject.known_doubts) subject.doubts += doubts;
     if (answer.annulled == null) subject.known_annulled = false;
     else if (subject.known_annulled) subject.annulled += answer.annulled;
     subject.planned_values.push(answer.planned);
@@ -501,7 +508,7 @@ function buildExecutionSnapshot(
       cargoBySubject.set(cargoKey, cargoRow);
     }
 
-    const stats = dayStats.get(item.day) || { done: 0, correct: 0, errors: 0, doubts: 0, annulled: 0, known_correct: true, known_errors: true, known_doubts: true, known_annulled: true };
+    const stats = dayStats.get(day) || { done: 0, correct: 0, errors: 0, doubts: 0, annulled: 0, known_correct: true, known_errors: true, known_doubts: true, known_annulled: true };
     stats.done += done;
     if (answer.annulled == null) stats.known_annulled = false;
     else if (stats.known_annulled) stats.annulled += answer.annulled;
@@ -511,7 +518,7 @@ function buildExecutionSnapshot(
     else stats.errors += errors;
     if (doubts == null) stats.known_doubts = false;
     else stats.doubts += doubts;
-    dayStats.set(item.day, stats);
+    dayStats.set(day, stats);
 
     if (answer.answered_at) {
       const key = answer.answered_at.slice(0, 10);
@@ -582,10 +589,10 @@ function buildExecutionSnapshot(
         subject: row.subject,
         planned: sumNullable(row.planned_values),
         done: row.answered_rows ? row.done : null,
-        correct: row.answered_rows ? row.correct : null,
-        errors: row.answered_rows ? row.errors : null,
-        doubts: row.answered_rows ? row.doubts : null,
-        precision: precision(row.correct, row.done != null && row.known_annulled ? row.done - row.annulled : null),
+        correct: row.answered_rows && row.known_correct ? row.correct : null,
+        errors: row.answered_rows && row.known_errors ? row.errors : null,
+        doubts: row.answered_rows && row.known_doubts ? row.doubts : null,
+        precision: precision(row.known_correct ? row.correct : null, row.done != null && row.known_annulled ? row.done - row.annulled : null),
         rows: row.rows,
         sessions: bySubjectSessions.get(row.subject)?.size ?? 0,
       })).sort((a, b) => (b.planned ?? 0) - (a.planned ?? 0) || a.subject.localeCompare(b.subject))
@@ -633,9 +640,9 @@ function buildExecutionSnapshot(
   const subjectRows = Array.from(subjects.values()).map((row) => ({
     subject: row.subject,
     total: row.answered_rows ? row.done : null,
-    correct: row.answered_rows ? row.correct : null,
-    errors: row.answered_rows ? row.errors : null,
-    doubts: row.answered_rows ? row.doubts : null,
+    correct: row.answered_rows && row.known_correct ? row.correct : null,
+    errors: row.answered_rows && row.known_errors ? row.errors : null,
+    doubts: row.answered_rows && row.known_doubts ? row.doubts : null,
     annulled: row.answered_rows && row.known_annulled ? row.annulled : null,
     sessions: bySubjectSessions.get(row.subject)?.size ?? 0,
   }));
@@ -799,7 +806,7 @@ function buildOperationalSnapshot(
       next_action: propertyText(p, "Próxima ação"),
     };
   }).filter((item) =>
-    item.date || item.minutes > 0 || item.questions > 0 || /Em execução|Em andamento|Concluída|Concluído|Revisar/i.test(item.state + " " + item.status)
+    item.date || (item.minutes != null && item.minutes > 0) || (item.questions != null && item.questions > 0) || /Em execução|Em andamento|Concluída|Concluído|Revisar/i.test(item.state + " " + item.status)
   );
   const activeActivity = activities.find((item) => /Em execução|Em andamento/i.test(item.state + " " + item.status)) || null;
 
@@ -985,7 +992,12 @@ function buildOperationalSnapshot(
     })),
   ].sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
-  const invalidTimes = activities.filter((item) => item.minutes < 0).length;
+  const invalidActivityTimes = activityPages.filter((page) => {
+    const value = propertyNumber(page.properties || {}, "Minutos reais");
+    return value != null && value < 0;
+  }).length;
+  const invalidDayTimes = dayPages.map(parseExecutionDay).filter((day) => day?.invalid_time === true).length;
+  const invalidTimes = invalidActivityTimes + invalidDayTimes;
   const invalidQuestionTimes = answered.filter((item) => item.seconds < 0).length;
   const duplicateTrailOrders = trailItems.filter((item, index, all) => item.order != null &&
     all.findIndex((candidate) => candidate.order === item.order) !== index
@@ -1011,20 +1023,16 @@ function buildOperationalSnapshot(
     continuity: {
       active: activeActivity,
       activities_with_evidence: activities.length,
-      minutes: activities.length && activities.every((item) => item.minutes != null)
-        ? activities.reduce((sum, item) => sum + item.minutes, 0)
-        : null,
-      questions: activities.length && activities.every((item) => item.questions != null)
-        ? activities.reduce((sum, item) => sum + item.questions, 0)
-        : null,
+      minutes: activities.length ? sumNullable(activities.map((item) => item.minutes as number | null)) : null,
+      questions: activities.length ? sumNullable(activities.map((item) => item.questions as number | null)) : null,
     },
     questions: {
-      total: effectiveQuestions.length ? effectiveQuestions.length : null,
+      total: answered.length ? answered.length : null,
       correct: totalCorrect,
       errors: totalErrors,
       doubts: totalDoubts,
       annulled: answered.length ? answered.length - effectiveQuestions.length : null,
-      precision: effectiveQuestions.length ? totalCorrect / effectiveQuestions.length : null,
+      precision: effectiveQuestions.length && totalCorrect != null ? totalCorrect / effectiveQuestions.length : null,
       by_subject: Array.from(bySubject.values()).map((row: AnyRecord): AnyRecord => ({
         subject: row.key,
         total: row.total,

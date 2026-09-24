@@ -13,6 +13,11 @@ async function destinationPath(route) {
   return new URL(route ? `${route}/` : "./", `${baseUrl}/`).pathname;
 }
 
+async function waitForPageReady() {
+  await page.waitForLoadState("domcontentloaded").catch(() => undefined);
+  await page.waitForFunction(() => !/Carregando (?:a unidade|a página)/i.test(document.body?.innerText || ""), { timeout:10000 }).catch(() => undefined);
+}
+
 async function clickDestination(route) {
   const target = await destinationPath(route);
   const index = await page.locator("a[href]").evaluateAll((links, targetPath) => links.findIndex((link) => {
@@ -23,14 +28,13 @@ async function clickDestination(route) {
     page.waitForURL((url) => url.pathname === target, { timeout:10000 }),
     page.locator("a[href]").nth(index).click(),
   ]);
-  const response = await page.waitForLoadState("domcontentloaded").then(() => null).catch(() => null);
-  return response;
+  await waitForPageReady();
 }
 
 async function open(route) {
   const response = await page.goto(`${baseUrl}/${route ? `${route}/` : ""}`, { waitUntil:"domcontentloaded", timeout:30000 });
   assert.ok(response && response.status() < 400, `HTTP inválido em ${route || "/"}`);
-  await page.waitForFunction(() => !/Carregando (?:a unidade|a página)/i.test(document.body?.innerText || ""), { timeout:8000 }).catch(() => undefined);
+  await waitForPageReady();
 }
 
 await open("");

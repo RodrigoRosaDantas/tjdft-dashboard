@@ -56,7 +56,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </section>}
 
     <section className="os-metrics">
-      <Metric label="Questões com evidência" value={count(m.execution.questions)} detail={m.execution.evidence.label}/>
+      <Metric label="Questões consideradas" value={count(m.execution.questions)} detail={m.execution.annulled > 0 ? `${m.execution.annulled} anulada(s) excluída(s) · ${count(m.execution.attemptedQuestions)} respondidas` : m.execution.evidence.label}/>
       <Metric label="Precisão" value={percent(m.execution.precision)} detail={m.execution.precision==null?"não calculável":"sobre execução registrada"}/>
       <Metric label="Progresso D0" value={m.trail.d0==null?"—":`${m.trail.d0}/${m.sequence.total}`} detail="material pronto ≠ estudado"/>
       <Metric label="Erros ativos" value={count(m.errorCount)} detail={m.errorCount==null?"aguardando snapshot operacional":"resolvidos/arquivados ficam fora"}/>

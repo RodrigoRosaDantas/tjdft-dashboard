@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./leis.css";
+import "./law-detail.css";
 import "./status.css";
 import "./study.css";
 

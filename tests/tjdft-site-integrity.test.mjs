@@ -91,6 +91,7 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(dashboard, /function dayHasExecution/);
   assert.match(dashboard, /const dayDone = hasEvidence \? day\.done : null/);
   assert.match(lawDetail, /ReadingSettings/);
+  assert.match(lawDetail, /addResponsiveTableLabels/);
   assert.match(flashcards, /ReadingSettings/);
   assert.match(flashcards, /extractFlashcardHtml/);
   assert.match(flashcards, /extractFlashcardPairs/);
@@ -98,6 +99,7 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(flashcards, /Filtrar flashcards por lei/);
   assert.match(flashcards, /D20/);
   assert.match(lawsPage, /formatLawCodeRanges/);
+  assert.match(lawsPage, /id="radar"/);
   assert.match(lawsPage, /setMapOpen\(true\)/);
   assert.match(lawsPage, /open=\{mapOpen\}/);
   assert.match(preferences, /tjdft-dashboard:reading-preferences:v1/);
@@ -110,6 +112,9 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(registration, /navigator\.serviceWorker\.register/);
   assert.match(manifest, /"display": "standalone"/);
   assert.match(manifest, /"scope": "\.\/"/);
+  const lawStyles = await read("app/leis/law-detail.css");
+  assert.match(lawStyles, /td::before\s*\{\s*content:\s*attr\(data-label\)/);
+  assert.match(lawStyles, /tr\[data-table-header="true"\]/);
 });
 
 test("o exportador mantém desconhecidos como null e não duplica séries temporais", async () => {
@@ -119,6 +124,10 @@ test("o exportador mantém desconhecidos como null e não duplica séries tempor
   assert.equal((legacyExecution.match(/by_cargo_date:/g) || []).length, 1);
   assert.match(legacyExecution, /known_annulled/);
   assert.match(legacyExecution, /known_errors \? row\.errors : null/);
+  assert.match(legacyExecution, /if \(!day\) continue/);
+  assert.match(legacyExecution, /known_correct \? row\.correct : null/);
+  assert.match(edge, /total: answered\.length \? answered\.length : null/);
+  assert.match(edge, /invalidDayTimes = dayPages\.map\(parseExecutionDay\)/);
   assert.match(edge, /unclassified_errors: unclassifiedErrors/);
   assert.match(edge, /missing_trail_orders: missingTrailOrders/);
   assert.match(edge, /executed_questions: execution\?\.c01\?\.totals\?\.done \?\? null/);

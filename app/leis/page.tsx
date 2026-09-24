@@ -488,13 +488,10 @@ export default function LeisPrimeiroPage() {
         </div>
       </details>
 
-      {radarLaws.length ? (
-        <section className="laws-panel laws-radar" id="radar">
-          <div className="laws-heading"><div><p className="laws-kicker">RADAR · FORA DA FILA DIÁRIA</p><h2>Monitorar sem disputar atenção</h2><p>Itens de vigência, carreira e atualização normativa permanecem separados da execução.</p></div><span className="laws-chip priority-radar">{radarLaws.length} itens</span></div>
-          {radarLaws.map((law) => <article key={law.code}><div><strong>{law.code} · {law.title}</strong><span>{law.priority || "Radar"} · meta {law.question_target || 0}</span></div><a href={`./${law.code.toLowerCase()}/`}>Abrir página <ExternalLink size={14} /></a></article>)}
-          
-        </section>
-      ) : null}
+      <section className="laws-panel laws-radar" id="radar">
+        <div className="laws-heading"><div><p className="laws-kicker">RADAR · FORA DA FILA DIÁRIA</p><h2>Monitorar sem disputar atenção</h2><p>Itens de vigência, carreira e atualização normativa permanecem separados da execução.</p></div><span className="laws-chip priority-radar">{radarLaws.length} itens</span></div>
+        {radarLaws.length ? radarLaws.map((law) => <article key={law.code}><div><strong>{law.code} · {law.title}</strong><span>{law.priority || "Radar"} · meta {law.question_target || 0}</span></div><a href={`./${law.code.toLowerCase()}/`}>Abrir página <ExternalLink size={14} /></a></article>) : <p className="laws-empty">Sem itens de radar publicados neste snapshot. Os atalhos permanecem válidos quando surgirem atualizações.</p>}
+      </section>
 
       <footer className="laws-footer"><span>TJDFT · Leis Primeiro</span><span>Fonte operacional: Notion · Snapshot público: GitHub · Fonte jurídica: texto oficial vigente</span></footer>
     </main>
