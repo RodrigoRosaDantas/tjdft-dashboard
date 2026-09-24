@@ -28,6 +28,22 @@ assert(Array.isArray(snapshot.execution?.c01?.days), "execution.c01.days ausente
 assert(Array.isArray(snapshot.execution?.c01?.subjects), "execution.c01.subjects ausente.");
 assert(snapshot.execution?.c01?.totals && typeof snapshot.execution.c01.totals === "object", "execution.c01.totals ausente.");
 
+if (Number(snapshot.schema_version) >= 2) {
+  assert(snapshot.operational && typeof snapshot.operational === "object", "operational ausente no snapshot v2.");
+  assert(snapshot.operational.trail?.total === 37, "operational.trail precisa preservar 37 posições.");
+  assert(snapshot.operational.trail?.sequence_valid === true, "operational.trail divergiu da Ordem 1–37.");
+  assert(Array.isArray(snapshot.operational.trail?.items), "operational.trail.items ausente.");
+  assert(Array.isArray(snapshot.operational.questions?.by_subject), "operational.questions.by_subject ausente.");
+  assert(Array.isArray(snapshot.operational.errors?.top), "operational.errors.top ausente.");
+  assert(Array.isArray(snapshot.operational.reviews?.dated), "operational.reviews.dated ausente.");
+  assert(snapshot.operational.coverage?.tecnico && snapshot.operational.coverage?.analista, "Cobertura separada por cargo ausente.");
+  assert(!snapshot.operational.errors.top.some((item) => /Resolvido|Arquivado/i.test(String(item.state || ""))), "Erro encerrado vazou para a fila ativa.");
+  const operationalRaw = JSON.stringify(snapshot.operational);
+  for (const privateField of ["Histórico pessoal", "\"Questão\":", "\"Observações\":"]) {
+    assert(!operationalRaw.includes(privateField), "Snapshot operacional expôs campo bruto privado: " + privateField);
+  }
+}
+
 assert(lawsSnapshot && lawsSnapshot.schema_version >= 4, "Snapshot Leis Primeiro desatualizado.");
 assert(Array.isArray(lawsSnapshot.laws) && lawsSnapshot.laws.length === 26, "Leis Primeiro precisa conter exatamente L01-L26.");
 const lawCodes = lawsSnapshot.laws.map((law) => law.code);
