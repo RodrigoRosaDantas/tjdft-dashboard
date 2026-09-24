@@ -754,6 +754,7 @@ function statusCount<T extends { state?: string }>(items: T[]) {
 function buildOperationalSnapshot(
   unitPages: AnyRecord[],
   activityPages: AnyRecord[],
+  dayPages: AnyRecord[],
   questionPages: AnyRecord[],
   errorPages: AnyRecord[],
   contentPages: AnyRecord[],
@@ -1331,7 +1332,7 @@ export async function buildSnapshot(token: string) {
       queryDataSource(CARGOS_DATA_SOURCE_ID, request),
     ]);
     execution = buildExecutionSnapshot(dayPages, questionPages, errorPages);
-    operational = buildOperationalSnapshot(unitPages, activityPages, questionPages, errorPages, contentPages, cargoPages);
+    operational = buildOperationalSnapshot(unitPages, activityPages, dayPages, questionPages, errorPages, contentPages, cargoPages);
     executionHashText = JSON.stringify([dayPages, questionPages, errorPages, activityPages, unitPages, contentPages, cargoPages].map((pages) =>
       pages.map((item) => ({ id: item.id, edited: item.last_edited_time, properties: item.properties }))
     ));

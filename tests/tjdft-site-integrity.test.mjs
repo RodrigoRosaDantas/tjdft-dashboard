@@ -128,6 +128,7 @@ test("o exportador mantém desconhecidos como null e não duplica séries tempor
   assert.match(legacyExecution, /known_correct \? row\.correct : null/);
   assert.match(edge, /total: answered\.length \? answered\.length : null/);
   assert.match(edge, /invalidDayTimes = dayPages\.map\(parseExecutionDay\)/);
+  assert.match(edge, /buildOperationalSnapshot\(unitPages, activityPages, dayPages, questionPages/);
   assert.match(edge, /unclassified_errors: unclassifiedErrors/);
   assert.match(edge, /missing_trail_orders: missingTrailOrders/);
   assert.match(edge, /executed_questions: execution\?\.c01\?\.totals\?\.done \?\? null/);
