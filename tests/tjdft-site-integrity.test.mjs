@@ -105,6 +105,8 @@ test("entrega conforto de leitura, foco e fallback offline", async () => {
   assert.match(preferences, /tjdft-dashboard:reading-preferences:v1/);
   assert.doesNotMatch(preferences, /innerHTML\s*=/);
   assert.match(serviceWorker, /network-first/i);
+  assert.match(serviceWorker, /async function cacheResponse/);
+  assert.match(serviceWorker, /await cache\.put\(cacheKeyFor\(request\), response\.clone\(\)\)/);
   assert.match(serviceWorker, /tjdft-pages-v3/);
   assert.match(serviceWorker, /portugues-rlm\/\$\{code\}\/`/);
   assert.match(serviceWorker, /\.\/data\/portugues-rlm\.json/);

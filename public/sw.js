@@ -59,10 +59,14 @@ function cacheKeyFor(request) {
   return key.href;
 }
 
-function cacheResponse(request, response) {
+async function cacheResponse(request, response) {
   if (!response || !response.ok) return response;
-  const copy = response.clone();
-  void caches.open(CACHE_NAME).then((cache) => cache.put(cacheKeyFor(request), copy)).catch(() => undefined);
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(cacheKeyFor(request), response.clone());
+  } catch {
+    // Keep the network response available even if this entry cannot be cached.
+  }
   return response;
 }
 

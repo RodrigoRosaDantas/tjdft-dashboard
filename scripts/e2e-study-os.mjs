@@ -117,6 +117,7 @@ await pwaPage.waitForFunction(() => document.querySelector("article.study-html h
 await pwaContext.setOffline(true);
 const offlineResponse = await pwaPage.goto(`${baseUrl}/portugues-rlm/p01/`, { waitUntil:"domcontentloaded", timeout:15000 });
 assert.ok(offlineResponse && offlineResponse.status() < 400,"PWA não serviu a unidade P01 do cache offline");
+await pwaPage.waitForFunction(() => document.querySelector("article.study-html h2") && /\bP01\b/.test(document.body?.innerText || ""), { timeout:10000 });
 assert.match(await pwaPage.locator("body").innerText(),/P01/);
 await pwaContext.close();
 
