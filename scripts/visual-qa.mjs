@@ -55,7 +55,7 @@ for (const run of runs) {
       failures.push(`${url}: HTTP ${response?.status() ?? "sem resposta"}`);
       continue;
     }
-    await page.waitForFunction(() => !/Carregando (?:a unidade|a página)/i.test(document.body?.innerText || ""), { timeout:8000 }).catch(() => undefined);
+    await page.waitForFunction(() => !/\bCarregando\b/i.test(document.body?.innerText || ""), { timeout:10000 });
     await page.evaluate(() => document.fonts?.ready);
     const checks = await page.evaluate(() => {
       const root = document.documentElement;

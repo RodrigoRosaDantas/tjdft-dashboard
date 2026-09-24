@@ -15,7 +15,7 @@ async function destinationPath(route) {
 
 async function waitForPageReady() {
   await page.waitForLoadState("domcontentloaded").catch(() => undefined);
-  await page.waitForFunction(() => !/Carregando (?:a unidade|a página)/i.test(document.body?.innerText || ""), { timeout:10000 }).catch(() => undefined);
+  await page.waitForFunction(() => !/\bCarregando\b/i.test(document.body?.innerText || ""), { timeout:10000 });
 }
 
 async function clickDestination(route) {

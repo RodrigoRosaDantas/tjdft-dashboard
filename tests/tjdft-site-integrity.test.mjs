@@ -159,6 +159,15 @@ test("a preparação de Pages rejeita rotas achatadas", async () => {
   assert.match(source, /GitHub Pages route permaneceu achatada/);
 });
 
+test("Visual QA e E2E esperam os snapshots das listas antes de inspecionar links", async () => {
+  const [visual, e2e] = await Promise.all([
+    read("scripts/visual-qa.mjs"),
+    read("scripts/e2e-study-os.mjs"),
+  ]);
+  assert.match(visual, /waitForFunction\(\(\) => !\/\\bCarregando\\b\/i/);
+  assert.match(e2e, /waitForFunction\(\(\) => !\/\\bCarregando\\b\/i/);
+});
+
 test("mantém a sincronização viva com fallback e publicação controlada", async () => {
   const [edgeFunction, workflow, backendWorkflow, panel, dashboard, editalExport] = await Promise.all([
     read("supabase/functions/tjdft-notion/index.ts"),
