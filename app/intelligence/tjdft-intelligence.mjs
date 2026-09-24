@@ -49,7 +49,7 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     label:"PRÓXIMA AÇÃO",
     code:firstReady.code,
     title:firstReady.title,
-    href:firstReady.internal_path ? firstReady.internal_path.replace(/^\/+/,"") : \`portugues-rlm/\${String(firstReady.code).toLowerCase()}/\`,
+    href:firstReady.internal_path ? firstReady.internal_path.replace(/^\/+/,"") : `portugues-rlm/${String(firstReady.code).toLowerCase()}/`,
     reason: executed.length
       ? "É a primeira unidade disponível da sequência canônica sem evidência pública de conclusão desta trilha."
       : "É a primeira unidade canônica com material disponível; o snapshot público ainda não traz execução da esteira 1–37.",
@@ -87,19 +87,19 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   const issues=[];
   if (!sequenceValid) issues.push({severity:"critical", code:"sequence-divergence", message:"A Ordem 1–37 diverge da sequência canônica."});
   if (!dashboard.source?.synced_at) issues.push({severity:"high",code:"snapshot-date-missing",message:"Snapshot operacional sem data de sincronização."});
-  if (ageHours!=null && ageHours>48) issues.push({severity:"medium",code:"snapshot-stale",message:\`Snapshot operacional com aproximadamente \${Math.floor(ageHours)} h desde a sincronização.\`});
+  if (ageHours!=null && ageHours>48) issues.push({severity:"medium",code:"snapshot-stale",message:`Snapshot operacional com aproximadamente ${Math.floor(ageHours)} h desde a sincronização.`});
   if (!executed.length) issues.push({severity:"info",code:"execution-absent",message:"Sem execução pública suficiente; ausência não foi convertida em zero de desempenho."});
   if (!executionDays.some(d=>d.executed_at)) issues.push({severity:"info",code:"real-date-absent",message:"Sem datas reais de execução suficientes para calcular tendência."});
   for (const d of executionDays) {
     const done=n(d.done), c=n(d.correct), e=n(d.errors);
-    if (done!=null && c!=null && e!=null && c+e!==done) issues.push({severity:"high",code:"question-sum",message:\`\${d.day}: acertos + erros divergem do total executado.\`});
-    if ((n(d.minutes)||0)<0) issues.push({severity:"high",code:"negative-time",message:\`\${d.day}: tempo negativo.\`});
+    if (done!=null && c!=null && e!=null && c+e!==done) issues.push({severity:"high",code:"question-sum",message:`${d.day}: acertos + erros divergem do total executado.`});
+    if ((n(d.minutes)||0)<0) issues.push({severity:"high",code:"negative-time",message:`${d.day}: tempo negativo.`});
   }
   if (lawRegression.length) issues.push({severity:"critical",code:"revoked-active",message:"Norma histórica/revogada reapareceu como ativa."});
 
   const risks=[
-    ...weaknesses.map(w=>({severity:"high",title:w.subject,detail:w.reason,evidence:\`\${w.questions} questões · \${w.evidence.label}\`})),
-    ...(ageHours!=null && ageHours>48 ? [{severity:"medium",title:"Sincronização envelhecida",detail:"A decisão usa snapshot versionado que precisa ser atualizado.",evidence:\`\${Math.floor(ageHours)} h desde a última sincronização\`}] : []),
+    ...weaknesses.map(w=>({severity:"high",title:w.subject,detail:w.reason,evidence:`${w.questions} questões · ${w.evidence.label}`})),
+    ...(ageHours!=null && ageHours>48 ? [{severity:"medium",title:"Sincronização envelhecida",detail:"A decisão usa snapshot versionado que precisa ser atualizado.",evidence:`${Math.floor(ageHours)} h desde a última sincronização`}] : []),
     ...(!executed.length ? [{severity:"info",title:"Execução ainda sem evidência pública",detail:"O sistema não presume fraqueza nem domínio.",evidence:"ausência ≠ zero"}] : []),
   ];
 
