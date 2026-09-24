@@ -141,11 +141,25 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     href:null, reason:"Não há material disponível suficiente para recomendar avanço.", confidence:"não calculável"
   };
 
-  const subjects = dashboard.execution?.c01?.subjects || [];
-  const performance = subjects.map(row => {
-    const q=n(row.done)||0, s=n(row.rows)||0, c=n(row.correct)||0;
-    const ev=evidenceClass(q,s), pr=pct(c,q);
-    return { subject:row.subject, questions:q, sessions:s, correct:c, errors:n(row.errors)||0, doubts:n(row.doubts)||0, precision:pr, evidence:ev };
+  const subjects = op?.questions?.by_subject || dashboard.execution?.c01?.subjects || [];
+  const performance = subjects.map((row) => {
+    const operationalRow = Object.hasOwn(row, "total");
+    const annulled = operationalRow ? (n(row.annulled) || 0) : 0;
+    const q = operationalRow ? Math.max(0, (n(row.total) || 0) - annulled) : (n(row.done) || 0);
+    const subjectSessions = operationalRow ? Math.max(1, sessions) : (n(row.rows) || 0);
+    const rowCorrect = n(row.correct) || 0;
+    const ev = evidenceClass(q, subjectSessions);
+    const pr = pct(rowCorrect, q);
+    return {
+      subject:row.subject || row.key || "Sem matéria",
+      questions:q,
+      sessions:subjectSessions,
+      correct:rowCorrect,
+      errors:n(row.errors)||0,
+      doubts:n(row.doubts)||0,
+      precision:pr,
+      evidence:ev,
+    };
   });
 
   const strengths = performance.filter(p=>p.precision!=null && p.precision>=0.85 && ["moderate","strong"].includes(p.evidence.key))
@@ -159,12 +173,18 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   const historicalLaws=(laws.laws||[]).filter(l=>l.record_kind==="historical");
   const lawRegression = historicalLaws.filter(l=>l.active===true);
   const editalItems=edital.items || edital.axes || [];
-  const techItems=editalItems.filter(i=>JSON.stringify(i.cargos||[]).includes("Técnico"));
-  const analystItems=editalItems.filter(i=>JSON.stringify(i.cargos||[]).includes("Analista"));
-  const commonItems=editalItems.filter(i=>{
-    const c=JSON.stringify(i.cargos||[]);
-    return c.includes("Técnico") && c.includes("Analista");
-  });
+  const techItems=editalItems.filter((item)=>JSON.stringify(item.cargos||[]).includes("Técnico"));
+  const analystItems=editalItems.filter((item)=>JSON.stringify(item.cargos||[]).includes("Analista"));
+  const fallbackCoverage = {
+    tecnico:{matrix:techItems.length,mapped:null,studied:null,practiced_questions:null,consolidated:null,subjects:[]},
+    analista:{matrix:analystItems.length,mapped:null,studied:null,practiced_questions:null,consolidated:null,subjects:[]},
+  };
+  const cargoCoverage = {
+    tecnico:op?.coverage?.tecnico || fallbackCoverage.tecnico,
+    analista:op?.coverage?.analista || fallbackCoverage.analista,
+  };
+  const techSubjects = new Set(cargoCoverage.tecnico.subjects || []);
+  const commonSubjects = (cargoCoverage.analista.subjects || []).filter((subject) => techSubjects.has(subject));
 
   const issues=[];
   if (!sequenceValid) issues.push({severity:"critical", code:"sequence-divergence", message:"A Ordem 1–37 diverge da sequência canônica."});
