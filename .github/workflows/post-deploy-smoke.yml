@@ -1,0 +1,62 @@
+name: Smoke do GitHub Pages publicado
+
+on:
+  workflow_run:
+    workflows: ["Deploy TJDFT dashboard to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Testar rotas publicadas
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://rodrigorosadantas.github.io/tjdft-dashboard"
+          routes=(
+            "/"
+            "/hoje/"
+            "/mentor/"
+            "/trilha/"
+            "/portugues-rlm/"
+            "/portugues-rlm/p01/"
+            "/portugues-rlm/rl01/"
+            "/portugues-rlm/rev01/"
+            "/leis/"
+            "/leis/l01/"
+            "/revisoes/"
+            "/erros/"
+            "/desempenho/"
+            "/riscos/"
+            "/tecnico/"
+            "/analista/"
+            "/sincronizacao/"
+            "/manifest.webmanifest"
+            "/data/tjdft-snapshot.json"
+          )
+          for route in "${routes[@]}"; do
+            echo "SMOKE $route"
+            curl --fail --silent --show-error --location --retry 4 --retry-delay 2 --connect-timeout 10 --max-time 30 "$base$route" -o /tmp/smoke
+            test -s /tmp/smoke
+          done
+
+      - name: Validar marcadores do produto publicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://rodrigorosadantas.github.io/tjdft-dashboard"
+          curl -fsSL --retry 4 "$base/" | grep -qi "Central de comando"
+          curl -fsSL --retry 4 "$base/hoje/" | grep -qi "Executar agora"
+          curl -fsSL --retry 4 "$base/mentor/" | grep -qi "Por que esta decisão"
+          curl -fsSL --retry 4 "$base/desempenho/" | grep -qi "ausência"
+          curl -fsSL --retry 4 "$base/leis/" | grep -qi "Leis Primeiro"
+          curl -fsSL --retry 4 "$base/portugues-rlm/" | grep -qi "Português Primeiro"
+          curl -fsSL --retry 4 "$base/manifest.webmanifest" | grep -qi '"display"'
+          curl -fsSL --retry 4 "$base/data/tjdft-snapshot.json" | grep -qi '"kind": "notion"'

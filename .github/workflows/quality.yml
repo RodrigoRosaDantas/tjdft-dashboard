@@ -20,6 +20,7 @@ on:
       - "eslint.config.mjs"
       - ".github/workflows/quality.yml"
       - ".github/workflows/study-os-qa.yml"
+      - ".github/workflows/post-deploy-smoke.yml"
   workflow_run:
     workflows: ["Sincronizar snapshot TJDFT"]
     types: [completed]
