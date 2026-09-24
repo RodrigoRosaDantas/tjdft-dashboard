@@ -1063,7 +1063,7 @@ export async function buildSnapshot(token: string) {
     "Português: interpretação e coesão + Regimento I";
 
   return {
-    schema_version: 1,
+    schema_version: 2,
     source: {
       kind: "notion",
       title: pageTitle(page) || fallback?.source?.title || "TJDFT — Central de Comando | Dashboard PRO",
