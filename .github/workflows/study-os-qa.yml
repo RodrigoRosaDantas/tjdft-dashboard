@@ -1,0 +1,83 @@
+name: Study OS Visual QA + E2E
+
+on:
+  pull_request:
+    paths:
+      - "app/**"
+      - "tests/**"
+      - "scripts/prepare-github-pages.mjs"
+      - ".github/workflows/study-os-qa.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-qa:
+    name: Visual QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+        env:
+          GITHUB_PAGES: "1"
+          GITHUB_PAGES_BASE_PATH: /tjdft-dashboard
+      - name: Servir export estático
+        run: npx --yes serve@14 dist/client -l 4173 > /tmp/tjdft-serve.log 2>&1 &
+      - name: Instalar Chromium
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+      - name: Capturar rotas estratégicas em 6 resoluções
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/visual
+          routes=( "" "hoje" "mentor" "trilha" "portugues-rlm" "portugues-rlm/p01" "leis" "leis/l01" "desempenho" "riscos" "erros" "revisoes" "tecnico" "analista" "sincronizacao" )
+          sizes=( "360,800" "390,844" "412,915" "768,1024" "1024,1366" "1440,900" )
+          for route in "${routes[@]}"; do
+            safe=${route//\//-}; [ -n "$safe" ] || safe=home
+            for size in "${sizes[@]}"; do
+              tag=${size/,/x}
+              npx --yes playwright@1.55.0 screenshot --browser=chromium --viewport-size="$size" "http://127.0.0.1:4173/${route:+$route/}" "artifacts/visual/${safe}-${tag}.png"
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tjdft-study-os-visual-qa
+          path: artifacts/visual
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+        env:
+          GITHUB_PAGES: "1"
+          GITHUB_PAGES_BASE_PATH: /tjdft-dashboard
+      - name: Validar Study OS e fluxos
+        shell: bash
+        run: |
+          set -euo pipefail
+          for route in index hoje mentor trilha portugues-rlm leis desempenho riscos erros revisoes tecnico analista sincronizacao; do
+            file="dist/client/${route}/index.html"
+            [ "$route" = "index" ] && file="dist/client/index.html"
+            test -s "$file"
+          done
+          grep -qi "Central de comando" dist/client/index.html
+          grep -qi "Executar agora" dist/client/hoje/index.html
+          grep -qi "Por que esta decisão" dist/client/mentor/index.html
+          grep -qi "ausência" dist/client/desempenho/index.html

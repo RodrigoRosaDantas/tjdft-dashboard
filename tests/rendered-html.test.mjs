@@ -31,7 +31,9 @@ test("exporta as rotas de Pages como diretórios", async () => {
 
 test("renderiza os marcadores públicos principais", async () => {
   const [home, laws, portuguese] = await Promise.all([html("index.html"), html("leis/index.html"), html("portugues-rlm/index.html")]);
-  assert.match(home, /law-fab/);
+  assert.match(home, /study-os/);
+  assert.match(home, /Central de comando/);
+  assert.match(home, /painel-legado/);
   assert.match(home, /href="\.\/leis\/"/);
   assert.match(home, /href="\.\/portugues-rlm\/"/);
   assert.match(home, /reading-preferences\.js/);

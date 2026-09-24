@@ -19,6 +19,7 @@ on:
       - "package-lock.json"
       - "eslint.config.mjs"
       - ".github/workflows/quality.yml"
+      - ".github/workflows/study-os-qa.yml"
   workflow_run:
     workflows: ["Sincronizar snapshot TJDFT"]
     types: [completed]
@@ -35,8 +36,6 @@ jobs:
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
-        with:
-          ref: main
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
@@ -46,6 +45,8 @@ jobs:
         run: npm ci
       - name: Verificar lint
         run: npm run lint
+      - name: Verificar tipos
+        run: npm run typecheck
       - name: Auditar dependências de produção
         run: npm audit --omit=dev --audit-level=high
       - name: Configurar Deno para o validador do snapshot
