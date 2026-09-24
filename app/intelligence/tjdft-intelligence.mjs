@@ -189,50 +189,106 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   const issues=[];
   if (!sequenceValid) issues.push({severity:"critical", code:"sequence-divergence", message:"A Ordem 1–37 diverge da sequência canônica."});
   if (!dashboard.source?.synced_at) issues.push({severity:"high",code:"snapshot-date-missing",message:"Snapshot operacional sem data de sincronização."});
-  if (ageHours!=null && ageHours>48) issues.push({severity:"medium",code:"snapshot-stale",message:`Snapshot operacional com aproximadamente ${Math.floor(ageHours)} h desde a sincronização.`});
-  if (!executed.length) issues.push({severity:"info",code:"execution-absent",message:"Sem execução pública suficiente; ausência não foi convertida em zero de desempenho."});
-  if (!executionDays.some(d=>d.executed_at)) issues.push({severity:"info",code:"real-date-absent",message:"Sem datas reais de execução suficientes para calcular tendência."});
+  if (dashboard.source?.status === "fallback") issues.push({severity:"medium",code:"snapshot-fallback",message:"O site está usando snapshot de contingência; decisões devem ser lidas com cautela."});
+  if (!questions) issues.push({severity:"info",code:"execution-absent",message:"Sem questões respondidas suficientes; ausência não foi convertida em zero de desempenho."});
+  if (!sessions) issues.push({severity:"info",code:"real-date-absent",message:"Sem datas reais de resolução suficientes para calcular tendência."});
   for (const d of executionDays) {
     const done=n(d.done), c=n(d.correct), e=n(d.errors);
     if (done!=null && c!=null && e!=null && c+e!==done) issues.push({severity:"high",code:"question-sum",message:`${d.day}: acertos + erros divergem do total executado.`});
     if ((n(d.minutes)||0)<0) issues.push({severity:"high",code:"negative-time",message:`${d.day}: tempo negativo.`});
   }
+  if ((op?.integrity?.duplicate_trail_orders || 0) > 0) issues.push({severity:"critical",code:"duplicate-trail-order",message:"Há Ordem da esteira duplicada no Notion."});
+  if ((op?.integrity?.invalid_times || 0) > 0) issues.push({severity:"high",code:"invalid-time",message:"Há tempo negativo em registros operacionais."});
   if (lawRegression.length) issues.push({severity:"critical",code:"revoked-active",message:"Norma histórica/revogada reapareceu como ativa."});
 
+  const activeErrors = op?.errors?.top || [];
+  const errorCount = n(op?.errors?.active_count);
   const risks=[
-    ...weaknesses.map(w=>({severity:"high",title:w.subject,detail:w.reason,evidence:`${w.questions} questões · ${w.evidence.label}`})),
-    ...(ageHours!=null && ageHours>48 ? [{severity:"medium",title:"Sincronização envelhecida",detail:"A decisão usa snapshot versionado que precisa ser atualizado.",evidence:`${Math.floor(ageHours)} h desde a última sincronização`}] : []),
-    ...(!executed.length ? [{severity:"info",title:"Execução ainda sem evidência pública",detail:"O sistema não presume fraqueza nem domínio.",evidence:"ausência ≠ zero"}] : []),
+    ...activeErrors.filter((item)=>/Crítica|Alta/i.test(item.severity || "")).map((item)=>({
+      severity:/Crítica/i.test(item.severity || "") ? "critical" : "high",
+      title:item.topic || item.subject,
+      detail:`Erro ${String(item.severity).toLowerCase()}${item.recurrence ? ` · reincidência ${item.recurrence}` : ""}.`,
+      evidence:item.action || item.causes || "caderno de erros ativo",
+    })),
+    ...weaknesses.map((weakness)=>({severity:"high",title:weakness.subject,detail:weakness.reason,evidence:`${weakness.questions} questões · ${weakness.evidence.label}`})),
+    ...(!questions ? [{severity:"info",title:"Execução ainda sem evidência suficiente",detail:"O sistema não presume fraqueza nem domínio.",evidence:"ausência ≠ zero"}] : []),
   ];
 
-  const reviews = units.filter(u=>String(u.code).startsWith("REV")).map(u=>({
-    code:u.code,title:u.title,order:u.canonical_order,materialReady:Boolean(u.material_ready),
-    status:"programada", due:null,
+  const today = localDateKey(now);
+  const formalSource = op?.reviews?.formal || units.filter((unit)=>String(unit.code).startsWith("REV")).map((unit)=>({
+    code:unit.code,title:unit.title,order:unit.canonical_order,state:unit.study_state || "Não estudado",
   }));
+  const reviews = formalSource.map((review)=>({
+    code:review.code,
+    title:review.title,
+    order:review.order,
+    materialReady:units.find((unit)=>unit.code===review.code)?.material_ready ?? true,
+    status:review.state || "programada",
+    due:null,
+    state:"programada",
+  }));
+  const datedReviews = (op?.reviews?.dated || []).map((review,index)=>({
+    code:`${review.type || "REV"}-${index+1}`,
+    type:review.type || "REVISÃO",
+    title:review.title || review.subject || "Revisão",
+    subject:review.subject || null,
+    date:review.date || null,
+    state:reviewState(review.date,today),
+    origin:review.origin || null,
+  }));
+  const agenda=[
+    ...datedReviews,
+    ...reviews.filter((review)=>!/Dominado|Concluído/i.test(review.status)).map((review)=>({
+      type:"REV",code:review.code,title:review.title,state:"programada",date:null,
+    })),
+    ...(nextAction.code ? [{
+      type:nextAction.kind==="resume" ? "CONTINUIDADE" : "UNIDADE",
+      code:nextAction.code,title:nextAction.title,state:nextAction.kind==="resume" ? "hoje" : "próxima",date:null,
+    }] : []),
+  ];
+  const agendaOrder={vencida:0,hoje:1,próxima:2,programada:3};
+  agenda.sort((left,right)=>(agendaOrder[left.state] ?? 9)-(agendaOrder[right.state] ?? 9) || String(left.date || "9999").localeCompare(String(right.date || "9999")));
+
+  const completedD0 = n(op?.trail?.checkpoints?.d0);
+  const trailProgress = op?.trail?.total ? (completedD0 || 0) / op.trail.total : null;
 
   return {
     generatedAt:new Date(now).toISOString(),
-    sequence:{ valid:sequenceValid, total:units.length, canonical:CANONICAL, units },
-    execution:{ sessions, questions, correct, errors, minutes, precision, evidence, trend:sessions>=2?"calculável apenas com datas reais detalhadas":"amostra temporal insuficiente" },
-    nextAction, strengths, weaknesses, risks, reviews,
+    sequence:{valid:sequenceValid,total:units.length,canonical:CANONICAL,units},
+    trail:{
+      progress:trailProgress,
+      d0:completedD0,
+      d7:n(op?.trail?.checkpoints?.d7),
+      d20:n(op?.trail?.checkpoints?.d20),
+      statusCounts:op?.trail?.status_counts || {},
+      next:nextTrail,
+    },
+    execution:{
+      sessions,questions,correct,errors,doubts,minutes,precision,evidence,
+      trend:trend.label,
+      trendDetail:trend,
+      bySubject:performance,
+    },
+    nextAction,strengths,weaknesses,risks,reviews,activeErrors,errorCount,
     coverage:{
-      tecnico:{matrix:techItems.length, studied:null, practiced:null, consolidated:null},
-      analista:{matrix:analystItems.length, studied:null, practiced:null, consolidated:null},
-      common:{matrix:commonItems.length},
+      tecnico:cargoCoverage.tecnico,
+      analista:cargoCoverage.analista,
+      common:{matrix:commonSubjects.length,subjects:commonSubjects},
       laws:{active:activeLaws.length,historical:historicalLaws.length},
     },
-    quality:{ issues, ageHours, sourceSyncedAt:dashboard.source?.synced_at||null, lawRegressionCount:lawRegression.length },
-    agenda:[
-      ...reviews.map(r=>({type:"REV",code:r.code,title:r.title,state:"próximo",date:null})),
-      ...(nextAction.code?[{type:"UNIDADE",code:nextAction.code,title:nextAction.title,state:nextAction.kind==="resume"?"hoje":"próximo",date:null}]:[]),
-    ],
-    aliases:{ safe:[], ambiguous:[] },
+    quality:{
+      issues,ageHours,sourceSyncedAt:dashboard.source?.synced_at || null,
+      sourceStatus:dashboard.source?.status || null,lawRegressionCount:lawRegression.length,
+    },
+    agenda,
+    aliases:op?.aliases || {safe:[],ambiguous:[]},
     meta:{
       phase:dashboard.dashboard?.phase || "Pré-edital",
       sourceTitle:dashboard.source?.title || "Notion",
       editorialReady:readyUnits.length,
       lawActive:activeLaws.length,
       jobs:dashboard.dashboard?.jobs ?? 2,
+      operationalSchema:op?.schema_version || null,
     }
   };
 }
