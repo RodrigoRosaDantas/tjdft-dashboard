@@ -86,15 +86,15 @@ type ExecutionDay = {
   title: string;
   status: string;
   type: string;
-  order: number;
-  planned: number;
-  done: number;
-  correct: number;
-  errors: number;
-  doubts: number;
-  minutes: number;
+  order: number | null;
+  planned: number | null;
+  done: number | null;
+  correct: number | null;
+  errors: number | null;
+  doubts: number | null;
+  minutes: number | null;
   precision: number | null;
-  progress: number;
+  progress: number | null;
   href: string;
   executed_at: string | null;
 };
@@ -102,24 +102,25 @@ type ExecutionDay = {
 type ExecutionTotals = {
   planned: number;
   fixed_meta: number;
-  done: number;
-  correct: number;
-  errors: number;
-  doubts: number;
-  minutes: number;
+  done: number | null;
+  correct: number | null;
+  errors: number | null;
+  doubts: number | null;
+  minutes: number | null;
   precision: number | null;
-  progress: number;
+  progress: number | null;
 };
 
 type SubjectExecution = {
   subject: string;
-  planned: number;
-  done: number;
-  correct: number;
-  errors: number;
-  doubts: number;
+  planned: number | null;
+  done: number | null;
+  correct: number | null;
+  errors: number | null;
+  doubts: number | null;
   precision: number | null;
   rows: number;
+  sessions: number;
 };
 
 type ExecutionSnapshot = {
@@ -134,6 +135,14 @@ type ExecutionSnapshot = {
     question_rows: number;
   };
 };
+
+function dayHasExecution(day?: ExecutionDay | null) {
+  return Boolean(day && (
+    (day.done != null && day.done > 0) ||
+    day.executed_at ||
+    /em andamento|em execução|conclu[ií]d|executad/i.test(day.status || "")
+  ));
+}
 
 type StudyChecklistKey = "material" | "questions" | "legislation" | "closing";
 type StudyChecklistState = Record<StudyChecklistKey, boolean>;
@@ -221,8 +230,8 @@ function formatExecutionPercent(value: number | null) {
   return value === null || !Number.isFinite(value) ? "—" : `${Math.round(value * 100)}%`;
 }
 
-function formatExecutionMinutes(value: number, done: number) {
-  if (!value || !done) return "—";
+function formatExecutionMinutes(value: number | null, done: number | null) {
+  if (value == null || done == null || value <= 0 || done <= 0) return "—";
   return `${Math.round(value / done)} min`;
 }
 
@@ -837,10 +846,13 @@ function Overview({ onNavigate, snapshot, onRefresh }: { onNavigate: (section: S
   const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
   const plannedQuestions = snapshot?.dashboard.planned_questions ?? 124;
   const projectedQuestions = snapshot?.dashboard.projected_questions ?? 124;
-  const executedQuestions = snapshot?.dashboard.executed_questions ?? 0;
+  const overviewExecution = snapshot?.execution?.c01;
+  const overviewHasExecution = Boolean(typeof overviewExecution?.question_rows === "number" && overviewExecution.question_rows > 0) ||
+    Boolean(overviewExecution?.days?.some(dayHasExecution));
+  const executedQuestions = overviewHasExecution ? overviewExecution?.totals.done ?? null : null;
   const verticalizedAxes = snapshot?.dashboard.verticalized_axes ?? 22;
   const jobsCount = snapshot?.dashboard.jobs ?? 2;
-  const executionRate = plannedQuestions > 0 ? Math.round((executedQuestions / plannedQuestions) * 100) : 0;
+  const executionRate = executedQuestions != null && plannedQuestions > 0 ? Math.round((executedQuestions / plannedQuestions) * 100) : null;
   return (
     <>
       <section className="hero-grid">
@@ -878,7 +890,7 @@ function Overview({ onNavigate, snapshot, onRefresh }: { onNavigate: (section: S
 
       <section className="content-grid two-thirds">
         <div className="panel workload-panel">
-          <SectionHeading eyebrow="CTJ-002 · SNAPSHOT PRÉ-EXECUÇÃO" title="Onde a energia deve entrar" description="A carga abaixo é planejamento. Ela ainda não é desempenho." action={<StatusPill>{executionRate}% executado</StatusPill>} />
+          <SectionHeading eyebrow="CTJ-002 · SNAPSHOT PRÉ-EXECUÇÃO" title="Onde a energia deve entrar" description="A carga abaixo é planejamento. Ela ainda não é desempenho." action={<StatusPill>{executionRate == null ? "— · sem execução registrada" : executionRate + "% executado"}</StatusPill>} />
           <div className="workload-list">
             {workload.map((item) => <div className="workload-row" key={item.label}><div className="workload-label"><span className={`workload-dot dot-${item.tone}`} /><strong>{item.label}</strong><span>{item.blocks} blocos</span></div><div className="workload-track"><span className={`workload-fill fill-${item.tone}`} style={{ width: `${item.questions ? Math.max(6, (item.questions / Math.max(1, plannedQuestions)) * 100) : 0}%` }} /></div><strong className="workload-number">{item.questions}</strong></div>)}
           </div>
@@ -1094,17 +1106,21 @@ function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const [checklistByDay, setChecklistByDay] = useState<Record<string, StudyChecklistState>>({});
   const liveMaterials = snapshot?.materials?.days ?? studyMaterials;
   const liveLegislation = snapshot?.materials?.legislation ?? legislationPlan;
-  const executionDays = snapshot?.execution?.c01?.days ?? [];
-  const completedDays = executionDays.filter((day) => day.done > 0).length;
-  const completedQuestions = executionDays.reduce((total, day) => total + day.done, 0);
+  const execution = snapshot?.execution?.c01;
+  const executionDays = execution?.days ?? [];
+  const hasRecordedExecution = executionDays.some(dayHasExecution);
+  const completedDays = hasRecordedExecution
+    ? executionDays.filter(dayHasExecution).length
+    : null;
+  const completedQuestions = hasRecordedExecution ? execution?.totals.done ?? null : null;
   const selectedRow = dayRows.find((row) => row.day === selectedDay) ?? dayRows[0];
   const selectedMaterial = liveMaterials.find((material) => material.day === selectedRow.day) ?? studyMaterials.find((material) => material.day === selectedRow.day);
   const selectedLaw = liveLegislation.find((item) => item.day === selectedRow.day) ?? legislationPlan.find((item) => item.day === selectedRow.day);
   const selectedExecution = executionDays.find((day) => day.day === selectedRow.day);
-  const selectedDone = selectedExecution?.done ?? 0;
-  const selectedPlanned = selectedExecution?.planned ?? Number(selectedMaterial?.meta.match(/^[0-9]+/)?.[0] ?? 0);
-  const selectedProgress = selectedExecution?.progress ? Math.round(selectedExecution.progress * 100) : 0;
-  const selectedExecuted = selectedDone > 0 || selectedProgress > 0;
+  const selectedDone = dayHasExecution(selectedExecution) ? selectedExecution?.done ?? null : null;
+  const selectedPlanned = selectedExecution?.planned ?? (Number(selectedMaterial?.meta.match(/^[0-9]+/)?.[0] ?? 0) || null);
+  const selectedProgress = !dayHasExecution(selectedExecution) || selectedExecution?.progress == null ? null : Math.round(selectedExecution.progress * 100);
+  const selectedExecuted = dayHasExecution(selectedExecution);
   const selectedStatus = selectedExecuted ? "Executado" : selectedRow.state === "next" ? "Próximo" : selectedRow.state === "adaptive" ? "Checkpoint" : "Preparado";
   const selectedTone = selectedExecuted ? "teal" : selectedRow.state === "next" ? "gold" : selectedRow.state === "adaptive" ? "violet" : "neutral";
   const selectedChecklist = checklistByDay[selectedRow.day] ?? DEFAULT_STUDY_CHECKLIST;
@@ -1161,15 +1177,15 @@ function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
         <p>O site organiza a travessia; o conteúdo completo, as questões e o registro continuam no Notion operacional.</p>
       </div>
       <div className="daily-intro-actions">
-        <StatusPill tone="gold">{completedDays > 0 ? completedDays + " dias registrados" : "D01 é o próximo passo"}</StatusPill>
+        <StatusPill tone="gold">{completedDays == null ? "Sem execução registrada" : completedDays > 0 ? completedDays + " dias registrados" : "D01 é o próximo passo"}</StatusPill>
         <a className="text-button" href={notionExecutionPage} target="_blank" rel="noreferrer">Abrir execução no Notion <ArrowRight size={15} /></a>
       </div>
     </section>
 
     <section className="daily-summary-grid" aria-label="Resumo da execução diária">
       <div className="panel daily-summary-card"><span className="eyebrow">DIAS DO CTJ-002</span><strong>14</strong><small>preparados e navegáveis</small></div>
-      <div className="panel daily-summary-card"><span className="eyebrow">DIAS EXECUTADOS</span><strong>{completedDays}</strong><small>{completedDays > 0 ? "a partir de registros reais" : "nenhum registro no snapshot atual"}</small></div>
-      <div className="panel daily-summary-card"><span className="eyebrow">QUESTÕES REGISTRADAS</span><strong>{completedQuestions}</strong><small>sem importar desempenho de outro projeto</small></div>
+      <div className="panel daily-summary-card"><span className="eyebrow">DIAS EXECUTADOS</span><strong>{completedDays == null ? "—" : completedDays}</strong><small>{completedDays == null ? "sem evidência de sessão" : completedDays > 0 ? "a partir de registros reais" : "nenhum dia executado"}</small></div>
+      <div className="panel daily-summary-card"><span className="eyebrow">QUESTÕES REGISTRADAS</span><strong>{completedQuestions == null ? "—" : completedQuestions}</strong><small>{completedQuestions == null ? "sem questões com correção registrada" : "sem importar desempenho de outro projeto"}</small></div>
       <div className="panel daily-summary-card"><span className="eyebrow">PRÓXIMO MARCO</span><strong>D07</strong><small>checkpoint nasce dos resultados D01–D06</small></div>
     </section>
 
@@ -1179,14 +1195,14 @@ function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
         {dayRows.map((row) => {
           const material = liveMaterials.find((item) => item.day === row.day);
           const execution = executionDays.find((item) => item.day === row.day);
-          const executed = Boolean(execution && (execution.done > 0 || execution.progress > 0));
+          const executed = dayHasExecution(execution);
           const status = executed ? "Executado" : row.state === "next" ? "Próximo" : row.state === "adaptive" ? "Checkpoint" : "Preparado";
           const tone = executed ? "teal" : row.state === "next" ? "gold" : row.state === "adaptive" ? "violet" : "neutral";
           return <button className={"daily-day-card " + (selectedDay === row.day ? "is-selected " : "") + "daily-day-" + tone} type="button" aria-pressed={selectedDay === row.day} onClick={() => setSelectedDay(row.day)} key={row.day}>
             <div className="daily-day-card-top"><strong>{row.day}</strong><StatusPill tone={tone}>{status}</StatusPill></div>
             <h3>{material?.title ?? row.label}</h3>
             <p>{material?.detail ?? row.detail}</p>
-            <div className="daily-day-card-foot"><span>{material?.meta ?? row.meta}</span><span>{executed ? execution?.done + "/" + execution?.planned + " questões" : row.state === "adaptive" ? "resultado necessário" : "sem registro"}</span></div>
+            <div className="daily-day-card-foot"><span>{material?.meta ?? row.meta}</span><span>{executed ? (execution?.done == null ? "—" : execution.done) + "/" + (execution?.planned ?? "—") + " questões" : row.state === "adaptive" ? "resultado necessário" : "sem registro"}</span></div>
           </button>;
         })}
       </div>
@@ -1203,8 +1219,8 @@ function StudyToday({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
           <StatusPill tone={selectedTone}>{selectedStatus}</StatusPill>
         </div>
         <div className="daily-focus-progress">
-          <div><span>Questões do recorte</span><strong>{selectedExecuted ? selectedDone + "/" + selectedPlanned : "a registrar"}</strong></div>
-          <div className="progress-track"><span style={{ width: String(selectedProgress) + "%" }} /></div>
+          <div><span>Questões do recorte</span><strong>{selectedExecuted ? (selectedDone == null ? "—" : selectedDone) + "/" + selectedPlanned : "a registrar"}</strong></div>
+          <div className="progress-track"><span style={{ width: String(selectedProgress ?? 0) + "%" }} /></div>
         </div>
         <StudyFocusTimer />
         <section className="daily-checklist" aria-label={`Checklist local de ${selectedRow.day}`}>
@@ -1324,11 +1340,12 @@ function Progress({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const totals = execution?.totals;
   const fixedPlanned = totals?.fixed_meta ?? snapshot?.dashboard.planned_questions ?? 124;
   const projectedPlanned = totals?.planned ?? snapshot?.dashboard.projected_questions ?? 124;
-  const done = totals?.done ?? snapshot?.dashboard.executed_questions ?? 0;
+  const hasQuestionEvidence = Boolean(typeof execution?.question_rows === "number" && execution.question_rows > 0) || Boolean(execution?.days?.some(dayHasExecution));
+  const done = hasQuestionEvidence ? totals?.done ?? null : null;
   const precisionValue = totals?.precision ?? null;
-  const errorBank = execution?.error_count ?? 0;
+  const errorBank = execution?.error_count ?? null;
   const averageMinutes = totals ? formatExecutionMinutes(totals.minutes, totals.done) : "—";
-  const hasExecutionData = Boolean(execution && (done > 0 || totals?.errors || totals?.doubts));
+  const hasExecutionData = Boolean(execution && done != null);
   const statusLabel = hasExecutionData ? "Execução registrada" : "Sem sessões registradas";
   const subjects = execution?.subjects ?? [];
   const days = execution?.days ?? [];
@@ -1345,25 +1362,25 @@ function Progress({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
       </section>
 
       <section className="stats-grid progress-stats">
-        <StatCard icon={Check} label="Questões feitas" value={String(done)} detail={`de ${projectedPlanned} projetadas · ${fixedPlanned} fixas`} tone="blue" />
-        <StatCard icon={TrendingUp} label="Precisão" value={formatExecutionPercent(precisionValue)} detail={precisionValue === null ? "Aparece após a primeira correção" : `${totals?.correct ?? 0} acertos em ${done} questões`} tone="teal" />
-        <StatCard icon={CircleAlert} label="Caderno de erros" value={String(errorBank)} detail={errorBank ? "Registros no banco de questões" : "Nenhum erro registrado"} tone="coral" />
-        <StatCard icon={Clock3} label="Tempo médio" value={averageMinutes} detail={totals?.minutes ? `${totals.minutes} min acumulados` : "Exige registro de tempo"} tone="violet" />
+        <StatCard icon={Check} label="Questões feitas" value={done == null ? "—" : String(done)} detail={`de ${projectedPlanned} projetadas · ${fixedPlanned} fixas`} tone="blue" />
+        <StatCard icon={TrendingUp} label="Precisão" value={formatExecutionPercent(precisionValue)} detail={precisionValue === null ? "Aparece após a primeira correção" : (totals?.correct ?? "—") + " acertos em " + (done ?? "—") + " questões"} tone="teal" />
+        <StatCard icon={CircleAlert} label="Caderno de erros" value={String(errorBank)} detail={errorBank == null ? "Sem contagem operacional" : errorBank > 0 ? "Registros ativos no banco de questões" : "Zero erro ativo informado pelo Notion"} tone="coral" />
+        <StatCard icon={Clock3} label="Tempo médio" value={averageMinutes} detail={totals?.minutes != null ? `${totals.minutes} min acumulados` : "Exige registro de tempo"} tone="violet" />
       </section>
 
       <section className="content-grid two-thirds">
         <div className="panel execution-overview-panel">
-          <SectionHeading eyebrow="CTJ-002 · CONSOLIDADO" title="O que já virou evidência" description="A meta do dia é agregada no Banco de Dias; a distribuição por matéria vem do Banco de Controle de Questões." action={<StatusPill tone="teal">{formatExecutionPercent(totals?.progress ?? 0)} do planejado</StatusPill>} />
+          <SectionHeading eyebrow="CTJ-002 · CONSOLIDADO" title="O que já virou evidência" description="A meta do dia é agregada no Banco de Dias; a distribuição por matéria vem do Banco de Controle de Questões." action={<StatusPill tone="teal">{totals?.progress == null ? "Sem progresso calculável" : formatExecutionPercent(totals.progress) + " do planejado"}</StatusPill>} />
           <div className="execution-progress-track"><span style={{ width: `${Math.min(100, Math.max(0, (totals?.progress ?? 0) * 100))}%` }} /></div>
           <div className="execution-summary-grid">
             <div><span>Meta projetada</span><strong>{projectedPlanned}</strong></div>
-            <div><span>Acertos</span><strong>{totals?.correct ?? 0}</strong></div>
-            <div><span>Erros</span><strong>{totals?.errors ?? 0}</strong></div>
-            <div><span>Dúvidas</span><strong>{totals?.doubts ?? 0}</strong></div>
+            <div><span>Acertos</span><strong>{totals?.correct ?? "—"}</strong></div>
+            <div><span>Erros</span><strong>{totals?.errors ?? "—"}</strong></div>
+            <div><span>Dúvidas</span><strong>{totals?.doubts ?? "—"}</strong></div>
           </div>
           <div className="subject-performance">
-            <div className="subsection-heading"><p className="eyebrow">DISTRIBUIÇÃO POR MATÉRIA</p><span>{execution?.question_rows ?? 0} linhas ativas</span></div>
-            {subjects.length > 0 ? <div className="performance-list">{subjects.map((subject) => <div className="performance-row" key={subject.subject}><div><strong>{subject.subject}</strong><span>{subject.planned} previstas · {subject.rows} linhas</span></div><div className="performance-bar"><span style={{ width: `${subject.planned ? Math.min(100, (subject.done / subject.planned) * 100) : 0}%` }} /></div><strong className="performance-value">{subject.done}/{subject.planned}</strong><StatusPill tone={subject.precision === null ? "neutral" : subject.precision >= .8 ? "teal" : subject.precision >= .6 ? "gold" : "coral"}>{formatExecutionPercent(subject.precision)}</StatusPill></div>)}</div> : <div className="execution-empty"><BarChart3 size={20} /><span>As linhas de questões do CTJ-002 aparecerão aqui quando o banco estiver populado.</span></div>}
+            <div className="subsection-heading"><p className="eyebrow">DISTRIBUIÇÃO POR MATÉRIA</p><span>{execution?.question_rows == null ? "—" : execution.question_rows} linhas ativas</span></div>
+            {subjects.length > 0 ? <div className="performance-list">{subjects.map((subject) => <div className="performance-row" key={subject.subject}><div><strong>{subject.subject}</strong><span>{subject.planned ?? "—"} previstas · {subject.rows} linhas</span></div><div className="performance-bar"><span style={{ width: `${subject.planned && subject.done != null ? Math.min(100, (subject.done / subject.planned) * 100) : 0}%` }} /></div><strong className="performance-value">{subject.done == null ? "—" : subject.done}/{subject.planned ?? "—"}</strong><StatusPill tone={subject.precision === null ? "neutral" : subject.precision >= .8 ? "teal" : subject.precision >= .6 ? "gold" : "coral"}>{formatExecutionPercent(subject.precision)}</StatusPill></div>)}</div> : <div className="execution-empty"><BarChart3 size={20} /><span>As linhas de questões do CTJ-002 aparecerão aqui quando o banco estiver populado.</span></div>}
           </div>
         </div>
 
@@ -1377,7 +1394,12 @@ function Progress({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
 
       <section className="panel execution-days-panel">
         <SectionHeading eyebrow="BANCO DE DIAS · CTJ-002" title="Andamento por dia efetivamente estudado" description="O painel lê o status e os totais agregados do Notion. D07 e D14 permanecem adaptativos até haver resultados que os alimentem." action={<a className="text-button" href={notionExecutionPage} target="_blank" rel="noreferrer">Abrir execução no Notion <ArrowRight size={15} /></a>} />
-        {days.length > 0 ? <div className="execution-day-list">{days.map((day) => <div className="execution-day-row" key={day.day}><div className="execution-day-name"><strong>{day.day}</strong><span>{day.title.replace(/^CTJ-002-D\d{2}\s*[—–-]\s*/i, "")}</span></div><StatusPill tone={day.status === "Próximo" ? "gold" : day.done > 0 ? "teal" : "neutral"}>{day.status}</StatusPill><div className="execution-day-track"><span style={{ width: `${Math.min(100, Math.max(0, day.progress * 100))}%` }} /></div><span className="execution-day-count">{day.done}/{day.planned}</span><span className="execution-day-result">{day.done ? `${day.correct} ac. · ${day.errors} er.` : "Aguardando execução"}</span></div>)}</div> : <div className="execution-empty execution-empty-large"><BarChart3 size={20} /><span>O Banco de Dias do CTJ-002 ainda não foi sincronizado.</span></div>}
+        {days.length > 0 ? <div className="execution-day-list">{days.map((day) => {
+          const hasEvidence = dayHasExecution(day);
+          const dayDone = hasEvidence ? day.done : null;
+          const dayProgress = hasEvidence ? day.progress : null;
+          return <div className="execution-day-row" key={day.day}><div className="execution-day-name"><strong>{day.day}</strong><span>{day.title.replace(/^CTJ-002-D\d{2}\s*[—–-]\s*/i, "")}</span></div><StatusPill tone={day.status === "Próximo" ? "gold" : dayDone != null && dayDone > 0 ? "teal" : "neutral"}>{day.status}</StatusPill><div className="execution-day-track"><span style={{ width: `${Math.min(100, Math.max(0, (dayProgress ?? 0) * 100))}%` }} /></div><span className="execution-day-count">{dayDone == null ? "—" : dayDone}/{day.planned ?? "—"}</span><span className="execution-day-result">{dayDone == null ? "Sem dado de execução" : dayDone > 0 ? (day.correct ?? "—") + " ac. · " + (day.errors ?? "—") + " er." : "Nenhuma questão registrada"}</span></div>;
+        })}</div> : <div className="execution-empty execution-empty-large"><BarChart3 size={20} /><span>O Banco de Dias do CTJ-002 ainda não foi sincronizado.</span></div>}
       </section>
     </div>
   );

@@ -25,21 +25,30 @@ jobs:
             "/hoje/"
             "/mentor/"
             "/trilha/"
-            "/portugues-rlm/"
-            "/portugues-rlm/p01/"
-            "/portugues-rlm/rl01/"
-            "/portugues-rlm/rev01/"
-            "/leis/"
-            "/leis/l01/"
+            "/agenda/"
             "/revisoes/"
             "/erros/"
             "/desempenho/"
             "/riscos/"
             "/tecnico/"
             "/analista/"
+            "/qualidade-dados/"
+            "/painel-legado/"
+            "/portugues-rlm/"
+            "/portugues-rlm/p01/"
+            "/portugues-rlm/rl01/"
+            "/portugues-rlm/rev01/"
+            "/portugues-rlm/flashcards/"
+            "/leis/"
+            "/leis/l01/"
+            "/leis/flashcards/"
             "/sincronizacao/"
             "/manifest.webmanifest"
+            "/sw.js"
             "/data/tjdft-snapshot.json"
+            "/data/tjdft-edital.json"
+            "/data/portugues-rlm.json"
+            "/data/leis-primeiro.json"
           )
           for route in "${routes[@]}"; do
             echo "SMOKE $route"
@@ -65,4 +74,16 @@ jobs:
           check_marker "/leis/" "Leis Primeiro"
           check_marker "/portugues-rlm/" "Português Primeiro"
           check_marker "/manifest.webmanifest" '"display"'
+          check_marker "/sw.js" "tjdft-pages-v3"
           check_marker "/data/tjdft-snapshot.json" '"kind": "notion"'
+          check_marker "/data/portugues-rlm.json" '"P01"'
+          check_marker "/data/leis-primeiro.json" '"L01"'
+
+      - name: Validar fallback publicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://rodrigorosadantas.github.io/tjdft-dashboard"
+          status=$(curl --silent --show-error --location --output /tmp/fallback --write-out "%{http_code}" "$base/__smoke-route-que-nao-existe__")
+          test "$status" = "404"
+          test -s /tmp/fallback

@@ -43,7 +43,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </header>
 
     <section className="os-hero">
-      <div><p className="os-kicker">TJDFT · TÉCNICO + ANALISTA · {m.meta.phase}</p>
+      <div><p className="os-kicker">TJDFT · TÉCNICO + ANALISTA · {m.meta.phase} · {m.meta.editalReference}</p>
       <h1>{view==="home"?"Central de comando":labels[view]}</h1>
       <p>Notion é a fonte operacional. O site interpreta apenas evidências disponíveis; ausência nunca vira zero, fraqueza ou domínio.</p></div>
       <div className="os-source"><span>Fonte</span><strong>{m.meta.sourceTitle}</strong><small>{m.quality.sourceSyncedAt ? new Date(m.quality.sourceSyncedAt).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo"}) : "não informada"}</small></div>
@@ -56,7 +56,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </section>}
 
     <section className="os-metrics">
-      <Metric label="Questões com evidência" value={m.execution.questions || "—"} detail={m.execution.evidence.label}/>
+      <Metric label="Questões com evidência" value={count(m.execution.questions)} detail={m.execution.evidence.label}/>
       <Metric label="Precisão" value={percent(m.execution.precision)} detail={m.execution.precision==null?"não calculável":"sobre execução registrada"}/>
       <Metric label="Progresso D0" value={m.trail.d0==null?"—":`${m.trail.d0}/${m.sequence.total}`} detail="material pronto ≠ estudado"/>
       <Metric label="Erros ativos" value={count(m.errorCount)} detail={m.errorCount==null?"aguardando snapshot operacional":"resolvidos/arquivados ficam fora"}/>
@@ -67,6 +67,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
       <section className="os-card"><h2>Onde estou?</h2><p>{m.trail.d0==null?"Ainda sem resumo operacional publicado.":`${m.trail.d0} de ${m.sequence.total} posições com D0 concluído.`} D7: {count(m.trail.d7)} · D20: {count(m.trail.d20)}.</p><a href={route(root,"trilha")}>Ver trilha →</a></section>
       <section className="os-card"><h2>Onde estou errando?</h2><p>{m.errorCount!=null?`${m.errorCount} erro(s) ativo(s).`:"Caderno operacional ainda sem resumo público."} {m.weaknesses.length?`${m.weaknesses.length} fragilidade(s) com amostra suficiente.`:"Sem fragilidade estatística sustentada."}</p><a href={route(root,"erros")}>Caderno de erros →</a></section>
       <section className="os-card"><h2>Onde estou bem?</h2><p>{m.strengths.length?m.strengths.map((item:any)=>item.subject).join(", "):"Amostra insuficiente para declarar forças."}</p><a href={route(root,"desempenho")}>Desempenho →</a></section>
+      <section className="os-card"><h2>O que mudou?</h2><p>{m.execution.trendDetail.delta==null?"Amostra temporal insuficiente.":m.execution.trend+" · "+(m.execution.trendDetail.delta*100).toFixed(1)+" p.p."}</p><a href={route(root,"desempenho")}>Ver evolução →</a></section>
       <section className="os-card"><h2>Revisões</h2><p>{m.agenda.filter((item:any)=>item.state==="vencida").length} vencida(s) · {m.agenda.filter((item:any)=>item.state==="hoje").length} para hoje. Itens sem data ficam apenas programados.</p><a href={route(root,"revisoes")}>Abrir revisões →</a></section>
       <section className="os-card"><h2>Sistema e riscos</h2><p>{m.risks.length} sinal(is) · {m.quality.issues.length} observação(ões) de integridade.</p><a href={route(root,"riscos")}>Ver riscos →</a> · <a href={route(root,"qualidade-dados")}>qualidade →</a></section>
     </div>}
@@ -81,9 +82,9 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
 
     {view==="mentor" && <div className="os-grid">
       <section className="os-card os-wide"><h2>Por que esta decisão?</h2><p>{m.nextAction.reason}</p><div className="os-decision-grid"><div><span>Ação</span><b>{m.nextAction.label}</b></div><div><span>Confiança</span><b>{m.nextAction.confidence}</b></div><div><span>Amostra</span><b>{m.execution.evidence.label}</b></div><div><span>Tendência</span><b>{m.execution.trend}</b></div></div></section>
-      <section className="os-card"><h2>Impacto esperado</h2><p>{m.nextAction.kind==="resume"?"Evitar dispersão e concluir o que já começou.":m.weaknesses[0]?"Avançar a esteira sem ignorar "+m.weaknesses[0].subject+", que permanece como intervenção curta.":"Avançar a esteira sem criar uma fragilidade artificial."}</p></section>
+      <section className="os-card"><h2>Impacto esperado</h2><p>{m.nextAction.impact|| (m.nextAction.kind==="resume"?"Evitar dispersão e concluir o que já começou.":m.weaknesses[0]?"Avançar a esteira sem ignorar "+m.weaknesses[0].subject+", que permanece como intervenção curta.":"Avançar a esteira sem criar uma fragilidade artificial.")}</p><p><b>{m.nextAction.after_action||"A próxima ação segue a Ordem 1–37."}</b></p></section>
       <section className="os-card"><h2>Proteções da decisão</h2><ul><li>Ordem 1–37: {m.sequence.valid?"íntegra":"divergente"}</li><li>Material pronto não conta como estudo.</li><li>Erro resolvido/arquivado não entra como risco ativo.</li><li>Técnico e Analista não compartilham domínio por inferência.</li></ul></section>
-      <section className="os-card os-wide"><h2>Evidências usadas</h2><p>{m.execution.questions?String(m.execution.questions)+" questões · "+count(m.execution.sessions)+" dia(s) com data · "+percent(m.execution.precision)+" de precisão.":"Sem amostra de questões suficiente."} {m.errorCount!=null?String(m.errorCount)+" erro(s) ativo(s).":"Caderno ativo ainda sem resumo."}</p></section>
+      <section className="os-card os-wide"><h2>Evidências usadas</h2><p>{m.execution.questions!=null?String(m.execution.questions)+" questões · "+count(m.execution.sessions)+" sessão(ões) registrada(s) · "+percent(m.execution.precision)+" de precisão.":"Sem amostra de questões suficiente."} {m.errorCount!=null?String(m.errorCount)+" erro(s) ativo(s).":"Caderno ativo ainda sem resumo."}</p>{m.nextAction.evidence?.length?<ul>{m.nextAction.evidence.map((item:string,i:number)=><li key={i}>{item}</li>)}</ul>:null}</section>
     </div>}
 
     {view==="trilha" && <section className="os-card os-table-card"><h2>Português Primeiro + RLM Preventivo</h2><Notice>A Ordem da esteira continua canônica. D0 fecha a passagem inicial; D7 e D20 seguem em paralelo.</Notice><div className="os-list">
@@ -104,8 +105,9 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </div>}
 
     {view==="desempenho" && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Leitura conservadora</h2><p>Precisão: <b>{percent(m.execution.precision)}</b> · questões: <b>{m.execution.questions||"—"}</b> · dias datados: <b>{m.execution.sessions||"—"}</b> · tempo: <b>{m.execution.minutes?m.execution.minutes+" min":"—"}</b>.</p><p>Tendência: <b>{m.execution.trend}</b>{m.execution.trendDetail.delta==null?"":" · variação "+(m.execution.trendDetail.delta*100).toFixed(1)+" p.p."}.</p></section>
-      <section className="os-card os-wide"><h2>Por matéria</h2>{m.execution.bySubject.length?<div className="os-list">{m.execution.bySubject.map((row:any)=><div key={row.subject}><b>{row.subject}</b><span>{row.questions} questões · {percent(row.precision)}</span><em>{row.evidence.label}</em></div>)}</div>:<Notice>Sem questões respondidas para comparar matérias.</Notice>}</section>
+      <section className="os-card os-wide"><h2>Leitura conservadora</h2><p>Precisão: <b>{percent(m.execution.precision)}</b> · questões: <b>{count(m.execution.questions)}</b> · sessões: <b>{count(m.execution.sessions)}</b> · tempo: <b>{m.execution.minutes==null?"—":m.execution.minutes+" min"}</b>.</p><p>Tendência: <b>{m.execution.trend}</b>{m.execution.trendDetail.delta==null?"":" · variação "+(m.execution.trendDetail.delta*100).toFixed(1)+" p.p."}.</p></section>
+      <section className="os-card os-wide"><h2>Por matéria</h2>{m.execution.bySubject.length?<div className="os-list">{m.execution.bySubject.map((row:any)=><div key={row.subject}><b>{row.subject}</b><span>{count(row.questions)} questões · {percent(row.precision)}</span><em>{row.evidence.label} · {count(row.sessions)} sessões · {row.trend.label}</em></div>)}</div>:<Notice>Sem questões respondidas para comparar matérias.</Notice>}</section>
+      <section className="os-card os-wide"><h2>Por cargo</h2>{m.execution.byCargo.length?<div className="os-list">{m.execution.byCargo.map((row:any)=><div key={row.cargo}><b>{row.cargo}</b><span>{count(row.questions)} questões · {percent(row.precision)}</span><em>{row.evidence.label} · {count(row.sessions)} sessões · {row.trend.label}</em></div>)}</div>:<Notice>Sem vínculo seguro de questões a Técnico ou Analista. A cobertura dos cargos permanece separada.</Notice>}</section>
       <section className="os-card"><h2>Forças sustentadas</h2><p>{m.strengths.length?m.strengths.map((x:any)=>x.subject).join(", "):"Nenhuma força declarada com a evidência atual."}</p></section>
       <section className="os-card"><h2>Qualidade da amostra</h2><p>{m.execution.evidence.label} · confiança {m.execution.evidence.confidence}.</p></section>
     </div>}
@@ -113,7 +115,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     {view==="riscos" && <section className="os-card os-table-card"><h2>Riscos sustentados</h2>{!m.risks.length?<Notice>Nenhum risco sustentado.</Notice>:<div className="os-list">{m.risks.map((r:any,i:number)=><div key={i}><b>{r.title}</b><span>{r.detail}</span><em>{r.evidence}</em></div>)}</div>}</section>}
 
     {(view==="tecnico"||view==="analista") && <div className="os-grid">
-      <section className="os-card os-wide"><h2>Cobertura · {labels[view]}</h2><div className="os-decision-grid"><div><span>Matriz</span><b>{count(m.coverage[view].matrix)}</b></div><div><span>Mapeado</span><b>{count(m.coverage[view].mapped)}</b></div><div><span>Estudado</span><b>{count(m.coverage[view].studied)}</b></div><div><span>Praticado</span><b>{count(m.coverage[view].practiced_questions)} q.</b></div><div><span>Consolidado</span><b>{count(m.coverage[view].consolidated)}</b></div></div><Notice>Contagem de matriz, estudo, prática e consolidação são dimensões diferentes. Um cargo não herda domínio do outro.</Notice></section>
+      <section className="os-card os-wide"><h2>Cobertura · {labels[view]}</h2><div className="os-decision-grid"><div><span>Matriz</span><b>{count(m.coverage[view].matrix)}</b></div><div><span>Material produzido</span><b>{count(m.coverage[view].produced)}</b></div><div><span>Disponível</span><b>{count(m.coverage[view].available)}</b></div><div><span>Mapeado</span><b>{count(m.coverage[view].mapped)}</b></div><div><span>Estudado</span><b>{count(m.coverage[view].studied)}</b></div><div><span>Com evidência</span><b>{count(m.coverage[view].evidence)}</b></div><div><span>Praticado</span><b>{count(m.coverage[view].practiced_questions)} q.</b></div><div><span>Consolidado</span><b>{count(m.coverage[view].consolidated)}</b></div></div><Notice>{m.meta.editalNote} Produção, disponibilidade, estudo, prática e consolidação são dimensões diferentes. Um cargo não herda domínio do outro.</Notice></section>
       <section className="os-card"><h2>Núcleo comum detectado</h2><p>{m.coverage.common.subjects?.length?m.coverage.common.subjects.join(", "):"Sem interseção operacional declarada suficiente."}</p></section>
       <section className="os-card"><h2>Legislação</h2><p>{m.coverage.laws.active} normas ativas · {m.coverage.laws.historical} históricas/fora da fila ativa.</p></section>
       <section className="os-card os-wide"><h2>Matérias mapeadas</h2><p>{m.coverage[view].subjects?.length?m.coverage[view].subjects.join(" · "):"Matriz ainda sem matérias sanitizadas publicadas."}</p></section>
@@ -121,7 +123,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
 
     {view==="qualidade" && <div className="os-grid">
       <section className="os-card os-wide"><h2>Auditoria de dados</h2>{m.quality.issues.length?<div className="os-list">{m.quality.issues.map((q:any)=><div key={q.code}><b>{q.severity.toUpperCase()} · {q.code}</b><span>{q.message}</span><em>não corrigido silenciosamente no Notion</em></div>)}</div>:<Notice>Nenhuma inconsistência detectada pelos gates atuais.</Notice>}</section>
-      <section className="os-card"><h2>Vocabulário seguro</h2><p>{m.aliases.safe?.length||0} alias(es) explícito(s). Alias ambíguo nunca é fundido automaticamente.</p></section>
+      <section className="os-card"><h2>Vocabulário seguro</h2><p>{m.aliases.safe?.length??"—"} alias(es) explícito(s). Alias ambíguo nunca é fundido automaticamente.</p></section>
       <section className="os-card"><h2>Snapshot</h2><p>Status: <b>{m.quality.sourceStatus||"—"}</b> · schema operacional: <b>{m.meta.operationalSchema||"—"}</b>.</p></section>
     </div>}
 

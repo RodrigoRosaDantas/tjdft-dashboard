@@ -60,4 +60,5 @@ jobs:
       - name: Compilar aplicação e validar snapshot
         run: |
           GITHUB_PAGES=1 GITHUB_PAGES_BASE_PATH="/tjdft-dashboard" npm run test
+          node scripts/validate-portugues-rlm.mjs
           deno run --allow-read scripts/validate-tjdft-snapshot.mjs

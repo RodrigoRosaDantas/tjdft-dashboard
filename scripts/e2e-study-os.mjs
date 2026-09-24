@@ -1,0 +1,121 @@
+import assert from "node:assert/strict";
+import { chromium } from "playwright";
+
+const baseUrl = (process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:4173/tjdft-dashboard").replace(/\/$/, "");
+const basePath = new URL(`${baseUrl}/`).pathname;
+const browser = await chromium.launch({ headless:true });
+const context = await browser.newContext({ serviceWorkers:"block", viewport:{ width:412, height:915 } });
+const page = await context.newPage();
+const pageErrors = [];
+page.on("pageerror", (error) => pageErrors.push(error.message));
+
+async function destinationPath(route) {
+  return new URL(route ? `${route}/` : "./", `${baseUrl}/`).pathname;
+}
+
+async function clickDestination(route) {
+  const target = await destinationPath(route);
+  const index = await page.locator("a[href]").evaluateAll((links, targetPath) => links.findIndex((link) => {
+    try { return new URL(link.href, location.href).pathname === targetPath; } catch { return false; }
+  }), target);
+  assert.notEqual(index, -1, `link para ${target} ausente em ${page.url()}`);
+  await Promise.all([
+    page.waitForURL((url) => url.pathname === target, { timeout:10000 }),
+    page.locator("a[href]").nth(index).click(),
+  ]);
+  const response = await page.waitForLoadState("domcontentloaded").then(() => null).catch(() => null);
+  return response;
+}
+
+async function open(route) {
+  const response = await page.goto(`${baseUrl}/${route ? `${route}/` : ""}`, { waitUntil:"domcontentloaded", timeout:30000 });
+  assert.ok(response && response.status() < 400, `HTTP inválido em ${route || "/"}`);
+  await page.waitForFunction(() => !/Carregando (?:a unidade|a página)/i.test(document.body?.innerText || ""), { timeout:8000 }).catch(() => undefined);
+}
+
+await open("");
+assert.match(await page.locator("h1").first().innerText(), /Central de comando/i);
+await clickDestination("hoje");
+assert.match(await page.locator("h1").first().innerText(), /Hoje/i);
+assert.ok(await page.getByRole("link", { name:/Executar agora/i }).count());
+await clickDestination("mentor");
+assert.match(await page.locator("h1").first().innerText(), /Mentor/i);
+assert.ok(await page.getByText(/Por que esta decisão/i).count());
+await clickDestination("portugues-rlm/p01");
+assert.match(await page.locator("body").innerText(), /P01/);
+assert.ok(await page.locator("article.study-html").count(), "material da unidade não carregou");
+const sourceLinks = await page.locator("a[target='_blank']").count();
+assert.ok(sourceLinks, "a unidade não oferece retorno ao registro canônico do Notion");
+
+const index = page.locator("article.study-html details.study-index").first();
+assert.ok(await index.count(), "índice da aula ausente em P01");
+await index.locator("summary").click();
+const firstAnchor = index.locator("a[href^='#']").first();
+assert.ok(await firstAnchor.count(), "índice P01 sem link interno");
+await firstAnchor.click();
+assert.ok(new URL(page.url()).hash, "clique no índice não alterou a âncora");
+assert.equal(await page.evaluate(() => Boolean(document.getElementById(decodeURIComponent(location.hash.slice(1))))), true, "âncora P01 sem seção de destino");
+await clickDestination("portugues-rlm/p02");
+assert.match(await page.locator("body").innerText(), /P02/);
+await clickDestination("portugues-rlm");
+await clickDestination("portugues-rlm/rl01");
+assert.match(await page.locator("body").innerText(), /RL01/);
+await clickDestination("portugues-rlm");
+await clickDestination("portugues-rlm/rev01");
+assert.match(await page.locator("body").innerText(), /REV01/);
+
+await open("");
+await clickDestination("revisoes");
+assert.match(await page.locator("h1").first().innerText(), /Revisões/i);
+await open("");
+await clickDestination("desempenho");
+assert.match(await page.locator("h1").first().innerText(), /Desempenho/i);
+await open("");
+await clickDestination("erros");
+assert.match(await page.locator("h1").first().innerText(), /Caderno de erros/i);
+await open("");
+await clickDestination("riscos");
+assert.match(await page.locator("h1").first().innerText(), /Riscos/i);
+
+await open("");
+await clickDestination("leis");
+assert.match(await page.locator("body").innerText(), /Leis Primeiro/i);
+await clickDestination("leis/l01");
+assert.match(await page.locator("body").innerText(), /L01/);
+await clickDestination("leis");
+await clickDestination("leis/flashcards");
+assert.match(await page.locator("body").innerText(), /Flashcards/i);
+
+await open("");
+await clickDestination("tecnico");
+assert.match(await page.locator("h1").first().innerText(), /Técnico/i);
+await open("");
+await clickDestination("analista");
+assert.match(await page.locator("h1").first().innerText(), /Analista/i);
+await open("");
+await clickDestination("sincronizacao");
+assert.match(await page.locator("h1").first().innerText(), /Sincronização/i);
+await clickDestination("qualidade-dados");
+assert.match(await page.locator("h1").first().innerText(), /Qualidade dos dados/i);
+
+const pwaContext = await browser.newContext({ serviceWorkers:"allow", viewport:{ width:390, height:844 } });
+const pwaPage = await pwaContext.newPage();
+await pwaPage.goto(`${baseUrl}/`, { waitUntil:"domcontentloaded", timeout:30000 });
+const registration = await pwaPage.evaluate(async () => {
+  const ready = await navigator.serviceWorker.ready;
+  return { scope:ready.scope, active:Boolean(ready.active) };
+});
+assert.equal(registration.active,true,"service worker não ativou");
+assert.equal(new URL(registration.scope).pathname,basePath,"PWA scope não respeita o base path do GitHub Pages");
+await pwaPage.goto(`${baseUrl}/`, { waitUntil:"domcontentloaded" });
+await pwaPage.goto(`${baseUrl}/portugues-rlm/p01/`, { waitUntil:"domcontentloaded" });
+await pwaPage.waitForFunction(() => document.querySelector("article.study-html h2"), { timeout:8000 });
+await pwaContext.setOffline(true);
+const offlineResponse = await pwaPage.goto(`${baseUrl}/portugues-rlm/p01/`, { waitUntil:"domcontentloaded", timeout:15000 });
+assert.ok(offlineResponse && offlineResponse.status() < 400,"PWA não serviu a unidade P01 do cache offline");
+assert.match(await pwaPage.locator("body").innerText(),/P01/);
+await pwaContext.close();
+
+await browser.close();
+assert.deepEqual(pageErrors, [], `erros JavaScript: ${pageErrors.join(" | ")}`);
+console.log("E2E Study OS verde: Home → Hoje → Mentor → P01/índice → P02 → RL01/REV01 → revisões, desempenho, erros, riscos, Leis/L01/flashcards, Técnico, Analista, Sync e Qualidade.");

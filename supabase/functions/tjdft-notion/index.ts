@@ -315,14 +315,19 @@ function propertyText(properties: AnyRecord | undefined, name: string) {
 function propertyNumber(properties: AnyRecord | undefined, names: string | string[]) {
   const candidates = Array.isArray(names) ? names : [names];
   for (const name of candidates) {
-    const value = properties?.[name]?.number;
+    const property = properties?.[name];
+    if (!property) continue;
+    const value = property.number ??
+      (property.rollup?.type === "number" ? property.rollup.number : null) ??
+      (property.formula?.type === "number" ? property.formula.number : null);
     if (typeof value === "number" && Number.isFinite(value)) return value;
   }
-  return 0;
+  return null;
 }
 
-function propertyCheckbox(properties: AnyRecord | undefined, name: string) {
-  return properties?.[name]?.checkbox === true;
+function propertyCheckbox(properties: AnyRecord | undefined, name: string): boolean | null {
+  const value = properties?.[name]?.checkbox;
+  return typeof value === "boolean" ? value : null;
 }
 
 function propertyUrl(properties: AnyRecord | undefined, name: string) {
@@ -343,8 +348,14 @@ function normalizeDay(value: string) {
   return match ? "D" + match[1] : null;
 }
 
-function precision(correct: number, done: number) {
-  return done > 0 ? correct / done : null;
+function precision(correct: number | null, done: number | null) {
+  return done != null && done > 0 && correct != null ? correct / done : null;
+}
+
+function sumNullable(values: Array<number | null>) {
+  return values.length && values.every((value) => value != null)
+    ? values.reduce((sum, value) => sum + (value as number), 0)
+    : null;
 }
 
 function parseExecutionDay(page: AnyRecord) {
@@ -355,15 +366,28 @@ function parseExecutionDay(page: AnyRecord) {
   const cycle = propertyText(properties, "Ciclo");
   if (!day || (cycle && !/CTJ-002|Ciclo 01/i.test(cycle))) return null;
   const planned = propertyNumber(properties, ["Meta de questões", "Meta questões"]);
-  const done = propertyNumber(properties, ["Questões reais", "Questões feitas"]);
-  const correct = propertyNumber(properties, "Acertos");
-  const errors = propertyNumber(properties, "Erros");
-  const doubts = propertyNumber(properties, "Acertos com dúvida");
+  const rawDone = propertyNumber(properties, ["Questões reais", "Questões reais auto", "Questões feitas"]);
+  const rawCorrect = propertyNumber(properties, "Acertos");
+  const rawErrors = propertyNumber(properties, "Erros");
+  const rawDoubts = propertyNumber(properties, "Acertos com dúvida");
+  const rawAnnulled = propertyNumber(properties, ["Anuladas", "Questões anuladas"]);
+  const rawMinutes = propertyNumber(properties, ["Minutos reais", "Minutos reais auto"]);
+  const executedAt = propertyDate(properties, ["Data real", "Data execução"]);
   const status = propertyText(properties, "Status") || "Planejado";
+  const sessionMarked = Boolean(executedAt) ||
+    (rawDone != null && rawDone > 0) || (rawMinutes != null && rawMinutes > 0) ||
+    /em andamento|em execução|conclu[ií]d|executad/i.test(status);
+  const done = rawDone == null || (rawDone === 0 && !sessionMarked) ? null : rawDone;
+  const outcomesReconcile = done != null && done > 0 && rawCorrect != null && rawErrors != null && rawAnnulled != null &&
+    rawCorrect + rawErrors + rawAnnulled === done;
+  const correct = outcomesReconcile ? rawCorrect : null;
+  const errors = outcomesReconcile ? rawErrors : null;
+  const doubts = done != null && done > 0 ? rawDoubts : null;
+  const annulled = outcomesReconcile ? rawAnnulled : null;
   return {
     day,
     title: title || day,
-    status: day === "D01" && done === 0 && /planejado/i.test(status) ? "Próximo" : status,
+    status: day === "D01" && done == null && /planejado/i.test(status) ? "Próximo" : status,
     type: propertyText(properties, "Tipo de dia") || propertyText(properties, "Tipo") || "Estudo",
     order: propertyNumber(properties, ["Ordem lógica", "Ordem"]),
     planned,
@@ -371,11 +395,12 @@ function parseExecutionDay(page: AnyRecord) {
     correct,
     errors,
     doubts,
-    minutes: propertyNumber(properties, ["Minutos reais", "Tempo (min)", "Minutos", "Tempo"]),
-    precision: precision(correct, done),
-    progress: planned > 0 ? done / planned : 0,
+    annulled,
+    minutes: rawMinutes != null && rawMinutes > 0 ? rawMinutes : null,
+    precision: precision(correct, done != null && annulled != null ? done - annulled : null),
+    progress: planned != null && planned > 0 && done != null ? done / planned : null,
     href: propertyUrl(properties, "Página do dia") || page.url || notionPageUrl(page.id),
-    executed_at: propertyDate(properties, ["Data real", "Data execução"]),
+    executed_at: executedAt,
   };
 }
 
@@ -384,8 +409,8 @@ function buildExecutionSnapshot(
   questionPages: AnyRecord[],
   errorPages: AnyRecord[],
 ) {
-  const days = dayPages.map(parseExecutionDay).filter(Boolean).sort((a, b) =>
-    (a?.order || 0) - (b?.order || 0)
+  const days = dayPages.map(parseExecutionDay).filter((day) => day != null).sort((a, b) =>
+    (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER)
   ) as AnyRecord[];
 
   const questions = questionPages.map((page) => {
@@ -395,112 +420,230 @@ function buildExecutionSnapshot(
       propertyText(properties, "Questão"),
       propertyText(properties, "Dia de execução"),
     ].filter(Boolean).join(" ");
-    return { page, day: normalizeDay(dayText) };
-  }).filter((item) => Boolean(item.day));
+    return { page, properties, day: normalizeDay(dayText) };
+  }).filter((item) => item.day != null);
 
-  const dayStats = new Map<string, AnyRecord>();
   const subjects = new Map<string, AnyRecord>();
-  for (const item of questions) {
-    const day = item.day;
-    if (!day) continue;
-    const properties = item.page.properties || {};
-    const result = propertyText(properties, "Resultado");
-    const done = propertyNumber(properties, ["Questões reais", "Questões feitas"]) ||
-      (result && !/não iniciado|planejado|pendente/i.test(result) ? 1 : 0);
-    const correct = propertyNumber(properties, "Acertos") ||
-      (/correta|certa|acerto/i.test(result) && !/errada|erro/i.test(result) ? 1 : 0);
-    const errors = propertyNumber(properties, "Erros") ||
-      (/errada|erro/i.test(result) ? 1 : 0);
-    const doubts = propertyNumber(properties, "Acertos com dúvida") ||
-      (propertyCheckbox(properties, "Acerto com dúvida") ? 1 : 0) ||
-      (/dúvida|duvida/i.test(result) ? 1 : 0);
-    const stats = dayStats.get(day) || { done: 0, correct: 0, errors: 0, doubts: 0 };
-    stats.done += done;
-    stats.correct += correct;
-    stats.errors += errors;
-    stats.doubts += doubts;
-    dayStats.set(day, stats);
+  const cargoBySubject = new Map<string, AnyRecord>();
+  const dayStats = new Map<string, AnyRecord>();
+  const byDate = new Map<string, AnyRecord>();
+  const bySubjectDate = new Map<string, AnyRecord>();
+  const byCargoDate = new Map<string, AnyRecord>();
+  const bySubjectSessions = new Map<string, Set<string>>();
+  const answers: AnyRecord[] = [];
 
-    const subject = propertyText(properties, "Matéria") || "Sem matéria";
-    const row = subjects.get(subject) || {
-      subject,
-      planned: 0,
-      done: 0,
-      correct: 0,
-      errors: 0,
-      doubts: 0,
-      precision: null,
-      rows: 0,
+  for (const item of questions) {
+    const properties = item.properties;
+    const result = propertyText(properties, "Resultado");
+    const isCorrect = /correta|certa|acert/i.test(result) && !/errada|erro/i.test(result);
+    const isError = /errada|erro|incorret/i.test(result);
+    const isAnnulled = /anulada/i.test(result);
+    const explicitDone = propertyNumber(properties, ["Questões reais", "Questões reais auto", "Questões feitas"]);
+    const answeredResult = isCorrect || isError || isAnnulled;
+    const done = explicitDone ?? (answeredResult ? 1 : null);
+    if (done == null || done <= 0) continue;
+
+    const explicitCorrect = propertyNumber(properties, "Acertos");
+    const explicitErrors = propertyNumber(properties, "Erros");
+    const correct = explicitCorrect ?? (answeredResult ? (isCorrect ? 1 : 0) : null);
+    const errors = explicitErrors ?? (answeredResult ? (isError ? 1 : 0) : null);
+    const explicitDoubts = propertyNumber(properties, "Acertos com dúvida");
+    const checkboxDoubt = propertyCheckbox(properties, "Acerto com dúvida");
+    const doubts = explicitDoubts ?? (checkboxDoubt == null ? (/dúvida|duvida/i.test(result) ? 1 : null) : Number(checkboxDoubt));
+
+    const answer = {
+      day: item.day,
+      subject: propertyText(properties, "Matéria") || "Sem matéria",
+      cargo: propertyText(properties, "Cargo-alvo") || null,
+      done,
+      correct,
+      errors,
+      doubts,
+      annulled: isAnnulled ? 1 : answeredResult ? 0 : null,
+      answered_at: propertyDate(properties, "Data da resolução"),
+      seconds: propertyNumber(properties, "Tempo em segundos"),
+      planned: propertyNumber(properties, "Meta de questões"),
     };
-    row.planned += propertyNumber(properties, "Meta de questões");
-    row.done += done;
-    row.correct += correct;
-    row.errors += errors;
-    row.doubts += doubts;
-    row.rows += 1;
-    row.precision = precision(row.correct, row.done);
-    subjects.set(subject, row);
+    answers.push(answer);
+
+    const subjectKey = answer.subject;
+    const subject = subjects.get(subjectKey) || {
+      subject: subjectKey, planned_values: [], done: 0, correct: 0, errors: 0,
+      doubts: 0, annulled: 0, known_annulled: true, rows: 0, answered_rows: 0,
+    };
+    subject.rows += 1;
+    subject.answered_rows += 1;
+    subject.done += done;
+    subject.correct = correct == null ? null : subject.correct == null ? correct : subject.correct + correct;
+    subject.errors = errors == null ? null : subject.errors == null ? errors : subject.errors + errors;
+    subject.doubts = doubts == null ? null : subject.doubts == null ? doubts : subject.doubts + doubts;
+    if (answer.annulled == null) subject.known_annulled = false;
+    else if (subject.known_annulled) subject.annulled += answer.annulled;
+    subject.planned_values.push(answer.planned);
+    subjects.set(subjectKey, subject);
+
+    if (answer.cargo) {
+      const cargoKey = answer.cargo + "|" + subjectKey;
+      const cargoRow = cargoBySubject.get(cargoKey) || {
+        cargo: answer.cargo, subject: subjectKey, total: 0, correct: 0, errors: 0,
+        doubts: 0, annulled: 0, known_annulled: true, date_keys: new Set<string>(),
+      };
+      cargoRow.total += done;
+      if (correct == null) cargoRow.correct = null;
+      else if (cargoRow.correct != null) cargoRow.correct += correct;
+      if (errors == null) cargoRow.errors = null;
+      else if (cargoRow.errors != null) cargoRow.errors += errors;
+      if (doubts == null) cargoRow.doubts = null;
+      else if (cargoRow.doubts != null) cargoRow.doubts += doubts;
+      if (answer.annulled == null) cargoRow.known_annulled = false;
+      else if (cargoRow.known_annulled) cargoRow.annulled += answer.annulled;
+      if (answer.answered_at) cargoRow.date_keys.add(answer.answered_at.slice(0, 10));
+      cargoBySubject.set(cargoKey, cargoRow);
+    }
+
+    const stats = dayStats.get(item.day) || { done: 0, correct: 0, errors: 0, doubts: 0, annulled: 0, known_correct: true, known_errors: true, known_doubts: true, known_annulled: true };
+    stats.done += done;
+    if (answer.annulled == null) stats.known_annulled = false;
+    else if (stats.known_annulled) stats.annulled += answer.annulled;
+    if (correct == null) stats.known_correct = false;
+    else stats.correct += correct;
+    if (errors == null) stats.known_errors = false;
+    else stats.errors += errors;
+    if (doubts == null) stats.known_doubts = false;
+    else stats.doubts += doubts;
+    dayStats.set(item.day, stats);
+
+    if (answer.answered_at) {
+      const key = answer.answered_at.slice(0, 10);
+      const dateRow = byDate.get(key) || { date:key, total:0, correct:0, errors:0, annulled:0, known_correct:true, known_errors:true, known_annulled:true };
+      dateRow.total += done;
+      if (correct == null) dateRow.known_correct = false;
+      else dateRow.correct += correct;
+      if (errors == null) dateRow.known_errors = false;
+      else if (dateRow.known_errors) dateRow.errors += errors;
+      if (answer.annulled == null) dateRow.known_annulled = false;
+      else if (dateRow.known_annulled) dateRow.annulled += answer.annulled;
+      byDate.set(key, dateRow);
+      const subjectDateKey = subjectKey + "|" + key;
+      const subjectDateRow = bySubjectDate.get(subjectDateKey) || { subject:subjectKey, date:key, total:0, correct:0, errors:0, annulled:0, known_correct:true, known_errors:true, known_annulled:true };
+      subjectDateRow.total += done;
+      if (correct == null) subjectDateRow.known_correct = false;
+      else subjectDateRow.correct += correct;
+      if (errors == null) subjectDateRow.known_errors = false;
+      else if (subjectDateRow.known_errors) subjectDateRow.errors += errors;
+      if (answer.annulled == null) subjectDateRow.known_annulled = false;
+      else if (subjectDateRow.known_annulled) subjectDateRow.annulled += answer.annulled;
+      bySubjectDate.set(subjectDateKey, subjectDateRow);
+      if (answer.cargo) {
+        const cargoDateKey = answer.cargo + "|" + key;
+        const cargoDateRow = byCargoDate.get(cargoDateKey) || { cargo:answer.cargo, date:key, total:0, correct:0, errors:0, annulled:0, known_correct:true, known_errors:true, known_annulled:true };
+        cargoDateRow.total += done;
+        if (correct == null) cargoDateRow.known_correct = false;
+        else cargoDateRow.correct += correct;
+        if (errors == null) cargoDateRow.known_errors = false;
+        else if (cargoDateRow.known_errors) cargoDateRow.errors += errors;
+        if (answer.annulled == null) cargoDateRow.known_annulled = false;
+        else if (cargoDateRow.known_annulled) cargoDateRow.annulled += answer.annulled;
+        byCargoDate.set(cargoDateKey, cargoDateRow);
+      }
+      if (!bySubjectSessions.has(subjectKey)) bySubjectSessions.set(subjectKey, new Set<string>());
+      bySubjectSessions.get(subjectKey)?.add(key);
+    }
   }
 
   const normalizedDays = days.map((day) => {
     const stats = dayStats.get(day.day);
     if (!stats) return day;
-    const done = Math.max(day.done, stats.done);
-    const correct = day.correct || stats.correct;
-    const errors = day.errors || stats.errors;
-    const doubts = day.doubts || stats.doubts;
+    const done = Math.max(day.done ?? 0, stats.done);
+    const correct = stats.known_correct ? (day.correct ?? stats.correct) : null;
+    const errors = stats.known_errors ? (day.errors ?? stats.errors) : null;
+    const doubts = stats.known_doubts ? (day.doubts ?? stats.doubts) : null;
+    const annulled = day.annulled ?? (stats.known_annulled ? stats.annulled : null);
     return {
       ...day,
       done,
       correct,
       errors,
       doubts,
-      precision: precision(correct, done),
-      progress: day.planned > 0 ? done / day.planned : 0,
+      annulled,
+      precision: precision(correct, done != null && annulled != null ? done - annulled : null),
+      progress: day.planned != null && day.planned > 0 ? done / day.planned : null,
     };
   });
 
   const fallbackSubjects = [
-    { subject: "Língua Portuguesa", planned: 44, done: 0, correct: 0, errors: 0, doubts: 0, precision: null, rows: 0 },
-    { subject: "Organização Judiciária", planned: 28, done: 0, correct: 0, errors: 0, doubts: 0, precision: null, rows: 0 },
-    { subject: "Ética e Conduta", planned: 16, done: 0, correct: 0, errors: 0, doubts: 0, precision: null, rows: 0 },
-    { subject: "Checkpoints integrados", planned: 36, done: 0, correct: 0, errors: 0, doubts: 0, precision: null, rows: 0 },
+    { subject: "Língua Portuguesa", planned: 44, done: null, correct: null, errors: null, doubts: null, precision: null, rows: 0, sessions: 0 },
+    { subject: "Organização Judiciária", planned: 28, done: null, correct: null, errors: null, doubts: null, precision: null, rows: 0, sessions: 0 },
+    { subject: "Ética e Conduta", planned: 16, done: null, correct: null, errors: null, doubts: null, precision: null, rows: 0, sessions: 0 },
+    { subject: "Checkpoints integrados", planned: 36, done: null, correct: null, errors: null, doubts: null, precision: null, rows: 0, sessions: 0 },
   ];
   const subjectList = subjects.size
-    ? Array.from(subjects.values()).sort((a, b) => b.planned - a.planned || a.subject.localeCompare(b.subject))
+    ? Array.from(subjects.values()).map((row) => ({
+        subject: row.subject,
+        planned: sumNullable(row.planned_values),
+        done: row.answered_rows ? row.done : null,
+        correct: row.answered_rows ? row.correct : null,
+        errors: row.answered_rows ? row.errors : null,
+        doubts: row.answered_rows ? row.doubts : null,
+        precision: precision(row.correct, row.done != null && row.known_annulled ? row.done - row.annulled : null),
+        rows: row.rows,
+        sessions: bySubjectSessions.get(row.subject)?.size ?? 0,
+      })).sort((a, b) => (b.planned ?? 0) - (a.planned ?? 0) || a.subject.localeCompare(b.subject))
     : fallbackSubjects;
-  const planned = normalizedDays.reduce((sum, day) => sum + day.planned, 0) || 124;
-  const fixedMeta = subjectList.reduce((sum, subject) => sum + subject.planned, 0) || planned;
-  const totals = normalizedDays.reduce((sum, day) => ({
-    planned: sum.planned + day.planned,
+  const plannedFromDays = sumNullable(normalizedDays.map((day) => day.planned));
+  const planned = plannedFromDays ?? 124;
+  const fixedMeta = sumNullable(subjectList.map((subject) => subject.planned)) ?? planned;
+
+  const activeDays = normalizedDays.filter((day) =>
+    day.executed_at || (day.done != null && day.done > 0) || /em andamento|em execução|concluíd|executad/i.test(day.status)
+  );
+  const doneTotal = answers.length
+    ? sumNullable(answers.map((answer) => answer.done))
+    : activeDays.length ? sumNullable(activeDays.map((day) => day.done)) : null;
+  const correctTotal = answers.length
+    ? sumNullable(answers.map((answer) => answer.correct))
+    : activeDays.length ? sumNullable(activeDays.map((day) => day.correct)) : null;
+  const errorsTotal = answers.length
+    ? sumNullable(answers.map((answer) => answer.errors))
+    : activeDays.length ? sumNullable(activeDays.map((day) => day.errors)) : null;
+  const doubtsTotal = answers.length
+    ? sumNullable(answers.map((answer) => answer.doubts))
+    : activeDays.length ? sumNullable(activeDays.map((day) => day.doubts)) : null;
+  const annulledTotal = answers.length
+    ? sumNullable(answers.map((answer) => answer.annulled))
+    : activeDays.length ? sumNullable(activeDays.map((day) => day.annulled)) : null;
+  const minutesTotal = activeDays.length ? sumNullable(activeDays.map((day) => day.minutes)) : null;
+  const totals = {
+    planned,
     fixed_meta: fixedMeta,
-    done: sum.done + day.done,
-    correct: sum.correct + day.correct,
-    errors: sum.errors + day.errors,
-    doubts: sum.doubts + day.doubts,
-    minutes: sum.minutes + day.minutes,
-    precision: null,
-    progress: 0,
-  }), {
-    planned: 0,
-    fixed_meta: fixedMeta,
-    done: 0,
-    correct: 0,
-    errors: 0,
-    doubts: 0,
-    minutes: 0,
-    precision: null,
-    progress: 0,
-  });
-  totals.planned = planned;
-  totals.fixed_meta = fixedMeta;
-  totals.precision = precision(totals.correct, totals.done);
-  totals.progress = planned > 0 ? totals.done / planned : 0;
+    done: doneTotal,
+    correct: correctTotal,
+    errors: errorsTotal,
+    doubts: doubtsTotal,
+    annulled: annulledTotal,
+    minutes: minutesTotal,
+    precision: precision(correctTotal, doneTotal != null && annulledTotal != null ? doneTotal - annulledTotal : doneTotal),
+    progress: planned > 0 && doneTotal != null ? doneTotal / planned : null,
+  };
   const statuses: AnyRecord = {};
   for (const day of normalizedDays) statuses[day.status] = (statuses[day.status] || 0) + 1;
   const activeDay = normalizedDays.find((day) => /próximo|andamento|execução/i.test(day.status))?.day ||
-    normalizedDays.find((day) => day.done > 0 && day.done < day.planned)?.day ||
+    normalizedDays.find((day) => day.done != null && day.done > 0 && day.planned != null && day.done < day.planned)?.day ||
     (normalizedDays[0]?.day || "D01");
+  const subjectRows = Array.from(subjects.values()).map((row) => ({
+    subject: row.subject,
+    total: row.answered_rows ? row.done : null,
+    correct: row.answered_rows ? row.correct : null,
+    errors: row.answered_rows ? row.errors : null,
+    doubts: row.answered_rows ? row.doubts : null,
+    annulled: row.answered_rows && row.known_annulled ? row.annulled : null,
+    sessions: bySubjectSessions.get(row.subject)?.size ?? 0,
+  }));
+  const cargoRows = Array.from(cargoBySubject.values()).map((row) => ({
+    subject: row.subject, cargo: row.cargo, total: row.total,
+    correct: row.correct, errors: row.errors, doubts: row.doubts,
+    annulled: row.known_annulled ? row.annulled : null, sessions: row.date_keys.size,
+  }));
   return {
     as_of: new Date().toISOString(),
     c01: {
@@ -511,10 +654,42 @@ function buildExecutionSnapshot(
       active_day: activeDay,
       error_count: errorPages.length,
       question_rows: questions.length,
+      questions: {
+        total: doneTotal,
+        correct: correctTotal,
+        errors: errorsTotal,
+        doubts: doubtsTotal,
+        annulled: annulledTotal,
+        precision: precision(correctTotal, doneTotal != null && annulledTotal != null ? doneTotal - annulledTotal : doneTotal),
+        by_subject: subjectRows,
+        by_cargo: cargoRows,
+        by_date: Array.from(byDate.values()).map((row) => ({
+          date:row.date,
+          total:row.total,
+          correct:row.known_correct ? row.correct : null,
+          errors:row.known_errors ? row.errors : null,
+          annulled:row.known_annulled ? row.annulled : null,
+        })).sort((a,b)=>a.date.localeCompare(b.date)),
+        by_subject_date: Array.from(bySubjectDate.values()).map((row) => ({
+          subject:row.subject,
+          date:row.date,
+          total:row.total,
+          correct:row.known_correct ? row.correct : null,
+          errors:row.known_errors ? row.errors : null,
+          annulled:row.known_annulled ? row.annulled : null,
+        })).sort((a,b)=>a.date.localeCompare(b.date)),
+        by_cargo_date: Array.from(byCargoDate.values()).map((row) => ({
+          cargo:row.cargo,
+          date:row.date,
+          total:row.total,
+          correct:row.known_correct ? row.correct : null,
+          errors:row.known_errors ? row.errors : null,
+          annulled:row.known_annulled ? row.annulled : null,
+        })).sort((a,b)=>a.date.localeCompare(b.date)),
+      },
     },
   };
 }
-
 
 const CANONICAL_TRAIL = [
   "P01", "P02", "P03", "RL01", "P04", "REV01", "P05", "P06", "RL02", "P07", "P08", "REV02",
@@ -588,7 +763,7 @@ function buildOperationalSnapshot(
       track: propertyText(properties, "Trilha"),
       block: propertyText(properties, "Bloco 5+1"),
       priority: propertyText(properties, "Prioridade"),
-      state: propertyText(properties, "Status") || "Não estudado",
+      state: propertyText(properties, "Status") || null,
       material_ready: propertyCheckbox(properties, "Material pronto"),
       d0: propertyCheckbox(properties, "D0"),
       d7: propertyCheckbox(properties, "D7"),
@@ -599,14 +774,17 @@ function buildOperationalSnapshot(
   const sequence = trailItems.map((item) => item.code);
   const sequenceValid = CANONICAL_TRAIL.every((code, index) => sequence[index] === code) &&
     sequence.length === CANONICAL_TRAIL.length;
-  const nextTrail = trailItems.find((item) => !item.d0) || null;
+  const nextTrail = trailItems.find((item) => item.d0 === false) || null;
   const formalReviews = trailItems.filter((item) => /^REV\d{2}$/.test(item.code));
 
   const activities = activityPages.map((page) => {
     const p = page.properties || {};
     const status = propertyText(p, "Status");
     const result = propertyText(p, "Resultado da atividade");
-    const date = publicDate(propertyDate(p, ["Data executada", "Data planejada"]));
+    const date = publicDate(propertyDate(p, "Data executada"));
+    const plannedDate = publicDate(propertyDate(p, "Data planejada"));
+    const rawMinutes = propertyNumber(p, "Minutos reais");
+    const rawQuestions = propertyNumber(p, "Questões reais");
     return {
       type: propertyText(p, "Tipo") || "Atividade",
       activity: propertyText(p, "Atividade") || propertyText(p, "Dia de execução") || "Atividade",
@@ -615,8 +793,9 @@ function buildOperationalSnapshot(
       status,
       subject: canonicalSubject(propertyText(p, "Matéria")),
       date,
-      minutes: propertyNumber(p, "Minutos reais"),
-      questions: propertyNumber(p, "Questões reais"),
+      planned_date: plannedDate,
+      minutes: rawMinutes != null && rawMinutes > 0 ? rawMinutes : null,
+      questions: rawQuestions != null && rawQuestions > 0 ? rawQuestions : null,
       next_action: propertyText(p, "Próxima ação"),
     };
   }).filter((item) =>
@@ -627,9 +806,15 @@ function buildOperationalSnapshot(
   const answered = questionPages.map((page) => {
     const p = page.properties || {};
     const result = propertyText(p, "Resultado");
-    if (!result || /Não respondida/i.test(result)) return null;
+    const correct = /acerto|correta|certa/i.test(result) && !/erro|errada/i.test(result);
+    const error = /erro|errada|incorreta/i.test(result);
+    const annulled = /anulada/i.test(result);
+    if (!correct && !error && !annulled) return null;
     return {
       result,
+      correct,
+      error,
+      annulled,
       doubt: propertyCheckbox(p, "Acerto com dúvida"),
       subject: canonicalSubject(propertyText(p, "Matéria")),
       topic: propertyText(p, "Assunto") || null,
@@ -642,45 +827,85 @@ function buildOperationalSnapshot(
       seconds: propertyNumber(p, "Tempo em segundos"),
     };
   }).filter(Boolean) as AnyRecord[];
+  const uncorrectedQuestionRows = questionPages.filter((page) => {
+    const p = page.properties || {};
+    const done = propertyNumber(p, ["Questões reais", "Questões reais auto", "Questões feitas"]);
+    const result = propertyText(p, "Resultado");
+    return done != null && done > 0 && !/acerto|correta|certa|erro|errada|incorreta|anulada/i.test(result);
+  }).length;
 
   const bySubject = new Map<string, AnyRecord>();
   const byCargo = new Map<string, AnyRecord>();
   const byDate = new Map<string, AnyRecord>();
+  const bySubjectDates = new Map<string, Set<string>>();
+  const byCargoDates = new Map<string, Set<string>>();
+  const bySubjectDate = new Map<string, AnyRecord>();
+  const byCargoDate = new Map<string, AnyRecord>();
   for (const q of answered) {
-    const correct = /Acerto/i.test(q.result) ? 1 : 0;
-    const error = /Erro/i.test(q.result) ? 1 : 0;
-    const annulled = /Anulada/i.test(q.result) ? 1 : 0;
     const update = (map: Map<string, AnyRecord>, key: string) => {
-      const row = map.get(key) || { key, total: 0, correct: 0, errors: 0, doubts: 0, annulled: 0, seconds: 0 };
+      const row = map.get(key) || { key, total: 0, correct: 0, errors: 0, doubts: 0, known_doubts: true, annulled: 0 };
       row.total += 1;
-      row.correct += correct;
-      row.errors += error;
-      row.doubts += q.doubt ? 1 : 0;
-      row.annulled += annulled;
-      row.seconds += q.seconds || 0;
+      row.correct += q.correct ? 1 : 0;
+      row.errors += q.error ? 1 : 0;
+      if (q.doubt == null) row.known_doubts = false;
+      else row.doubts += q.doubt ? 1 : 0;
+      row.annulled += q.annulled ? 1 : 0;
       row.precision = row.total - row.annulled > 0 ? row.correct / (row.total - row.annulled) : null;
       map.set(key, row);
     };
     update(bySubject, q.subject);
     if (q.cargo) update(byCargo, q.cargo);
-    if (q.answered_at) update(byDate, q.answered_at.slice(0, 10));
+    if (q.answered_at) {
+      const dateKey = q.answered_at.slice(0, 10);
+      const dateRow = byDate.get(dateKey) || { key:dateKey, total:0, correct:0, errors:0, annulled:0 };
+      dateRow.total += 1;
+      dateRow.correct += q.correct ? 1 : 0;
+      dateRow.errors += q.error ? 1 : 0;
+      dateRow.annulled += q.annulled ? 1 : 0;
+      byDate.set(dateKey, dateRow);
+      const subjectDateKey = q.subject + "|" + dateKey;
+      const subjectDateRow = bySubjectDate.get(subjectDateKey) || { subject:q.subject, date:dateKey, total:0, correct:0, errors:0, annulled:0 };
+      subjectDateRow.total += 1;
+      subjectDateRow.correct += q.correct ? 1 : 0;
+      subjectDateRow.errors += q.error ? 1 : 0;
+      subjectDateRow.annulled += q.annulled ? 1 : 0;
+      bySubjectDate.set(subjectDateKey, subjectDateRow);
+      if (q.cargo) {
+        const cargoDateKey = q.cargo + "|" + dateKey;
+        const cargoDateRow = byCargoDate.get(cargoDateKey) || { cargo:q.cargo, date:dateKey, total:0, correct:0, errors:0, annulled:0 };
+        cargoDateRow.total += 1;
+        cargoDateRow.correct += q.correct ? 1 : 0;
+        cargoDateRow.errors += q.error ? 1 : 0;
+        cargoDateRow.annulled += q.annulled ? 1 : 0;
+        byCargoDate.set(cargoDateKey, cargoDateRow);
+      }
+      if (!bySubjectDates.has(q.subject)) bySubjectDates.set(q.subject, new Set<string>());
+      bySubjectDates.get(q.subject)?.add(dateKey);
+      if (q.cargo) {
+        if (!byCargoDates.has(q.cargo)) byCargoDates.set(q.cargo, new Set<string>());
+        byCargoDates.get(q.cargo)?.add(dateKey);
+      }
+    }
   }
   const effectiveQuestions = answered.filter((q) => !/Anulada/i.test(q.result));
-  const totalCorrect = effectiveQuestions.filter((q) => /Acerto/i.test(q.result)).length;
-  const totalErrors = effectiveQuestions.filter((q) => /Erro/i.test(q.result)).length;
-  const totalDoubts = effectiveQuestions.filter((q) => q.doubt).length;
+  const totalCorrect = effectiveQuestions.length ? effectiveQuestions.filter((q) => q.correct).length : null;
+  const totalErrors = effectiveQuestions.length ? effectiveQuestions.filter((q) => q.error).length : null;
+  const totalDoubts = effectiveQuestions.length && effectiveQuestions.every((q) => q.doubt != null)
+    ? effectiveQuestions.filter((q) => q.doubt).length
+    : null;
 
+  const unclassifiedErrors = errorPages.filter((page) => !propertyText(page.properties || {}, "Estado")).length;
   const activeErrors = errorPages.map((page) => {
     const p = page.properties || {};
     const state = propertyText(p, "Estado");
-    if (!state || /Resolvido|Arquivado/i.test(state)) return null;
+    if (!state || /Resolvido|Arquivado|Validado|Fechado/i.test(state)) return null;
     return {
       state,
       subject: canonicalSubject(propertyText(p, "Matéria")),
       topic: propertyText(p, "Assunto") || null,
       pattern: propertyText(p, "Padrão do erro") || null,
       causes: propertyText(p, "Causa") || null,
-      severity: propertyText(p, "Gravidade") || "Sem gravidade",
+      severity: propertyText(p, "Gravidade") || null,
       recurrence: propertyNumber(p, "Reincidência"),
       review_at: publicDate(propertyDate(p, "Próxima revisão")),
       review_kind: propertyText(p, "Revisão recomendada") || null,
@@ -693,7 +918,7 @@ function buildOperationalSnapshot(
   const severityOrder: Record<string, number> = { "Crítica": 4, "Alta": 3, "Média": 2, "Baixa": 1, "Sem gravidade": 0 };
   activeErrors.sort((a, b) =>
     (severityOrder[b.severity] || 0) - (severityOrder[a.severity] || 0) ||
-    (b.recurrence || 0) - (a.recurrence || 0)
+    ((b.recurrence ?? -1) - (a.recurrence ?? -1))
   );
   const errorBySubject = Array.from(activeErrors.reduce((map: Map<string, number>, item) => {
     map.set(item.subject, (map.get(item.subject) || 0) + 1);
@@ -706,8 +931,8 @@ function buildOperationalSnapshot(
     return {
       cargo: propertyText(p, "Cargo-alvo"),
       level: propertyText(p, "Nível"),
-      status: propertyText(p, "Status") || "Não iniciado",
-      domain: propertyText(p, "Estado de domínio") || "Sem evidência",
+      status: propertyText(p, "Status") || null,
+      domain: propertyText(p, "Estado de domínio") || null,
       covered: propertyCheckbox(p, "Cobertura registrada"),
       subject: canonicalSubject(propertyText(p, "Matéria")),
     };
@@ -717,12 +942,28 @@ function buildOperationalSnapshot(
   const coverageFor = (needle: string) => {
     const rows = contents.filter((item) => item.cargo.includes(needle));
     const cargoQuestionRows = answered.filter((item) => String(item.cargo || "").includes(needle));
+    const practisedSubjects = new Set(cargoQuestionRows.map((item) => item.subject));
+    const studiedCount = rows.filter((item) => /^(?:em andamento|iniciado|estudado|conclu[ií]do|dominado|manuten[cç][aã]o)\b/i.test(item.status || "")).length;
+    const consolidatedCount = rows.filter((item) =>
+      /consolidado/i.test(item.status || "") || /^(?:consolidado|manutenção)$/i.test(item.domain || "")
+    ).length;
     return {
       matrix: rows.length,
-      mapped: rows.filter((item) => item.covered).length,
-      studied: rows.filter((item) => !/Não iniciado/i.test(item.status)).length,
-      consolidated: rows.filter((item) => /Consolidado/i.test(item.status) || /Consolidado|Manutenção/i.test(item.domain)).length,
-      practiced_questions: cargoQuestionRows.filter((item) => !/Anulada/i.test(item.result)).length,
+      produced: null,
+      available: null,
+      mapped: rows.length && rows.every((item) => item.covered != null)
+        ? rows.filter((item) => item.covered === true).length
+        : null,
+      studied: rows.length && rows.every((item) => item.status != null) ? studiedCount : null,
+      evidence: answered.length && answered.every((item) => item.cargo)
+        ? rows.filter((item) => practisedSubjects.has(item.subject)).length
+        : null,
+      practiced_questions: answered.length && answered.every((item) => item.cargo)
+        ? cargoQuestionRows.filter((item) => !item.annulled).length
+        : null,
+      consolidated: rows.length && rows.every((item) => item.status != null && item.domain != null)
+        ? consolidatedCount
+        : null,
       subjects: Array.from(new Set(rows.map((item) => item.subject))).sort(),
     };
   };
@@ -746,9 +987,10 @@ function buildOperationalSnapshot(
 
   const invalidTimes = activities.filter((item) => item.minutes < 0).length;
   const invalidQuestionTimes = answered.filter((item) => item.seconds < 0).length;
-  const duplicateTrailOrders = trailItems.filter((item, index, all) =>
+  const duplicateTrailOrders = trailItems.filter((item, index, all) => item.order != null &&
     all.findIndex((candidate) => candidate.order === item.order) !== index
   ).length;
+  const missingTrailOrders = trailItems.filter((item) => item.order == null).length;
 
   return {
     schema_version: 2,
@@ -769,19 +1011,49 @@ function buildOperationalSnapshot(
     continuity: {
       active: activeActivity,
       activities_with_evidence: activities.length,
-      minutes: activities.reduce((sum, item) => sum + Math.max(0, item.minutes || 0), 0),
-      questions: activities.reduce((sum, item) => sum + Math.max(0, item.questions || 0), 0),
+      minutes: activities.length && activities.every((item) => item.minutes != null)
+        ? activities.reduce((sum, item) => sum + item.minutes, 0)
+        : null,
+      questions: activities.length && activities.every((item) => item.questions != null)
+        ? activities.reduce((sum, item) => sum + item.questions, 0)
+        : null,
     },
     questions: {
-      total: effectiveQuestions.length,
+      total: effectiveQuestions.length ? effectiveQuestions.length : null,
       correct: totalCorrect,
       errors: totalErrors,
       doubts: totalDoubts,
-      annulled: answered.length - effectiveQuestions.length,
+      annulled: answered.length ? answered.length - effectiveQuestions.length : null,
       precision: effectiveQuestions.length ? totalCorrect / effectiveQuestions.length : null,
-      by_subject: Array.from(bySubject.values()).map((row: AnyRecord): AnyRecord => ({ ...row, subject: row.key })).sort((a: AnyRecord, b: AnyRecord) => (Number(b.total) || 0) - (Number(a.total) || 0)),
-      by_cargo: Array.from(byCargo.values()).map((row: AnyRecord): AnyRecord => ({ ...row, cargo: row.key })).sort((a: AnyRecord, b: AnyRecord) => (Number(b.total) || 0) - (Number(a.total) || 0)),
-      by_date: Array.from(byDate.values()).map((row) => ({ ...row, date: row.key })).sort((a, b) => a.date.localeCompare(b.date)),
+      by_subject: Array.from(bySubject.values()).map((row: AnyRecord): AnyRecord => ({
+        subject: row.key,
+        total: row.total,
+        correct: row.correct,
+        errors: row.errors,
+        doubts: row.known_doubts ? row.doubts : null,
+        annulled: row.annulled,
+        sessions: bySubjectDates.get(row.key)?.size ?? 0,
+        precision: row.precision,
+      })).sort((a: AnyRecord, b: AnyRecord) => (Number(b.total) || 0) - (Number(a.total) || 0)),
+      by_cargo: Array.from(byCargo.values()).map((row: AnyRecord): AnyRecord => ({
+        cargo: row.key,
+        total: row.total,
+        correct: row.correct,
+        errors: row.errors,
+        doubts: row.known_doubts ? row.doubts : null,
+        annulled: row.annulled,
+        sessions: byCargoDates.get(row.key)?.size ?? 0,
+        precision: row.precision,
+      })).sort((a: AnyRecord, b: AnyRecord) => (Number(b.total) || 0) - (Number(a.total) || 0)),
+      by_date: Array.from(byDate.values()).map((row) => ({
+        date: row.key,
+        total: row.total,
+        correct: row.correct,
+        errors: row.errors,
+        annulled: row.annulled,
+      })).sort((a, b) => a.date.localeCompare(b.date)),
+      by_subject_date: Array.from(bySubjectDate.values()).map((row) => ({ ...row })).sort((a, b) => a.date.localeCompare(b.date)),
+      by_cargo_date: Array.from(byCargoDate.values()).map((row) => ({ ...row })).sort((a, b) => a.date.localeCompare(b.date)),
     },
     errors: {
       active_count: activeErrors.length,
@@ -799,7 +1071,10 @@ function buildOperationalSnapshot(
     },
     integrity: {
       duplicate_trail_orders: duplicateTrailOrders,
+      missing_trail_orders: missingTrailOrders,
+      unclassified_errors: unclassifiedErrors,
       invalid_times: invalidTimes + invalidQuestionTimes,
+      uncorrected_question_rows: uncorrectedQuestionRows,
       sequence_valid: sequenceValid,
     },
     aliases: {
@@ -877,7 +1152,7 @@ function stripMarkup(value: string) {
     .trim();
 }
 
-function parseReadingDay(line: string, materialPages: Map<string, string>) {
+function parseReadingDay(line: string, materialPages: Map<string, string>): AnyRecord | null {
   const normalized = line.replace(/^[-*]\s*/, "").replace(/^\*+/, "").replace(/\*+$/, "").trim();
   const match = normalized.match(/^D(\d{2})\s*[—–-]\s*([^:]+):\s*(.*)$/i);
   if (!match) return null;
@@ -896,15 +1171,16 @@ function parseReadingDay(line: string, materialPages: Map<string, string>) {
 }
 
 function extractSequentialMaterials(text: string, sourceUrl: string) {
-  return text.split(/\n+/).map((line) => line.trim()).map((line) => {
-    const normalized = line.replace(/^\*+/, "").replace(/\*+$/, "").trim();
+  const materials: AnyRecord[] = [];
+  for (const line of text.split(/\n+/)) {
+    const normalized = line.trim().replace(/^\*+/, "").replace(/\*+$/, "").trim();
     const match = normalized.match(
       /^(?:\d+\.\s*)?((?:TJ-MAT-\d+(?:-[A-Z])?)|(?:MS\d{2}))\s*[—–-]\s*(.+)$/i,
     );
-    if (!match) return null;
+    if (!match) continue;
     const code = match[1].toUpperCase();
     const number = Number(code.match(/(\d+)(?:-[A-Z])?$/)?.[1] || 0);
-    return {
+    materials.push({
       code,
       order: number,
       title: stripMarkup(match[2]),
@@ -912,8 +1188,9 @@ function extractSequentialMaterials(text: string, sourceUrl: string) {
         number === 4 ? "Fontes oficiais" : number === 5 ? "Questões" : "Revisão",
       detail: "Material sequencial atemporal do Notion.",
       href: sourceUrl,
-    };
-  }).filter((item): item is AnyRecord => Boolean(item)).sort((a, b) => a.order - b.order);
+    });
+  }
+  return materials.sort((a, b) => a.order - b.order);
 }
 
 function buildMaterialsSnapshot(
@@ -933,11 +1210,12 @@ function buildMaterialsSnapshot(
     materialPages.set(day, notionPageUrl(block.id));
     materialTitles.set(day, rawTitle.replace(/^D\d{2}\s*[—–-]\s*/i, "").trim());
   }
-  const legislation = materialsText.split(/\n+/)
-    .map((line) => line.trim())
-    .filter((line) => /^D\d{2}\b/i.test(line))
-    .map((line) => parseReadingDay(line, materialPages))
-    .filter((item): item is AnyRecord => Boolean(item));
+  const legislation: AnyRecord[] = [];
+  for (const line of materialsText.split(/\n+/).map((value) => value.trim())) {
+    if (!/^D\d{2}\b/i.test(line)) continue;
+    const item = parseReadingDay(line, materialPages);
+    if (item) legislation.push(item);
+  }
   const legislationByDay = new Map(legislation.map((item) => [item.day, item]));
   const days = Array.from(new Set([...materialTitles.keys(), ...legislationByDay.keys()])).map((day) => {
     const law = legislationByDay.get(day);
@@ -1084,7 +1362,7 @@ export async function buildSnapshot(token: string) {
       next_action: nextAction,
       planned_questions: fallback?.dashboard?.planned_questions ?? 124,
       projected_questions: fallback?.dashboard?.projected_questions ?? 124,
-      executed_questions: execution?.c01?.totals?.done ?? fallback?.dashboard?.executed_questions ?? 0,
+      executed_questions: execution?.c01?.totals?.done ?? null,
       verticalized_axes: fallback?.dashboard?.verticalized_axes ?? 22,
       jobs: fallback?.dashboard?.jobs ?? 2,
     },

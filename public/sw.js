@@ -1,5 +1,15 @@
-const CACHE_NAME = "tjdft-pages-v2";
-const LAW_ROUTE_ASSETS = Array.from({ length: 26 }, (_, index) => `./leis/l${String(index + 1).padStart(2, "0")}/index.html`);
+const CACHE_NAME = "tjdft-pages-v3";
+const LAW_ROUTE_ASSETS = Array.from({ length: 26 }, (_, index) => `./leis/l${String(index + 1).padStart(2, "0")}/`);
+const STUDY_CODES = [
+  "p01", "p02", "p03", "rl01", "p04", "rev01", "p05", "p06", "rl02", "p07", "p08", "rev02",
+  "p09", "rl03", "p10", "p11", "p12", "rev03", "rl04", "p13", "p14", "p15", "rl05", "rev04",
+  "p16", "p17", "p18", "rl06", "rl07", "rev05", "rl08", "rl09", "rl10", "rl11", "rl12", "rev06", "rl13",
+];
+const STUDY_ROUTE_ASSETS = STUDY_CODES.map((code) => `./portugues-rlm/${code}/`);
+const STUDY_OS_ROUTES = [
+  "hoje", "mentor", "trilha", "agenda", "revisoes", "erros", "desempenho", "riscos",
+  "tecnico", "analista", "qualidade-dados", "sincronizacao", "painel-legado",
+].map((route) => `./${route}/`);
 const CORE_ASSETS = [
   "./",
   "./manifest.webmanifest",
@@ -7,19 +17,24 @@ const CORE_ASSETS = [
   "./reading-preferences.css",
   "./reading-preferences.js",
   "./leis-enhanced.css",
-  "./leis/index.html",
-  "./leis/flashcards/index.html",
+  "./leis/",
+  "./leis/flashcards/",
+  ...STUDY_OS_ROUTES,
   ...LAW_ROUTE_ASSETS,
+  "./portugues-rlm/",
+  "./portugues-rlm/flashcards/",
+  ...STUDY_ROUTE_ASSETS,
   "./data/tjdft-snapshot.json",
   "./data/tjdft-edital.json",
   "./data/leis-primeiro.json",
+  "./data/portugues-rlm.json",
   "./data/legislation-bank.json",
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(CORE_ASSETS).catch(() => undefined))
+      .then((cache) => Promise.all(CORE_ASSETS.map((asset) => cache.add(asset).catch(() => undefined))))
       .then(() => self.skipWaiting()),
   );
 });
