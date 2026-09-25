@@ -25,6 +25,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 import SyncWorkflowPanel from "./sync-workflow-panel";
 import ReadingSettings from "./reading-settings";
+import { buildTJDFTHomeState } from "./intelligence/tjdft-intelligence.mjs";
+import type { HomeIntelligenceState, StudyOsClientSeed } from "./intelligence/home-types";
 
 type SectionId = "inicio" | "estudar" | "fases" | "cargos" | "progresso" | "materiais" | "pre-edital";
 type MaterialsTone = "gold" | "teal" | "violet" | "coral";
@@ -246,6 +248,23 @@ const navigation: Array<{ id: SectionId; label: string; icon: LucideIcon }> = [
   { id: "progresso", label: "Progresso", icon: BarChart3 },
   { id: "materiais", label: "Materiais", icon: FileText },
   { id: "pre-edital", label: "Pré-edital", icon: Target },
+];
+
+const intelligenceRoutes: Array<{ href: string; label: string; icon: LucideIcon }> = [
+  { href: "./hoje/", label: "Hoje", icon: Clock3 },
+  { href: "./trilha/", label: "Trilha canônica", icon: Route },
+  { href: "./portugues-rlm/", label: "Português + RLM", icon: BookOpen },
+  { href: "./leis/", label: "Leis Primeiro", icon: FileCheck2 },
+  { href: "./revisoes/", label: "Revisões", icon: RefreshCw },
+  { href: "./agenda/", label: "Agenda", icon: Clock3 },
+  { href: "./mentor/", label: "Mentor", icon: CircleAlert },
+  { href: "./erros/", label: "Caderno de erros", icon: CircleAlert },
+  { href: "./desempenho/", label: "Desempenho", icon: BarChart3 },
+  { href: "./riscos/", label: "Riscos", icon: CircleAlert },
+  { href: "./tecnico/", label: "Técnico", icon: GraduationCap },
+  { href: "./analista/", label: "Analista", icon: GraduationCap },
+  { href: "./qualidade-dados/", label: "Qualidade dos dados", icon: Check },
+  { href: "./sincronizacao/", label: "Sincronização", icon: RefreshCw },
 ];
 
 const sectionIds = navigation.map((item) => item.id);
@@ -845,8 +864,19 @@ function SectionHeading({ eyebrow, title, description, action }: { eyebrow: stri
   );
 }
 
-function Overview({ onNavigate, snapshot, onRefresh }: { onNavigate: (section: SectionId) => void; snapshot: DashboardSnapshot | null; onRefresh: () => Promise<DashboardSyncMode> }) {
-  const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
+function getStudyOsRecommendation(snapshot: DashboardSnapshot | null, initialHomeState: HomeIntelligenceState, intelligenceSeed: StudyOsClientSeed) {
+  const intelligence = snapshot ? buildTJDFTHomeState(snapshot, intelligenceSeed.portuguese) : initialHomeState;
+  const recommendation = intelligence.nextAction;
+  const title = recommendation.code && recommendation.title.slice(0, recommendation.code.length).toLocaleUpperCase() === recommendation.code.toLocaleUpperCase()
+    ? recommendation.title.slice(recommendation.code.length).replace(/^\s*[-—–·:]\s*/, "").trim()
+    : recommendation.title;
+  const href = recommendation.href ? `./${recommendation.href}` : "./hoje/";
+  const label = recommendation.kind === "resume" ? "Retomar unidade" : recommendation.kind === "wait" ? "Ver orientação" : "Executar agora";
+  return { intelligence, recommendation, title, href, label };
+}
+
+function Overview({ onNavigate, snapshot, onRefresh, initialHomeState, intelligenceSeed }: { onNavigate: (section: SectionId) => void; snapshot: DashboardSnapshot | null; onRefresh: () => Promise<DashboardSyncMode>; initialHomeState: HomeIntelligenceState; intelligenceSeed: StudyOsClientSeed }) {
+  const { intelligence, recommendation, title: recommendationTitle, href: recommendationHref, label: recommendationLabel } = getStudyOsRecommendation(snapshot, initialHomeState, intelligenceSeed);
   const plannedQuestions = snapshot?.dashboard.planned_questions ?? 124;
   const projectedQuestions = snapshot?.dashboard.projected_questions ?? 124;
   const overviewExecution = snapshot?.execution?.c01;
@@ -858,25 +888,26 @@ function Overview({ onNavigate, snapshot, onRefresh }: { onNavigate: (section: S
   const executionRate = executedQuestions != null && plannedQuestions > 0 ? Math.round((executedQuestions / plannedQuestions) * 100) : null;
   return (
     <>
-      <section className="hero-grid">
+      <section className="hero-grid" data-home-intelligence="true">
         <div className="hero-card">
-          <div className="hero-kicker"><span className="live-dot" /> Fase 1 ativa · CTJ-002 liberado</div>
-          <h1>O próximo passo está definido.</h1>
-          <p className="hero-copy">Comece pelo D01 e transforme o plano TJDFT em execução real. O painel acompanha o que foi estudado, não o que ficou bonito na planilha.</p>
+          <div className="hero-kicker"><span className="live-dot" /> CENTRAL DE COMANDO · TJDFT</div>
+          <h1>{recommendation.kind === "resume" ? "Retome de onde parou." : recommendation.href ? "O próximo passo está definido." : "A próxima ação aguarda dados."}</h1>
+          <p className="hero-copy">{recommendation.reason}</p>
           <div className="hero-action-row">
-            <button className="primary-button" onClick={() => onNavigate("estudar")}>Abrir D01 <ArrowRight size={17} /></button>
-            <span className="hero-note"><Clock3 size={15} /> Dias efetivamente estudados</span>
+            <a className="primary-button" href={recommendationHref}>{recommendationLabel} <ArrowRight size={17} /></a>
+            <span className="hero-note"><Clock3 size={15} />Dados ausentes aparecem como —; nunca viram zero.</span>
           </div>
           <div className="hero-orbit orbit-one" />
           <div className="hero-orbit orbit-two" />
         </div>
         <div className="focus-card">
-          <div className="focus-topline"><span>FOCO DE HOJE</span><StatusPill tone="gold">D01</StatusPill></div>
-          <h3>{nextAction}</h3>
-          <p>Primeira unidade de execução do CTJ-002. Teoria curta, questões registradas no banco TJDFT e fechamento do dia.</p>
+          <div className="focus-topline"><span>PRÓXIMA AÇÃO</span><StatusPill tone={recommendation.kind === "resume" ? "teal" : "gold"}>{recommendation.code ?? recommendation.label}</StatusPill></div>
+          <h3>{recommendation.code ? `${recommendation.code} · ` : ""}{recommendationTitle}</h3>
+          <p>{recommendation.impact}</p>
           <div className="focus-rule" />
-          <div className="focus-meta"><span><Target size={15} /> Meta inicial</span><strong>8 C/E</strong></div>
-          <div className="focus-meta"><span><TimerReset size={15} /> Estado</span><strong>Próximo</strong></div>
+          <div className="focus-meta"><span><Target size={15} /> Confiança</span><strong>{recommendation.confidence}</strong></div>
+          <div className="focus-meta"><span><BarChart3 size={15} /> Amostra</span><strong>{intelligence.evidenceLabel}</strong></div>
+          <a className="text-button focus-mentor-link" href="./mentor/">Ver explicação no Mentor <ChevronRight size={15} /></a>
         </div>
       </section>
 
@@ -1791,7 +1822,7 @@ function Materials({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   );
 }
 
-export default function Home() {
+export default function Home({ initialHomeState, intelligenceSeed }: { initialHomeState: HomeIntelligenceState; intelligenceSeed: StudyOsClientSeed }) {
   const [section, setSection] = useState<SectionId>("inicio");
   const [menuOpen, setMenuOpen] = useState(false);
   const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
@@ -1888,6 +1919,12 @@ export default function Home() {
     return () => { cancelled = true; };
   }, [readSnapshot, refreshSnapshot]);
   const activeLabel = navigation.find((item) => item.id === section)?.label ?? "Visão geral";
-  const nextAction = snapshot?.dashboard.next_action ?? "D01 · Português: interpretação e coesão + Regimento I";
-  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button type="button" className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button type="button" className={`nav-item ${active ? "nav-active" : ""}`} aria-current={active ? "page" : undefined} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><button type="button" onClick={() => handleNavigate("estudar")}>Abrir execução <ArrowRight size={15} /></button></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button type="button" className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button type="button" className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><ReadingSettings /><button type="button" className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content" id="dashboard-section" tabIndex={-1}>{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : snapshot?.source?.status === "partial" ? `Notion · dados parciais · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub${snapshot?.source?.status === "partial" ? " · dados parciais" : ""} · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
+  const { recommendation, title: recommendationTitle, href: recommendationHref, label: recommendationLabel } = getStudyOsRecommendation(snapshot, initialHomeState, intelligenceSeed);
+  const nextAction = `${recommendation.code ? `${recommendation.code} · ` : ""}${recommendationTitle}`;
+  return <main className="site-shell"><aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}><div className="brand-block"><div className="brand-mark">T</div><div><strong>TJDFT</strong><span>Dashboard PRO · pré-edital</span></div><button type="button" className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Fechar menu"><X size={18} /></button></div><div className="sidebar-context"><span className="live-dot" /> Pré-edital 2026/2027</div><nav className="main-nav" aria-label="Navegação principal">{navigation.map((item) => { const Icon = item.icon; const active = section === item.id; return <button type="button" className={`nav-item ${active ? "nav-active" : ""}`} aria-current={active ? "page" : undefined} key={item.id} onClick={() => handleNavigate(item.id)}><Icon size={18} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button>; })}</nav><details className="sidebar-routes">
+        <summary className="nav-item sidebar-routes-summary"><CircleAlert size={18} /><span>Estudo e diagnóstico</span><ChevronRight size={15} /></summary>
+        <div className="sidebar-route-links">
+          {intelligenceRoutes.map((item) => { const Icon = item.icon; return <a className="nav-item sidebar-route-link" href={item.href} key={item.href}><Icon size={17} /><span>{item.label}</span></a>; })}
+        </div>
+      </details><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><a className="sidebar-action" href={recommendationHref}>{recommendationLabel} <ArrowRight size={15} /></a></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button type="button" className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button type="button" className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><ReadingSettings /><button type="button" className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content" id="dashboard-section" tabIndex={-1}>{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} initialHomeState={initialHomeState} intelligenceSeed={intelligenceSeed} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : snapshot?.source?.status === "partial" ? `Notion · dados parciais · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub${snapshot?.source?.status === "partial" ? " · dados parciais" : ""} · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
 }

@@ -1,7 +1,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildTJDFTIntelligence, evidenceClass } from "../app/intelligence/tjdft-intelligence.mjs";
+import { buildTJDFTHomeState, buildTJDFTIntelligence, evidenceClass } from "../app/intelligence/tjdft-intelligence.mjs";
 
 const seq=["P01","P02","P03","RL01","P04","REV01","P05","P06","RL02","P07","P08","REV02","P09","RL03","P10","P11","P12","REV03","RL04","P13","P14","P15","RL05","REV04","P16","P17","P18","RL06","RL07","REV05","RL08","RL09","RL10","RL11","RL12","REV06","RL13"];
 const base=()=>({dashboard:{source:{synced_at:"2026-09-24T09:00:00Z"},dashboard:{phase:"pré-edital",jobs:2},execution:{c01:{days:[],totals:{},subjects:[]}}},portuguese:{sequence:seq,units:seq.map((code,i)=>({code,canonical_order:i+1,title:code,material_ready:i===0,internal_path:`/portugues-rlm/${code.toLowerCase()}/`}))},laws:{laws:[]},edital:{items:[]}});
@@ -454,4 +454,17 @@ test("tempo negativo preservado como inválido continua visível após normaliza
   const x=base();
   x.dashboard.execution.c01.days=[{day:"D01",status:"Concluído",done:null,correct:null,errors:null,minutes:null,invalid_time:true}];
   assert.ok(buildTJDFTIntelligence(x).quality.issues.some((issue)=>issue.code==="negative-time"));
+});
+
+test("Home recompõe a recomendação com o snapshot atual recebido após sincronização",()=>{
+  const portuguese={sequence:seq,units:seq.map((code,index)=>({code,title:code,canonical_order:index+1,material_ready:true}))};
+  const snapshotFor=(code)=>({
+    ...base().dashboard,
+    operational:{trail:{sequence_valid:true,items:seq.map((item,index)=>({code:item,title:item,state:item===code?"Próximo":"Não estudado",order:index+1})),next:{code,title:code+" — ação atual",order:seq.indexOf(code)+1,state:"Próximo"}}},
+  });
+  const initial=buildTJDFTHomeState(snapshotFor("P01"),portuguese);
+  const refreshed=buildTJDFTHomeState(snapshotFor("REV01"),portuguese);
+  assert.equal(initial.nextAction.code,"P01");
+  assert.equal(refreshed.nextAction.code,"REV01");
+  assert.match(refreshed.nextAction.title,/REV01/);
 });

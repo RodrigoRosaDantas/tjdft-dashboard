@@ -586,3 +586,21 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     }
   };
 }
+
+export function buildTJDFTHomeState(dashboard = {}, portuguese = {}) {
+  const model = buildTJDFTIntelligence({ dashboard, portuguese });
+  return {
+    nextAction: {
+      kind: model.nextAction.kind,
+      label: model.nextAction.label,
+      code: model.nextAction.code ?? null,
+      title: model.nextAction.title,
+      href: model.nextAction.href ?? null,
+      reason: model.nextAction.reason,
+      confidence: model.nextAction.confidence,
+      impact: model.nextAction.impact,
+    },
+    evidenceLabel: model.execution.evidence.label,
+    sequenceValid: model.sequence.valid,
+  };
+}

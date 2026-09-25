@@ -75,6 +75,15 @@ for (const run of runs) {
         const rect = node.getBoundingClientRect();
         return getComputedStyle(node).display !== "none" && rect.width > 0 && rect.height > 0;
       };
+      const intersectsViewport = (selector) => {
+        const node = document.querySelector(selector);
+        if (!node) return false;
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return style.display !== "none" && style.visibility !== "hidden" &&
+          rect.width > 0 && rect.height > 0 && rect.right > 0 &&
+          rect.left < window.innerWidth && rect.bottom > 0 && rect.top < window.innerHeight;
+      };
       const actionHeading = document.querySelector(".os-action h2");
       const headingColor = actionHeading ? getComputedStyle(actionHeading).color.match(/[\d.]+/g)?.slice(0,3).map(Number) : null;
       const luminance = (rgb) => {
@@ -103,6 +112,11 @@ for (const run of runs) {
         sidebarVisible:isVisible(".os-sidebar"),
         bottomNavVisible:isVisible(".os-bottom-nav"),
         mobileMenuVisible:isVisible(".os-mobile-menu summary"),
+        originalDashboard:Boolean(document.querySelector(".site-shell")),
+        originalSidebarVisible:intersectsViewport(".sidebar"),
+        originalMobileMenuVisible:isVisible(".menu-button"),
+        originalPrimaryActionBottom:document.querySelector(".hero-card .primary-button")?.getBoundingClientRect().bottom ?? null,
+        rootFloatingActions:document.querySelectorAll(".law-fab").length,
         sourceWarningVisible:isVisible(".os-data-warning"),
         sourceWarningSyncLink:Boolean([...document.querySelectorAll(".os-data-warning a")].some((link) => new URL(link.href, location.href).pathname.endsWith("/sincronizacao/"))),
         actionHeadingContrast,
@@ -120,13 +134,20 @@ for (const run of runs) {
       failures.push(`${url}: unidade sem estado de conteúdo publicado`);
     }
     if (checks.documentWidth > checks.viewport + 1) failures.push(`${url} @ ${tag}: overflow horizontal ${checks.documentWidth}px > ${checks.viewport}px`);
+    if (checks.originalDashboard) {
+      if (checks.viewport > 760 && !checks.originalSidebarVisible) failures.push(`${url} @ ${tag}: sidebar original do TJDFT ausente no desktop`);
+      if (checks.viewport <= 760 && checks.originalSidebarVisible) failures.push(`${url} @ ${tag}: sidebar original ocupa a tela compacta sem abrir menu`);
+      if (checks.viewport <= 760 && !checks.originalMobileMenuVisible) failures.push(`${url} @ ${tag}: botão do menu original ausente no mobile`);
+      if (run.name === "home" && checks.rootFloatingActions > 0) failures.push(`${url} @ ${tag}: CTA flutuante sobrepõe o conteúdo da Home`);
+      if (run.name === "home" && (checks.originalPrimaryActionBottom == null || checks.originalPrimaryActionBottom > run.size.height)) failures.push(`${url} @ ${tag}: CTA da Home original fora da primeira tela`);
+    }
     if (checks.studyOsShell) {
       if (checks.viewport > 900 && !checks.sidebarVisible) failures.push(`${url} @ ${tag}: sidebar desktop ausente ou escondida`);
       if (checks.viewport <= 900 && checks.sidebarVisible) failures.push(`${url} @ ${tag}: sidebar desktop ocupa a tela compacta`);
       if (checks.viewport <= 900 && !checks.mobileMenuVisible) failures.push(`${url} @ ${tag}: menu compacto ausente`);
       if (checks.viewport <= 900 && !checks.bottomNavVisible) failures.push(`${url} @ ${tag}: navegação rápida inferior ausente`);
       if (checks.viewport > 900 && checks.bottomNavVisible) failures.push(`${url} @ ${tag}: navegação inferior cobre o layout desktop`);
-      if (["home", "hoje", "mentor"].includes(run.name)) {
+      if (["hoje", "mentor"].includes(run.name)) {
         if (checks.actionHeadingContrast == null || checks.actionHeadingContrast < 4.5) failures.push(`${url} @ ${tag}: título da ação sem contraste acessível (${checks.actionHeadingContrast ?? "—"})`);
         if (checks.actionCtaBottom == null || checks.actionCtaBottom > run.size.height) failures.push(`${url} @ ${tag}: ação principal fora da primeira tela`);
       }
