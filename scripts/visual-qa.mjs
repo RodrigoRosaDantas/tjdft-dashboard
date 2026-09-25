@@ -98,7 +98,7 @@ for (const run of runs) {
         ? Math.min(contrastAgainst(headingColor, [7,24,36]), contrastAgainst(headingColor, [16,52,61]))
         : null;
       const portugueseKicker = document.querySelector(".portugues-detail-hero .laws-kicker");
-      const portugueseKickerColor = portugueseKicker ? getComputedStyle(portugueseKicker).color.match(/[\\d.]+/g)?.slice(0,3).map(Number) : null;
+      const portugueseKickerColor = portugueseKicker ? getComputedStyle(portugueseKicker).color.match(/[\d.]+/g)?.slice(0,3).map(Number) : null;
       const portugueseKickerContrast = portugueseKickerColor
         ? contrastAgainst(portugueseKickerColor, [32,32,82])
         : null;
@@ -137,7 +137,7 @@ for (const run of runs) {
       failures.push(`${url}: o código ${contentCode.toUpperCase()} não carregou no corpo da unidade`);
     }
     if (/^portugues-rlm\\/(?:p|rl|rev)\\d+$/i.test(run.path) && (checks.portugueseKickerContrast == null || checks.portugueseKickerContrast < 4.5)) {
-      failures.push(`${url} @ ${tag}: o rótulo Pxx/RLxx/REVxx não alcança contraste acessível (${checks.portugueseKickerContrast ?? "—"})`);
+    if (/^portugues-rlm\/(?:p|rl|rev)\d+$/i.test(run.path) && (checks.portugueseKickerContrast == null || checks.portugueseKickerContrast < 4.5)) {
     }
     if (contentCode && !["flashcards"].includes(contentCode) && !checks.bodyText.includes("Snapshot publicado")) {
       failures.push(`${url}: unidade sem estado de conteúdo publicado`);
