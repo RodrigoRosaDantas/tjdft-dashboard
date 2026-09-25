@@ -163,3 +163,8 @@
   .os-footer{flex-direction:column;gap:9px;margin-top:20px;padding:14px 0}
   .os-footer div{gap:11px}
 }
+
+.os-data-warning{width:min(100% - 64px,1160px);margin:-8px auto 14px;border-color:#ead7a5;background:#fff9e9;color:#70551c}
+.os-data-warning a{margin-left:5px;color:#70551c;font-weight:800;text-decoration:underline}
+@media(max-width:900px){.os-data-warning{width:calc(100% - 36px)}}
+@media(max-width:560px){.os-data-warning{width:calc(100% - 28px);margin:-4px auto 12px;font-size:10px}}

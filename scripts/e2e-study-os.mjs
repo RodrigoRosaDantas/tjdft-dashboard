@@ -146,6 +146,8 @@ assert.match(await page.locator("h1").first().innerText(), /Analista/i);
 await open("");
 await clickDestination("sincronizacao");
 assert.match(await page.locator("h1").first().innerText(), /Sincronização/i);
+assert.match(await page.locator("body").innerText(), /Origem por componente/i);
+assert.match(await page.locator("body").innerText(), /Execução e desempenho/i);
 await clickDestination("qualidade-dados");
 assert.match(await page.locator("h1").first().innerText(), /Qualidade dos dados/i);
 

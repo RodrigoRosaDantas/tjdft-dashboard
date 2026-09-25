@@ -1,41 +1,35 @@
-# Backend TJDFT
+# Supabase auxiliar do TJDFT
 
-O backend do dashboard é um projeto Supabase independente do SEEDF:
+O Notion continua sendo a fonte operacional canônica. O Study OS publicado no GitHub Pages consome os snapshots versionados no repositório. Supabase é uma camada técnica auxiliar usada pelo painel detalhado e não substitui o Notion nem se torna a fonte de verdade dos registros.
 
-- Projeto: `tjdft-dashboard`
-- Project ref: `ugxdmvlynyzfmmgshvyq`
-- Região: São Paulo (`sa-east-1`)
-- Edge Function: `tjdft-notion`
-- Tabela: `public.tjdft_dashboard_snapshots`
+## Fluxo de dados
 
-## Fluxo oficial
+Notion → sincronização sanitizada → GitHub snapshots → Study OS no GitHub Pages
+                    ↘ Edge Function auxiliar → cache técnico no Supabase
 
-O Notion permanece privado. O conteúdo percorre esta cadeia:
+- **Sincronizar snapshot TJDFT** consulta o Notion a cada 15 minutos ou sob acionamento manual, valida os dados e publica snapshots somente quando há alteração.
+- O Study OS calcula suas recomendações a partir dos snapshots publicados no GitHub.
+- /painel-legado/ pode consultar tjdft-notion?refresh=1. A Edge Function lê o Notion no servidor, usa cache de curta duração e mantém uma cópia técnica em public.tjdft_dashboard_snapshots.
+- Se uma consulta parcial reutilizar componentes do snapshot do GitHub, a resposta marca o estado partial e identifica quais componentes não vieram de uma leitura íntegra do Notion.
+- Em falha de leitura, o GitHub é contingência. A chave do Notion permanece no servidor; o navegador usa apenas uma chave pública do Supabase para acessar a função somente de leitura.
 
-`Notion privado → GitHub snapshot → GitHub Pages → Supabase → frontend`
+Nenhuma escrita feita pelo site altera os bancos operacionais do Notion. O token do Notion não é publicado nos snapshots.
 
-1. O workflow `.github/workflows/sync-notion.yml` consulta o Notion a cada 30 minutos ou quando executado manualmente.
-2. O script valida e grava o resultado em `public/data/tjdft-snapshot.json`.
-3. Só há novo commit quando o conteúdo realmente muda.
-4. O GitHub Pages publica a versão do repositório.
-5. Em `?refresh=1`, a Edge Function busca primeiro o snapshot publicado no GitHub e grava a cópia atual em `public.tjdft_dashboard_snapshots`.
-6. O frontend usa o Supabase como API/cache e mantém o arquivo do GitHub como backup.
+## Segredos e deploy
 
-O token do Notion nunca é enviado ao navegador nem gravado no snapshot.
+Em **Settings → Secrets and variables → Actions**:
 
-## Segredos do GitHub Actions
+- **TJDFT_NOTION_TOKEN:** token privado do Notion, usado por sync-notion.yml e pela Edge Function.
+- **SUPABASE:** Personal Access Token do Supabase lido por deploy-supabase.yml.
 
-Em **Settings → Secrets and variables → Actions**, os nomes têm funções diferentes:
+O workflow de deploy também precisa do secret TJDFT_NOTION_TOKEN para configurar a função. Não coloque tokens privados no código, nos snapshots ou na interface do navegador. A chave sb_publishable_... do frontend é pública e não deve ser confundida com uma service-role/secret key.
 
-- `TJDFT_NOTION_TOKEN`: token privado da integração do Notion. É usado pelo workflow `sync-notion.yml`. Você já cadastrou este.
-- `SUPABASE_ACCESS_TOKEN`: Personal Access Token do Supabase. É usado pelo workflow `deploy-supabase.yml` para publicar a Edge Function.
-
-O segundo token ainda precisa ser cadastrado para que alterações em `supabase/**` sejam publicadas automaticamente no Supabase. Não coloque nenhum desses valores no código ou no frontend.
-
-A configuração `supabase/config.toml` mantém a verificação JWT da função desativada porque o próprio código valida a chave pública do projeto.
+deploy-supabase.yml publica somente a Edge Function tjdft-notion quando há alteração em supabase/** ou sob acionamento manual. O Project ref está configurado no workflow.
 
 ## Schema
 
-O schema aplicado remotamente está versionado em:
+O schema técnico aplicado remotamente está versionado em:
 
-`supabase/migrations/20260910181308_create_tjdft_dashboard_snapshots.sql`
+supabase/migrations/20260910181308_create_tjdft_dashboard_snapshots.sql
+
+A tabela guarda uma cópia auxiliar do snapshot para cache/persistência. Ela não é a fonte operacional canônica.

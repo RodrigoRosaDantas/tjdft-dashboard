@@ -20,13 +20,16 @@ if (!snapshot?.source?.content_hash) {
 
 snapshot.source = {
   ...snapshot.source,
-  status: "synced",
+  status: snapshot.source.status === "partial" ? "partial" : "synced",
 };
-snapshot.notice = "Snapshot validado a partir do Notion privado e publicado pelo GitHub.";
+snapshot.notice = snapshot.source.status === "partial"
+  ? snapshot.notice || "Snapshot parcial: alguns componentes operacionais não foram atualizados pelo Notion."
+  : "Snapshot validado a partir do Notion privado e publicado pelo GitHub.";
 
 if (
   existing?.source?.content_hash === snapshot.source.content_hash &&
-  existing?.source?.status === "synced" &&
+  existing?.source?.status === snapshot.source.status &&
+  JSON.stringify(existing?.source?.component_sources || null) === JSON.stringify(snapshot.source.component_sources || null) &&
   existing?.notice === snapshot.notice
 ) {
   console.log("Nenhuma alteração editorial detectada no Notion.");

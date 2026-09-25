@@ -50,7 +50,7 @@ for (const privateField of ["Histórico pessoal", "status", "d0", "d7", "d20"]) 
   if (publicKeys.includes(privateField)) throw new Error(`Campo privado exposto no snapshot: ${privateField}`);
 }
 const serialized = JSON.stringify(snapshot);
-if (/\b(?:SEEDF|TDAS|EDAS|SEDES)\b/i.test(serialized)) {
+if (/\b(?:SEEDF|TDAS|EDAS|SEDES|TCE[\s-]?GO|HABACUQUE)\b/i.test(serialized)) {
   throw new Error("O snapshot Português/RLM contém referência de outro projeto.");
 }
 
