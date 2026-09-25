@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { resolveSnapshotProvenance, type ComponentSource, type SnapshotComponent } from "./provenance.ts";
-import { extractPlannedMaterials, findDay, normalizeDay } from "./materials.ts";
+import { extractPlannedMaterialsFromSources, findDay, normalizeDay } from "./materials.ts";
 import { summarizeActiveErrors } from "./error-counts.ts";
 
 const NOTION_API_BASE = "https://api.notion.com/v1";
@@ -1242,7 +1242,10 @@ function buildMaterialsSnapshot(
       tone: TONE_BY_DAY[day] || "teal",
     };
   });
-  const plannedMaterials = extractPlannedMaterials(materialsText);
+  const plannedMaterials = extractPlannedMaterialsFromSources({
+    materialsPageText: materialsText,
+    sequentialLibraryText: sequenceText,
+  });
   return {
     source_url: page.url || notionPageUrl(MATERIALS_PAGE_ID),
     last_edited_time: page.last_edited_time || null,
