@@ -7,7 +7,7 @@ const NOTION_VERSION = "2026-03-11";
 const CENTRAL_PAGE_ID = "3d5cf5a2-6731-81aa-8acb-ebd128dada89";
 const MATERIALS_PAGE_ID = "3d5cf5a2-6731-8119-924b-ebf5bf243d0d";
 const SEQUENTIAL_MATERIALS_PAGE_ID = "3d5cf5a2-6731-811a-af70-ea6e75d78dad";
-const CYCLE_PAGE_ID = "3d6cf5a2-6731-8173-814f-f0d8b20134e5";
+const MATERIAL_CYCLE_PAGE_ID = "3d6cf5a2-6731-817e-a2ac-d3fa05e87da4";
 const DAYS_DATA_SOURCE_ID = "a06ef2a6-c492-4800-a556-8ebf562b1e4e";
 const QUESTIONS_DATA_SOURCE_ID = "76f5f5ec-fc73-4f6e-86b1-69eeeb6cdc37";
 const ERRORS_DATA_SOURCE_ID = "b4abcf79-27a8-46bc-a917-739a1e1811c4";
@@ -1173,7 +1173,7 @@ function parseReadingDay(line: string, materialPages: Map<string, string>): AnyR
     title: stripMarkup(match[2]),
     detail: stripMarkup(rawDetail),
     meta: META_BY_DAY[day] || "",
-    href: materialPages.get(day) || notionPageUrl(CYCLE_PAGE_ID),
+    href: materialPages.get(day) || notionPageUrl(MATERIAL_CYCLE_PAGE_ID),
     status: STATUS_BY_DAY[day] || "Material do ciclo",
     tone: TONE_BY_DAY[day] || "teal",
     links: extractLinks(rawDetail).filter((link) => !/notion\.so|app\.notion\.com/i.test(link.href)),
@@ -1234,7 +1234,7 @@ function buildMaterialsSnapshot(
       title: materialTitles.get(day) || law?.title || day,
       detail: law?.title ? "Leitura vinculada: " + law.title + "." : "Material do ciclo no Notion.",
       meta: META_BY_DAY[day] || "",
-      href: materialPages.get(day) || notionPageUrl(CYCLE_PAGE_ID),
+      href: materialPages.get(day) || notionPageUrl(MATERIAL_CYCLE_PAGE_ID),
       tone: TONE_BY_DAY[day] || "teal",
     };
   });
@@ -1310,7 +1310,7 @@ export async function buildSnapshot(token: string) {
     const [materialsPage, materialBlocks, cycleBlocks, sequencePage, sequenceBlocks] = await Promise.all([
       request("/pages/" + MATERIALS_PAGE_ID),
       getAllChildren(MATERIALS_PAGE_ID, request),
-      getAllChildren(CYCLE_PAGE_ID, request),
+      getAllChildren(MATERIAL_CYCLE_PAGE_ID, request),
       request("/pages/" + SEQUENTIAL_MATERIALS_PAGE_ID),
       getAllChildren(SEQUENTIAL_MATERIALS_PAGE_ID, request),
     ]);

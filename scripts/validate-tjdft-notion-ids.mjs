@@ -16,4 +16,10 @@ assert.equal(
   "Sequential materials must use the canonical TJDFT Notion page.",
 );
 
+assert.equal(
+  ids.get("MATERIAL_CYCLE_PAGE_ID"),
+  "3d6cf5a2-6731-817e-a2ac-d3fa05e87da4",
+  "Cycle days must come from the canonical CTJ-002 D01-D14 material page.",
+);
+
 console.log(`Validated ${declarations.length} Notion page and data-source IDs.`);
