@@ -88,7 +88,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
         <section className="os-hero">
           <div><p className="os-kicker">TJDFT · Técnico + Analista · {m.meta.phase} · {m.meta.editalReference}</p>
           <h1>{view==="home"?"Central de comando":labels[view]}</h1>
-          <p>Prioridade de estudo, evidências e continuidade da trilha de Técnico e Analista em um só lugar.</p></div>
+          <p>Próxima ação e evidências do TJDFT em um só lugar. Ausência nunca vira zero.</p></div>
         </section>
 
     {(view==="home"||view==="hoje"||view==="mentor") && <section className="os-action">
