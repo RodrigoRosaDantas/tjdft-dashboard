@@ -6,18 +6,18 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-25T03:06:49.890Z",
-    "content_hash": "5ae43a8b8216dec0c7df5ec27ffdf76cf4ec423f2dc1b01b1ec43558720f2264",
+    "synced_at": "2026-09-25T03:17:00.546Z",
+    "content_hash": "6649788b96c0933b5385a6d18fc74148088cbdf9378a9c45e941302ac6de32c9",
     "status": "partial",
     "component_sources": {
-      "materials": "partial",
+      "materials": "mixed",
       "execution": "notion",
       "operational": "notion"
     },
     "component_synced_at": {
       "materials": "2026-09-25T03:06:49.890Z",
-      "execution": "2026-09-25T03:06:49.890Z",
-      "operational": "2026-09-25T03:06:49.890Z"
+      "execution": "2026-09-25T03:17:00.546Z",
+      "operational": "2026-09-25T03:17:00.546Z"
     }
   },
   "dashboard": {
@@ -329,7 +329,24 @@
         "links": []
       }
     ],
-    "future": [],
+    "future": [
+      {
+        "label": "CTJ-002 · D01–D14",
+        "detail": "Único ciclo ativo, ainda Planejado; D01 é a primeira unidade a executar."
+      },
+      {
+        "label": "5 ciclos previstos — Técnico",
+        "detail": "Roteiro de cobertura por cargo; não são páginas ou ciclos executáveis já criados no Notion."
+      },
+      {
+        "label": "7 ciclos previstos — Analista",
+        "detail": "Roteiro de cobertura por cargo; não são páginas ou ciclos executáveis já criados no Notion."
+      },
+      {
+        "label": "Consolidação, revisões e discursivas",
+        "detail": "Etapas posteriores; revisões baseadas em erros reais e discursivas separadas por cargo."
+      }
+    ],
     "sequence": [
       {
         "code": "TJ-MAT-01",
@@ -382,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-25T03:06:49.887Z",
+    "as_of": "2026-09-25T03:17:00.543Z",
     "c01": {
       "days": [
         {
@@ -1516,5 +1533,5 @@
       "ambiguous": []
     }
   },
-  "notice": "Snapshot parcialmente atualizado. materiais: leitura parcial no Notion. Confira a sincronização antes de tratar essas métricas como atuais."
+  "notice": "Snapshot parcialmente atualizado. materiais: dados mistos do Notion e do snapshot anterior. Confira a sincronização antes de tratar essas métricas como atuais."
 }
