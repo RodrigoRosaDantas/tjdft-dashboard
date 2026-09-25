@@ -24,7 +24,7 @@ function actionTitle(code:string|null|undefined,title:string) {
   if(!code || trimmed.slice(0,code.length).toLocaleUpperCase()!==code.toLocaleUpperCase()) return trimmed;
   const rest=trimmed.slice(code.length);
   if(!rest.trim()) return "";
-  return /^\s*[—–-·:]\s*/.test(rest) ? rest.replace(/^\s*[—–-·:]\s*/,"").trim() : trimmed;
+  return /^\s*[-—–·:]\s*/.test(rest) ? rest.replace(/^\s*[-—–·:]\s*/,"").trim() : trimmed;
 }
 
 function Metric({label,value,detail}:{label:string;value:string|number;detail:string}) {
