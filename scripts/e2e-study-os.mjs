@@ -97,9 +97,16 @@ async function open(route) {
 await open("");
 assert.ok(await page.locator(".site-shell").count(), "a Home não preservou o painel TJDFT conhecido");
 assert.match(await page.locator(".hero-card h1").innerText(), /O próximo passo está definido|Retome de onde parou|A próxima ação aguarda dados/i);
+const initialHomeJsBytes = await page.evaluate(() => performance.getEntriesByType("resource")
+  .filter((entry) => {
+    const url = new URL(entry.name);
+    return url.origin === location.origin && /\/_next\/static\/chunks\/.*\.js$/.test(url.pathname);
+  })
+  .reduce((total, entry) => total + (entry.decodedBodySize || 0), 0));
+assert.ok(initialHomeJsBytes < 2_000_000, `a Home carregou ${initialHomeJsBytes} bytes de JavaScript; os catálogos editoriais não devem entrar no bundle inicial`);
 const homeActionTitle = await page.locator(".focus-card h3").innerText();
 assert.ok(homeActionTitle.trim().length > 0, "a Home deve mostrar a recomendação canônica do núcleo de inteligência");
-assert.doesNotMatch(homeActionTitle, /^(P\d{2}|RL\d{2}|D\d{2})\s*·\s*\1\b/i, "a ação principal não deve repetir o código da unidade ou sessão");
+assert.doesNotMatch(homeActionTitle, /^(P\d{2}|RL\d{2}|REV\d{2}|D\d{2})\s*·\s*\1\b/i, "a ação principal não deve repetir o código da unidade, revisão ou sessão");
 await page.getByRole("button", { name:/Abrir menu/i }).click();
 await page.locator(".main-nav .nav-item").filter({ hasText:"Materiais" }).click();
 await page.locator("#materials-tab-future").click();
