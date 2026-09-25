@@ -18,12 +18,26 @@ async function waitForPageReady() {
   await page.waitForFunction(() => !/\bCarregando\b/i.test(document.body?.innerText || ""), { timeout:10000 });
 }
 
+async function findVisibleDestination(targetPath) {
+  return page.locator("a[href]").evaluateAll((links, path) => links.findIndex((link) => {
+    try {
+      const target = new URL(link.href, location.href);
+      const style = getComputedStyle(link);
+      const rect = link.getBoundingClientRect();
+      return target.pathname === path && style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+    } catch { return false; }
+  }), targetPath);
+}
+
 async function clickDestination(route) {
   const target = await destinationPath(route);
-  const index = await page.locator("a[href]").evaluateAll((links, targetPath) => links.findIndex((link) => {
-    try { return new URL(link.href, location.href).pathname === targetPath; } catch { return false; }
-  }), target);
-  assert.notEqual(index, -1, `link para ${target} ausente em ${page.url()}`);
+  let index = await findVisibleDestination(target);
+  const mobileMenu = page.locator(".os-mobile-menu");
+  if (index === -1 && await mobileMenu.count() && await mobileMenu.locator("summary").isVisible()) {
+    if (!await mobileMenu.evaluate((node) => node.open)) await mobileMenu.locator("summary").click();
+    index = await findVisibleDestination(target);
+  }
+  assert.notEqual(index, -1, `link visível para ${target} ausente em ${page.url()}`);
   await Promise.all([
     page.waitForURL((url) => url.pathname === target, { timeout:10000 }),
     page.locator("a[href]").nth(index).click(),
