@@ -69,6 +69,27 @@ for (const run of runs) {
         return document.getElementById(id) ? [] : [id];
       });
       const headingIds = [...document.querySelectorAll("article.study-html h2[id], article.study-html h3[id]")].map((heading) => heading.id);
+      const isVisible = (selector) => {
+        const node = document.querySelector(selector);
+        if (!node) return false;
+        const rect = node.getBoundingClientRect();
+        return getComputedStyle(node).display !== "none" && rect.width > 0 && rect.height > 0;
+      };
+      const actionHeading = document.querySelector(".os-action h2");
+      const headingColor = actionHeading ? getComputedStyle(actionHeading).color.match(/[\\d.]+/g)?.slice(0,3).map(Number) : null;
+      const luminance = (rgb) => {
+        const channels = rgb.map((value) => value / 255).map((value) => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+        return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
+      };
+      const contrastAgainst = (foreground, background) => {
+        const pair = [luminance(foreground), luminance(background)].sort((a,b) => b-a);
+        return (pair[0] + .05) / (pair[1] + .05);
+      };
+      const actionHeadingContrast = headingColor
+        ? Math.min(contrastAgainst(headingColor, [7,24,36]), contrastAgainst(headingColor, [16,52,61]))
+        : null;
+      const actionCta = document.querySelector(".os-action .os-cta");
+      const actionCtaBottom = actionCta ? actionCta.getBoundingClientRect().bottom : null;
       return {
         title:document.title,
         bodyText:(body?.innerText || "").trim(),
@@ -78,6 +99,11 @@ for (const run of runs) {
         duplicates,
         missingAnchors:[...new Set(missingAnchors)],
         headingIds,
+        sidebarVisible:isVisible(".os-sidebar"),
+        bottomNavVisible:isVisible(".os-bottom-nav"),
+        mobileMenuVisible:isVisible(".os-mobile-menu summary"),
+        actionHeadingContrast,
+        actionCtaBottom,
       };
     });
     if (checks.bodyTextLength < 40 || /\bNot Found\b/i.test(checks.title)) failures.push(`${url}: página sem conteúdo ou Not Found`);
@@ -89,6 +115,15 @@ for (const run of runs) {
       failures.push(`${url}: unidade sem estado de conteúdo publicado`);
     }
     if (checks.documentWidth > checks.viewport + 1) failures.push(`${url} @ ${tag}: overflow horizontal ${checks.documentWidth}px > ${checks.viewport}px`);
+    if (checks.viewport > 900 && !checks.sidebarVisible) failures.push(`${url} @ ${tag}: sidebar desktop ausente ou escondida`);
+    if (checks.viewport <= 900 && checks.sidebarVisible) failures.push(`${url} @ ${tag}: sidebar desktop ocupa a tela compacta`);
+    if (checks.viewport <= 900 && !checks.mobileMenuVisible) failures.push(`${url} @ ${tag}: menu compacto ausente`);
+    if (checks.viewport <= 900 && !checks.bottomNavVisible) failures.push(`${url} @ ${tag}: navegação rápida inferior ausente`);
+    if (checks.viewport > 900 && checks.bottomNavVisible) failures.push(`${url} @ ${tag}: navegação inferior cobre o layout desktop`);
+    if (["home", "hoje", "mentor"].includes(run.name)) {
+      if (checks.actionHeadingContrast == null || checks.actionHeadingContrast < 4.5) failures.push(`${url} @ ${tag}: título da ação sem contraste acessível (${checks.actionHeadingContrast ?? "—"})`);
+      if (checks.actionCtaBottom == null || checks.actionCtaBottom > run.size.height) failures.push(`${url} @ ${tag}: ação principal fora da primeira tela`);
+    }
     if (checks.duplicates.length) failures.push(`${url}: IDs duplicados (${checks.duplicates.slice(0,5).join(", ")})`);
     if (checks.missingAnchors.length) failures.push(`${url}: âncoras ausentes (${checks.missingAnchors.slice(0,5).join(", ")})`);
     if (new Set(checks.headingIds).size !== checks.headingIds.length) failures.push(`${url}: IDs repetidos em títulos de conteúdo`);
