@@ -86,6 +86,17 @@ async function open(route) {
 
 await open("");
 assert.match(await page.locator("h1").first().innerText(), /Central de comando/i);
+const homeActionTitle = await page.locator(".os-action h2").innerText();
+assert.doesNotMatch(homeActionTitle, /^(P\d{2}|RL\d{2})\s*·\s*\1\b/i, "a ação principal não deve repetir o código da unidade");
+await open("painel-legado");
+await page.getByRole("button", { name:/Abrir menu/i }).click();
+await page.locator(".main-nav .nav-item").filter({ hasText:"Materiais" }).click();
+await page.locator("#materials-tab-future").click();
+const sequenceHref = await page.locator("#sequence-materials .text-button").first().getAttribute("href");
+const plannedHref = await page.locator("#future-materials .text-button").first().getAttribute("href");
+assert.ok(sequenceHref, "fonte da Biblioteca sequencial ausente");
+assert.equal(plannedHref, sequenceHref, "o plano de ciclos deve abrir a Biblioteca sequencial que o originou");
+await open("");
 await clickDestination("hoje");
 assert.match(await page.locator("h1").first().innerText(), /Hoje/i);
 assert.ok(await page.getByRole("link", { name:/Executar agora/i }).count());

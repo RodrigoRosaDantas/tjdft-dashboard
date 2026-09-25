@@ -1718,7 +1718,7 @@ function Materials({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
           eyebrow="CICLOS E COBERTURA · NOTION"
           title="Ciclo atual e cobertura planejada"
           description="CTJ-002 é o único ciclo ativo e segue Planejado; as trilhas por cargo ainda são roteiro de cobertura."
-          action={<a className="text-button" href={materialSource} target="_blank" rel="noreferrer">Abrir materiais sequenciais <ChevronRight size={16} /></a>}
+          action={<a className="text-button" href={sequenceSource} target="_blank" rel="noreferrer">Abrir materiais sequenciais <ChevronRight size={16} /></a>}
         />
         <div className="future-material-grid">{displayedFuture.length ? displayedFuture.map((material) => <div className="future-material" key={material.label}><strong>{material.label}</strong><span>{material.detail}</span></div>) : <div className="future-material"><strong>Sem itens posteriores registrados</strong><span>A fonte consultada não informa etapas adicionais.</span></div>}</div>
       </section>
