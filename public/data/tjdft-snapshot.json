@@ -6,18 +6,18 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-25T02:20:06.884Z",
-    "content_hash": "47db50de99bd1a27b6b73dd7efffbb07547049eca9c3691ae907e260f8de8a54",
+    "synced_at": "2026-09-25T02:31:51.307Z",
+    "content_hash": "e99ccb44f5e0b1676c6f90332a49e24a41d12eb42dcde5e10b7897d48da0f145",
     "status": "partial",
     "component_sources": {
-      "materials": "snapshot",
+      "materials": "mixed",
       "execution": "notion",
       "operational": "notion"
     },
     "component_synced_at": {
       "materials": "2026-09-24T23:54:47.419Z",
-      "execution": "2026-09-25T02:20:06.884Z",
-      "operational": "2026-09-25T02:20:06.884Z"
+      "execution": "2026-09-25T02:31:51.307Z",
+      "operational": "2026-09-25T02:31:51.307Z"
     }
   },
   "dashboard": {
@@ -31,119 +31,119 @@
     "jobs": 2
   },
   "materials": {
-    "source_url": "https://app.notion.com/p/3d5cf5a267318119924bebf5bf243d0d?pvs=204",
-    "last_edited_time": "2026-09-10T13:49:11.927Z",
+    "source_url": "https://app.notion.com/p/Legisla-o-materiais-e-fontes-TJDFT-3d5cf5a267318119924bebf5bf243d0d",
+    "last_edited_time": "2026-09-10T13:48:00.000Z",
     "days": [
       {
         "day": "D01",
-        "title": "Português: interpretação e coesão + Regimento I",
-        "detail": "Interpretação, coesão e arts. 1º–6º do Regimento Interno.",
+        "title": "Índice rápido — Materiais D01–D14",
+        "detail": "Leitura vinculada: D06.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a267318173814ff0d8b20134e5?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a2673181f3937ce40cdc3477ee",
         "tone": "gold"
       },
       {
         "day": "D02",
-        "title": "Português: sintaxe e concordância + Ética I",
-        "detail": "Sintaxe, concordância e princípios iniciais do Código de Ética.",
+        "title": "Material | Sintaxe, concordância e Ética TJDFT",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a267318120a2b7c7d428443d70?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a2673181d89f63c09c94b1848e",
         "tone": "teal"
       },
       {
         "day": "D03",
-        "title": "Português: regência e crase + Lei nº 11.697 I",
-        "detail": "Regência, crase e primeiro recorte da Lei nº 11.697/2008.",
+        "title": "Material | Regência, crase e Lei nº 11.697/2008",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a26731813da04cd4acf2140130?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a267318133bf50f61ceb9cb39a",
         "tone": "violet"
       },
       {
         "day": "D04",
-        "title": "Português: pontuação e reescrita + Regimento II",
-        "detail": "Pontuação, reescrita e segundo recorte do Regimento Interno.",
+        "title": "Material | Pontuação, reescrita e órgãos do Regimento",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a2673181b28359e10ab19b127c?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a2673181ada599c13b6c39b654",
         "tone": "teal"
       },
       {
         "day": "D05",
-        "title": "Português: semântica/morfologia + Ética II",
-        "detail": "Semântica, morfologia e segundo recorte do Código de Ética.",
+        "title": "Material | Semântica, morfologia e condutas éticas",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a2673181068af7cf059adbf978?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a26731810fa6b6ead20f1aafbf",
         "tone": "coral"
       },
       {
         "day": "D06",
-        "title": "Leitura textual + Lei nº 11.697 II",
-        "detail": "Leitura textual e segundo recorte da Lei nº 11.697/2008.",
+        "title": "Material | Leitura textual e primeiro grau na Lei nº 11.697",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a267318190a832f95dc70e9fc4?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a26731815a9bd9d6a6f59753b6",
         "tone": "violet"
       },
       {
         "day": "D07",
-        "title": "Checkpoint 1 | D01–D06",
-        "detail": "Recalibração por erros e dúvidas dos seis primeiros dias.",
+        "title": "Material | Checkpoint 1 — recuperação ativa",
+        "detail": "Material do ciclo no Notion.",
         "meta": "12 C/E · checkpoint",
-        "href": "https://app.notion.com/p/3d6cf5a267318132a688ceb3809f46d9?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a2673181939db0e228801cd9dc",
         "tone": "violet"
       },
       {
         "day": "D08",
-        "title": "Português: colocação pronominal + Regimento III",
-        "detail": "Colocação pronominal e terceiro recorte do Regimento Interno.",
+        "title": "Material | Colocação pronominal e Administração Superior no Regimento",
+        "detail": "Leitura vinculada: D13.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a2673181fcb48eda2da1aaadce?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a267318192b358d74509bd028f",
         "tone": "teal"
       },
       {
         "day": "D09",
-        "title": "Português: paralelismo + Ética III",
-        "detail": "Paralelismo e terceiro recorte do Código de Ética.",
+        "title": "Material | Reescrita, paralelismo e integridade ética",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a26731810aa8ffef40a06db715?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a26731812385c0e3cbee352c1b",
         "tone": "teal"
       },
       {
         "day": "D10",
-        "title": "Português integrado + Lei nº 11.697 III",
-        "detail": "Português integrado e terceiro recorte da Lei nº 11.697/2008.",
+        "title": "Material | Concordância/regência integradas + competências na Lei nº 11.697",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a26731819abd3dd678fcab2eda?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a26731816b87f6cdcb8dba96ad",
         "tone": "coral"
       },
       {
         "day": "D11",
-        "title": "Português: subordinação + Regimento IV",
-        "detail": "Subordinação e quarto recorte do Regimento Interno.",
+        "title": "Material | Subordinação, pontuação e processo no Regimento",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a267318121a66bd998b33488f9?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a26731815ca5c0e7ba471ed346",
         "tone": "gold"
       },
       {
         "day": "D12",
-        "title": "Português: semântica fina + Ética IV",
-        "detail": "Semântica fina e quarto recorte do Código de Ética.",
+        "title": "Material | Semântica/referência + destinatários e aplicação do Código",
+        "detail": "Material do ciclo no Notion.",
         "meta": "8 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a2673181f9bc63ef40762fa0fe?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a2673181bc84d8c39beb8cff4b",
         "tone": "teal"
       },
       {
         "day": "D13",
-        "title": "Integração do núcleo comum + pegadinhas",
-        "detail": "Integração do núcleo comum e resolução de pegadinhas.",
+        "title": "Material | Integração institucional e pegadinhas",
+        "detail": "Material do ciclo no Notion.",
         "meta": "10 C/E · 75–90 min",
-        "href": "https://app.notion.com/p/3d6cf5a26731810c87d6e8e94176eaf8?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a26731817d8bd2f79a887c2fef",
         "tone": "coral"
       },
       {
         "day": "D14",
-        "title": "Checkpoint final | Fechamento CTJ-002",
-        "detail": "Fechamento do CTJ-002 com bateria integrada.",
+        "title": "Material | Fechamento do Ciclo 01",
+        "detail": "Material do ciclo no Notion.",
         "meta": "14 C/E · checkpoint",
-        "href": "https://app.notion.com/p/3d6cf5a26731817fa254e7b6c895a77c?pvs=204",
+        "href": "https://app.notion.com/p/3d6cf5a2673181299300c5e0a48dcf02",
         "tone": "violet"
       }
     ],
@@ -399,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-25T02:20:06.881Z",
+    "as_of": "2026-09-25T02:31:51.304Z",
     "c01": {
       "days": [
         {
@@ -1531,5 +1531,5 @@
       "ambiguous": []
     }
   },
-  "notice": "Snapshot parcialmente atualizado. materiais: snapshot anterior do GitHub. Confira a sincronização antes de tratar essas métricas como atuais."
+  "notice": "Snapshot parcialmente atualizado. materiais: dados mistos do Notion e do snapshot anterior. Confira a sincronização antes de tratar essas métricas como atuais."
 }
