@@ -19,14 +19,20 @@ async function waitForPageReady() {
 }
 
 async function findVisibleDestination(targetPath) {
-  return page.locator("a[href]").evaluateAll((links, path) => links.findIndex((link) => {
-    try {
-      const target = new URL(link.href, location.href);
-      const style = getComputedStyle(link);
-      const rect = link.getBoundingClientRect();
-      return target.pathname === path && style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-    } catch { return false; }
-  }), targetPath);
+  return page.locator("a[href]").evaluateAll((links, path) => {
+    const matches = links.map((link, index) => {
+      try {
+        const target = new URL(link.href, location.href);
+        const style = getComputedStyle(link);
+        const rect = link.getBoundingClientRect();
+        if (target.pathname !== path || style.display === "none" || style.visibility === "hidden" || rect.width === 0 || rect.height === 0) return null;
+        const priority = link.closest(".os-bottom-nav") ? 0 : link.closest(".os-menu-panel,.os-side-nav") ? 1 : 2;
+        return { index, priority };
+      } catch { return null; }
+    }).filter(Boolean);
+    matches.sort((a,b) => a.priority - b.priority);
+    return matches[0]?.index ?? -1;
+  }, targetPath);
 }
 
 async function clickDestination(route) {
@@ -39,8 +45,8 @@ async function clickDestination(route) {
   }
   assert.notEqual(index, -1, `link visível para ${target} ausente em ${page.url()}`);
   await Promise.all([
-    page.waitForURL((url) => url.pathname === target, { timeout:10000 }),
-    page.locator("a[href]").nth(index).click(),
+    page.waitForURL((url) => url.pathname === target, { waitUntil:"domcontentloaded", timeout:10000 }),
+    page.locator("a[href]").nth(index).click({ noWaitAfter:true }),
   ]);
   await waitForPageReady();
 }
