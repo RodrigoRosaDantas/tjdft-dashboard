@@ -136,8 +136,8 @@ for (const run of runs) {
     if (contentCode && !["flashcards"].includes(contentCode) && !checks.bodyText.includes(contentCode.toUpperCase())) {
       failures.push(`${url}: o código ${contentCode.toUpperCase()} não carregou no corpo da unidade`);
     }
-    if (/^portugues-rlm\\/(?:p|rl|rev)\\d+$/i.test(run.path) && (checks.portugueseKickerContrast == null || checks.portugueseKickerContrast < 4.5)) {
     if (/^portugues-rlm\/(?:p|rl|rev)\d+$/i.test(run.path) && (checks.portugueseKickerContrast == null || checks.portugueseKickerContrast < 4.5)) {
+      failures.push(`${url} @ ${tag}: o rótulo Pxx/RLxx/REVxx não alcança contraste acessível (${checks.portugueseKickerContrast ?? "—"})`);
     }
     if (contentCode && !["flashcards"].includes(contentCode) && !checks.bodyText.includes("Snapshot publicado")) {
       failures.push(`${url}: unidade sem estado de conteúdo publicado`);
