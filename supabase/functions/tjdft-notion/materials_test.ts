@@ -1,4 +1,4 @@
-import { extractPlannedMaterials, findDay, normalizeDay } from "./materials.ts";
+import { extractPlannedMaterials, extractPlannedMaterialsFromSources, findDay, normalizeDay } from "./materials.ts";
 
 Deno.test("código de dia exige prefixo canônico e não captura o índice", () => {
   if (normalizeDay("D01 — Material | Interpretação") !== "D01") {
@@ -39,4 +39,29 @@ Deno.test("plano incompleto não inventa contagens nem reaproveita itens vazios"
   const result = extractPlannedMaterials("CTJ-002 está mencionado, mas sem escopo ou cobertura por cargo.");
   if (result.complete) throw new Error("A fonte insuficiente não pode ser declarada completa.");
   if (result.items.length !== 0) throw new Error("Não se deve inventar ciclo, quantidade ou etapa futura.");
+});
+
+Deno.test("roteiro dos ciclos vem da Biblioteca sequencial, não do índice de legislação", () => {
+  const library = [
+    "O CTJ-002 tem 14 dias e é somente o núcleo comum inicial.",
+    "A arquitetura completa prevista é 1 ciclo atual + 5 ciclos do Técnico + 7 ciclos do Analista, seguida de consolidação, revisões adaptativas e discursivas.",
+    "O CTJ-002 continua sendo o único ciclo ativo e permanece Planejado até existir execução real.",
+    "Os cinco ciclos do Técnico e os sete ciclos do Analista são um roteiro de cobertura, não páginas/ciclos já criados.",
+    "Depois do conteúdo, entram consolidação, revisões baseadas em erros reais e discursivas separadas por cargo.",
+  ].join("\n");
+  const result = extractPlannedMaterialsFromSources({
+    materialsPageText: "D01 — leitura institucional; L01; leis e fontes.",
+    sequentialLibraryText: library,
+  });
+  if (!result.complete || result.items.length !== 4) {
+    throw new Error("O plano completo deve vir da Biblioteca sequencial.");
+  }
+
+  const noLibraryPlan = extractPlannedMaterialsFromSources({
+    materialsPageText: library,
+    sequentialLibraryText: "Índice de legislação D01–D14.",
+  });
+  if (noLibraryPlan.complete || noLibraryPlan.items.length !== 0) {
+    throw new Error("Um índice de legislação não deve fornecer o plano de ciclos.");
+  }
 });

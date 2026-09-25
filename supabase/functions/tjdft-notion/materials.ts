@@ -64,3 +64,9 @@ export function extractPlannedMaterials(text: string): {
       Boolean(analystCount) && notYetCreated && laterLayers,
   };
 }
+export function extractPlannedMaterialsFromSources(sources: {
+  materialsPageText: string;
+  sequentialLibraryText: string;
+}) {
+  return extractPlannedMaterials(sources.sequentialLibraryText);
+}
