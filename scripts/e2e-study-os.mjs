@@ -86,6 +86,7 @@ async function open(route) {
 
 await open("");
 assert.match(await page.locator("h1").first().innerText(), /Central de comando/i);
+await open("painel-legado");
 await page.locator(".main-nav .nav-item").filter({ hasText:"Materiais" }).click();
 await page.locator("#materials-tab-future").click();
 const sequenceHref = await page.locator("#sequence-materials .text-button").getAttribute("href");
