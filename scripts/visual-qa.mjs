@@ -97,6 +97,11 @@ for (const run of runs) {
       const actionHeadingContrast = headingColor
         ? Math.min(contrastAgainst(headingColor, [7,24,36]), contrastAgainst(headingColor, [16,52,61]))
         : null;
+      const portugueseKicker = document.querySelector(".portugues-detail-hero .laws-kicker");
+      const portugueseKickerColor = portugueseKicker ? getComputedStyle(portugueseKicker).color.match(/[\\d.]+/g)?.slice(0,3).map(Number) : null;
+      const portugueseKickerContrast = portugueseKickerColor
+        ? contrastAgainst(portugueseKickerColor, [32,32,82])
+        : null;
       const actionCta = document.querySelector(".os-action .os-cta");
       const actionCtaBottom = actionCta ? actionCta.getBoundingClientRect().bottom : null;
       return {
@@ -120,6 +125,7 @@ for (const run of runs) {
         sourceWarningVisible:isVisible(".os-data-warning"),
         sourceWarningSyncLink:Boolean([...document.querySelectorAll(".os-data-warning a")].some((link) => new URL(link.href, location.href).pathname.endsWith("/sincronizacao/"))),
         actionHeadingContrast,
+        portugueseKickerContrast,
         actionCtaBottom,
       };
     });
@@ -129,6 +135,9 @@ for (const run of runs) {
     const contentCode = run.path.match(/(?:portugues-rlm|leis)\/([^/]+)$/)?.[1];
     if (contentCode && !["flashcards"].includes(contentCode) && !checks.bodyText.includes(contentCode.toUpperCase())) {
       failures.push(`${url}: o código ${contentCode.toUpperCase()} não carregou no corpo da unidade`);
+    }
+    if (/^portugues-rlm\\/(?:p|rl|rev)\\d+$/i.test(run.path) && (checks.portugueseKickerContrast == null || checks.portugueseKickerContrast < 4.5)) {
+      failures.push(`${url} @ ${tag}: o rótulo Pxx/RLxx/REVxx não alcança contraste acessível (${checks.portugueseKickerContrast ?? "—"})`);
     }
     if (contentCode && !["flashcards"].includes(contentCode) && !checks.bodyText.includes("Snapshot publicado")) {
       failures.push(`${url}: unidade sem estado de conteúdo publicado`);
