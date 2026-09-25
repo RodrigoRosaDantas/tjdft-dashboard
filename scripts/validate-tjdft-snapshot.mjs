@@ -1,10 +1,15 @@
 const snapshotPath = "public/data/tjdft-snapshot.json";
 const lawsPath = "public/data/leis-primeiro.json";
 const bankPath = "public/data/legislation-bank.json";
+const editalPath = "public/data/tjdft-edital.json";
+const portuguesePath = "public/data/portugues-rlm.json";
 
 const snapshotRaw = await Deno.readTextFile(snapshotPath);
 const lawsRaw = await Deno.readTextFile(lawsPath);
 const bankRaw = await Deno.readTextFile(bankPath);
+const editalRaw = await Deno.readTextFile(editalPath);
+const portugueseRaw = await Deno.readTextFile(portuguesePath);
+const publicDataRaw = [snapshotRaw, lawsRaw, bankRaw, editalRaw, portugueseRaw].join("\n");
 const snapshot = JSON.parse(snapshotRaw);
 const lawsSnapshot = JSON.parse(lawsRaw);
 const bankSnapshot = JSON.parse(bankRaw);
@@ -19,7 +24,20 @@ assert(snapshot.source && typeof snapshot.source === "object", "source ausente."
 assert(typeof snapshot.source.title === "string" && snapshot.source.title.trim(), "source.title ausente.");
 assert(typeof snapshot.source.page_url === "string" && snapshot.source.page_url.startsWith("https://"), "source.page_url inválida.");
 assert(typeof snapshot.source.content_hash === "string" && snapshot.source.content_hash.trim(), "source.content_hash ausente.");
-assert(["synced", "live", "fallback"].includes(snapshot.source.status), "source.status não reconhecido.");
+assert(["synced", "live", "partial", "fallback"].includes(snapshot.source.status), "source.status não reconhecido.");
+if (snapshot.source.component_sources) {
+  const expectedComponents = ["materials", "execution", "operational"];
+  const allowedOrigins = ["notion", "snapshot", "mixed", "partial", "unavailable"];
+  assert(expectedComponents.every((key) => allowedOrigins.includes(snapshot.source.component_sources[key])), "Origem de componente do snapshot inválida.");
+  if (snapshot.source.status === "partial") {
+    assert(expectedComponents.some((key) => snapshot.source.component_sources[key] !== "notion"), "Snapshot parcial sem componente degradado.");
+    assert(snapshot.source.component_synced_at && typeof snapshot.source.component_synced_at === "object", "Snapshot parcial sem datas por componente.");
+    assert(/parcial/i.test(snapshot.notice || ""), "Snapshot parcial sem aviso público.");
+  }
+  if (snapshot.source.status === "synced") {
+    assert(expectedComponents.every((key) => snapshot.source.component_sources[key] === "notion"), "Snapshot publicado como sincronizado contém componente reutilizado ou indisponível.");
+  }
+}
 assert(snapshot.dashboard && typeof snapshot.dashboard === "object", "dashboard ausente.");
 assert(Array.isArray(snapshot.materials?.days), "materials.days ausente.");
 assert(Array.isArray(snapshot.materials?.legislation), "materials.legislation ausente.");
@@ -62,21 +80,25 @@ assert(bankSnapshot && Array.isArray(bankSnapshot.rows) && bankSnapshot.rows.len
 assert(bankSnapshot.summary?.active_records === 23, "Banco legislativo precisa ter 23 registros ativos.");
 
 const forbidden = [
-  /ntn_[a-z0-9]+/i,
-  /sbp_[a-z0-9]+/i,
+  /ntn_[a-z0-9]{8,}/i,
+  /gh[pousr]_[a-z0-9_]{20,}/i,
+  /sb_secret_[a-z0-9_-]+/i,
   /service_role/i,
   /tjdft_notion_token/i,
+  /eyJ[a-z0-9_-]{10,}\.[a-z0-9_-]{10,}\./i,
 ];
-assert(!forbidden.some((pattern) => pattern.test(snapshotRaw + lawsRaw + bankRaw)), "Snapshot contém credencial ou nome de segredo proibido.");
+assert(!forbidden.some((pattern) => pattern.test(publicDataRaw)), "Dados públicos contêm credencial ou nome de segredo proibido.");
 
 const forbiddenProjectReferences = [
   /\bSEEDF\b/i,
   /\bTDAS\b/i,
   /\bEDAS\b/i,
   /\bSEDES\b/i,
-  /\bCTJ-00[12]\b/i,
+  /\bTCE[\s-]?GO\b/i,
+  /\bHABACUQUE\b/i,
 ];
-assert(!forbiddenProjectReferences.some((pattern) => pattern.test(lawsRaw + bankRaw)), "Snapshot legislativo contém referência de outro projeto.");
+assert(!forbiddenProjectReferences.some((pattern) => pattern.test(publicDataRaw)), "Snapshot público contém referência de outro projeto.");
+assert(!/\bCTJ-00[12]\b/i.test(lawsRaw + bankRaw), "Snapshot legislativo contém referência à estrutura legada CTJ-002.");
 
 const legacyDayPath = /(^|\/)d(?:0[1-9]|1[0-4])\/?$/i;
 assert(lawsSnapshot.laws.every((law) => !legacyDayPath.test(String(law.internal_path || "")) && !/^D(?:0[1-9]|1[0-4])$/i.test(String(law.code || ""))), "Snapshot legislativo contém estrutura legada D01-D14.");

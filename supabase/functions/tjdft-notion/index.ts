@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { resolveSnapshotProvenance, type ComponentSource, type SnapshotComponent } from "./provenance.ts";
 
 const NOTION_API_BASE = "https://api.notion.com/v1";
 const NOTION_VERSION = "2026-03-11";
@@ -1289,6 +1290,19 @@ export async function buildSnapshot(token: string) {
   const blocks = await expandBlocks(topLevelBlocks, request);
   const sourceText = blocks.map(blockToText).filter(Boolean).join("\n");
 
+  const componentSources: Record<SnapshotComponent, ComponentSource> = {
+    materials: "notion",
+    execution: "notion",
+    operational: "notion",
+  };
+  const componentSyncedAt: Record<SnapshotComponent, string | null> = {
+    materials: null,
+    execution: null,
+    operational: null,
+  };
+  const fallbackComponentDate = (component: SnapshotComponent) =>
+    fallback?.source?.component_synced_at?.[component] ?? fallback?.source?.synced_at ?? null;
+
   let materials = null;
   let materialsText = "";
   let sequenceText = "";
@@ -1311,11 +1325,33 @@ export async function buildSnapshot(token: string) {
   } catch (error) {
     console.error("TJDFT materials sync unavailable:", error instanceof Error ? error.message : "unknown error");
   }
-  if (!materials || materials.days.length < 10) materials = fallback?.materials || materials;
+  if (!materials || !Array.isArray(materials.days) || materials.days.length < 10) {
+    if (fallback?.materials) {
+      materials = fallback.materials;
+      componentSources.materials = "snapshot";
+      componentSyncedAt.materials = fallbackComponentDate("materials");
+    } else if (materials) {
+      componentSources.materials = "partial";
+    } else {
+      componentSources.materials = "unavailable";
+    }
+  }
   if (materials && fallback?.materials) {
-    if (materials.legislation.length < 10) materials.legislation = fallback.materials.legislation;
-    if (materials.sequence.length < 4) materials.sequence = fallback.materials.sequence;
-    if (materials.future.length === 0) materials.future = fallback.materials.future;
+    if ((materials.legislation?.length ?? 0) < 10 && fallback.materials.legislation) {
+      materials.legislation = fallback.materials.legislation;
+      if (componentSources.materials === "notion") componentSources.materials = "mixed";
+      componentSyncedAt.materials = fallbackComponentDate("materials");
+    }
+    if ((materials.sequence?.length ?? 0) < 4 && fallback.materials.sequence) {
+      materials.sequence = fallback.materials.sequence;
+      if (componentSources.materials === "notion") componentSources.materials = "mixed";
+      componentSyncedAt.materials = fallbackComponentDate("materials");
+    }
+    if ((materials.future?.length ?? 0) === 0 && fallback.materials.future) {
+      materials.future = fallback.materials.future;
+      if (componentSources.materials === "notion") componentSources.materials = "mixed";
+      componentSyncedAt.materials = fallbackComponentDate("materials");
+    }
   }
 
   let execution = null;
@@ -1339,11 +1375,42 @@ export async function buildSnapshot(token: string) {
   } catch (error) {
     console.error("TJDFT operational sync unavailable:", error instanceof Error ? error.message : "unknown error");
   }
-  if (!execution || execution.c01.days.length < 10) execution = fallback?.execution || execution;
-  if (!operational) operational = fallback?.operational || null;
+  if (!execution || (execution.c01?.days?.length ?? 0) < 10) {
+    if (fallback?.execution) {
+      execution = fallback.execution;
+      componentSources.execution = "snapshot";
+      componentSyncedAt.execution = fallbackComponentDate("execution");
+    } else if (execution) {
+      componentSources.execution = "partial";
+    } else {
+      componentSources.execution = "unavailable";
+    }
+  }
+  if (!operational) {
+    if (fallback?.operational) {
+      operational = fallback.operational;
+      componentSources.operational = "snapshot";
+      componentSyncedAt.operational = fallbackComponentDate("operational");
+    } else {
+      componentSources.operational = "unavailable";
+    }
+  }
 
+  const syncedAt = new Date().toISOString();
+  for (const component of ["materials", "execution", "operational"] as SnapshotComponent[]) {
+    if (componentSources[component] === "notion" || componentSources[component] === "partial") {
+      componentSyncedAt[component] = syncedAt;
+    }
+  }
+  const provenance = resolveSnapshotProvenance(componentSources);
+  const reusedSnapshotContent = {
+    materials: ["snapshot", "mixed"].includes(componentSources.materials) ? fallback?.materials ?? null : null,
+    execution: componentSources.execution === "snapshot" ? fallback?.execution ?? null : null,
+    operational: componentSources.operational === "snapshot" ? fallback?.operational ?? null : null,
+  };
+  const componentHash = JSON.stringify({ sources: componentSources, reusedSnapshotContent });
   const contentHash = await sha256(
-    [sourceText, materialsText, sequenceText, executionHashText].filter(Boolean).join("\n"),
+    [sourceText, materialsText, sequenceText, executionHashText, componentHash].filter(Boolean).join("\n"),
   );
   const phase = firstMatch(sourceText, /(F-TJ-\d+\s*[—–-]\s*[^\n]+)/i) ||
     fallback?.dashboard?.phase || "F-TJ-01 — Núcleo comum";
@@ -1361,9 +1428,11 @@ export async function buildSnapshot(token: string) {
       page_id: CENTRAL_PAGE_ID,
       page_url: page.url || fallback?.source?.page_url || notionPageUrl(CENTRAL_PAGE_ID),
       last_edited_time: page.last_edited_time || fallback?.source?.last_edited_time || null,
-      synced_at: new Date().toISOString(),
+      synced_at: syncedAt,
       content_hash: contentHash,
-      status: "live",
+      status: provenance.status,
+      component_sources: provenance.component_sources,
+      component_synced_at: componentSyncedAt,
     },
     dashboard: {
       phase,
@@ -1378,7 +1447,7 @@ export async function buildSnapshot(token: string) {
     materials,
     execution,
     operational,
-    notice: "Dados consultados em tempo real no Notion. O site expõe apenas um índice sanitizado de materiais, fontes e execução do CTJ-002.",
+    notice: provenance.notice,
   };
 }
 

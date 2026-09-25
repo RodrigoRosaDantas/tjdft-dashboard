@@ -40,6 +40,15 @@ test("acertos + erros divergentes são auditados",()=>{const x=base();x.dashboar
 test("tempo negativo é auditado",()=>{const x=base();x.dashboard.execution.c01.days=[{day:"D1",done:1,correct:1,errors:0,minutes:-2,progress:1,executed_at:"2026-09-24T10:00:00Z"}];assert.ok(buildTJDFTIntelligence(x).quality.issues.some(i=>i.code==="negative-time"));});
 test("idade do conteúdo não vira risco de sync sem evidência de fallback",()=>{const x=base();x.dashboard.source.synced_at="2026-09-20T00:00:00Z";x.dashboard.source.status="synced";const m=buildTJDFTIntelligence(x,"2026-09-24T10:00:00Z");assert.equal(m.risks.some(r=>r.title==="Sincronização envelhecida"),false);});
 test("fallback explícito vira observação de qualidade",()=>{const x=base();x.dashboard.source.status="fallback";const m=buildTJDFTIntelligence(x);assert.ok(m.quality.issues.some(i=>i.code==="snapshot-fallback"));});
+test("snapshot parcial identifica dados não atualizados e gera alerta de qualidade",()=>{
+  const x=operationalBase();
+  x.dashboard.source.status="partial";
+  x.dashboard.source.component_sources={materials:"notion",execution:"snapshot",operational:"notion"};
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.quality.sourceStatus,"partial");
+  assert.deepEqual(m.quality.partialComponents,["execução e desempenho"]);
+  assert.ok(m.quality.issues.some(i=>i.code==="snapshot-partial" && /execução e desempenho/.test(i.message)));
+});
 test("lei histórica não reaparece ativa",()=>{const x=base();x.laws.laws=[{code:"L24",record_kind:"historical",active:true}];assert.ok(buildTJDFTIntelligence(x).quality.issues.some(i=>i.code==="revoked-active"));});
 test("REV permanece nas posições canônicas",()=>{const m=buildTJDFTIntelligence(base());assert.deepEqual(m.reviews.map(r=>r.code),["REV01","REV02","REV03","REV04","REV05","REV06"]);});
 test("sem execução registrada não há contagem fabricada de sessões",()=>{const m=buildTJDFTIntelligence(base());assert.equal(m.execution.sessions,null);assert.match(m.execution.trend,/insuficiente/);});

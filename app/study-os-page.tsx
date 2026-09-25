@@ -60,6 +60,19 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
   </section>);
   const actionHref = m.nextAction?.href ? (root ? `./${m.nextAction.href}` : `../${m.nextAction.href}`) : route(root,"portugues-rlm");
   const sourceUpdated=m.quality.sourceSyncedAt?new Date(m.quality.sourceSyncedAt).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo"}):"atualização não informada";
+  const sourceWarning = m.quality.sourceStatus==="partial"
+    ? `Dados parciais: ${m.quality.partialComponents.length ? m.quality.partialComponents.join(", ") : "alguns componentes"} não foram atualizados integralmente pelo Notion. Confira a sincronização antes de seguir esta prioridade.`
+    : m.quality.sourceStatus==="fallback"
+      ? "Snapshot de contingência em uso. Confirme a sincronização antes de tratar esta prioridade como atual."
+      : null;
+  const componentLabels:any = {materials:"Materiais",execution:"Execução e desempenho",operational:"Trilha, revisões e erros"};
+  const componentOriginLabels:any = {notion:"Notion",snapshot:"snapshot anterior do GitHub",mixed:"Notion + snapshot do GitHub",partial:"leitura parcial no Notion",unavailable:"indisponível"};
+  const componentRows = ["materials","execution","operational"].map((key) => ({
+    key,
+    name:componentLabels[key],
+    origin:componentOriginLabels[m.quality.componentSources?.[key]] || "origem não informada",
+    date:shortDate(m.quality.componentSyncedAt?.[key]),
+  }));
   return <div className="study-os-shell">
     <aside className="os-sidebar">
       <a className="os-side-brand" href={base}>
@@ -90,6 +103,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
           <h1>{view==="home"?"Central de comando":labels[view]}</h1>
           <p>Próxima ação e evidências do TJDFT em um só lugar. Ausência nunca vira zero.</p></div>
         </section>
+        {sourceWarning && <aside className="os-notice os-data-warning" role="alert">{sourceWarning} <a href={route(root,"sincronizacao")}>Ver sincronização →</a></aside>}
 
     {(view==="home"||view==="hoje"||view==="mentor") && <section className="os-action">
       <div><span className="os-pill">{m.nextAction.label}</span><h2>{m.nextAction.code ? `${m.nextAction.code} · ` : ""}{m.nextAction.title}</h2>
@@ -172,6 +186,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     {view==="sincronizacao" && <div className="os-grid">
       <section className="os-card os-wide"><h2>Contrato de fonte</h2><p><b>Notion → snapshot sanitizado no GitHub → inteligência → site.</b></p><p>Supabase é camada auxiliar para leitura ao vivo e persistência de contingência; não substitui silenciosamente o Notion.</p></section>
       <section className="os-card"><h2>Snapshot público</h2><p>Versão operacional: {m.meta.operationalSchema||"legada"} · conteúdo sincronizado: {m.quality.sourceSyncedAt||"—"}.</p></section>
+       <section className="os-card os-wide"><h2>Origem por componente</h2><div className="os-list">{componentRows.map((row:any)=><div key={row.key}><b>{row.name}</b><span>{row.origin}</span><em>{row.date}</em></div>)}</div></section>
       <section className="os-card"><h2>Privacidade operacional</h2><p>Histórico pessoal e texto bruto de questões/erros não entram no snapshot de inteligência. O site recebe agregados e sinais necessários à decisão.</p></section>
       <section className="os-card"><h2>Plano B</h2><a href={base+"painel-legado/"}>Abrir painel detalhado →</a></section>
     </div>}

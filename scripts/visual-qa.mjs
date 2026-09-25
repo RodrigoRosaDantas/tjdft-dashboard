@@ -103,11 +103,15 @@ for (const run of runs) {
         sidebarVisible:isVisible(".os-sidebar"),
         bottomNavVisible:isVisible(".os-bottom-nav"),
         mobileMenuVisible:isVisible(".os-mobile-menu summary"),
+        sourceWarningVisible:isVisible(".os-data-warning"),
+        sourceWarningSyncLink:Boolean([...document.querySelectorAll(".os-data-warning a")].some((link) => new URL(link.href, location.href).pathname.endsWith("/sincronizacao/"))),
         actionHeadingContrast,
         actionCtaBottom,
       };
     });
     if (checks.bodyTextLength < 40 || /\bNot Found\b/i.test(checks.title)) failures.push(`${url}: página sem conteúdo ou Not Found`);
+    if (checks.sourceWarningVisible && !checks.sourceWarningSyncLink) failures.push(`${url}: aviso de dados parciais sem link para sincronização`);
+    if (run.name === "sincronizacao" && !checks.bodyText.includes("Origem por componente")) failures.push(`${url}: painel de sincronização sem origem por componente`);
     const contentCode = run.path.match(/(?:portugues-rlm|leis)\/([^/]+)$/)?.[1];
     if (contentCode && !["flashcards"].includes(contentCode) && !checks.bodyText.includes(contentCode.toUpperCase())) {
       failures.push(`${url}: o código ${contentCode.toUpperCase()} não carregou no corpo da unidade`);

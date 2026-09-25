@@ -435,10 +435,23 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   const techSubjects = new Set(cargoCoverage.tecnico.subjects || []);
   const commonSubjects = (cargoCoverage.analista.subjects || []).filter((subject) => techSubjects.has(subject));
 
+  const componentLabels = {
+    materials:"materiais",
+    execution:"execução e desempenho",
+    operational:"trilha, revisões e erros",
+  };
+  const componentSources = dashboard.source?.component_sources || {};
+  const partialComponents = Object.entries(componentSources)
+    .filter(([,origin]) => origin !== "notion")
+    .map(([name]) => componentLabels[name] || name);
   const issues=[];
   if (!sequenceValid) issues.push({severity:"critical", code:"sequence-divergence", message:"A Ordem 1–37 diverge da sequência canônica."});
   if (!dashboard.source?.synced_at) issues.push({severity:"high",code:"snapshot-date-missing",message:"Snapshot operacional sem data de sincronização."});
   if (dashboard.source?.status === "fallback") issues.push({severity:"medium",code:"snapshot-fallback",message:"O site está usando snapshot de contingência; decisões devem ser lidas com cautela."});
+  if (dashboard.source?.status === "partial" || partialComponents.length) {
+    const detail = partialComponents.length ? partialComponents.join(", ") : "componentes operacionais";
+    issues.push({severity:"high",code:"snapshot-partial",message:"Snapshot parcialmente atualizado pelo Notion: " + detail + " não têm leitura atual íntegra."});
+  }
   if (!questions) issues.push({severity:"info",code:"execution-absent",message:"Sem questões respondidas suficientes; ausência não foi convertida em zero de desempenho."});
   if (!datedSessionKeys.size) issues.push({severity:"info",code:"real-date-absent",message:"Sem datas reais de resolução suficientes para calcular tendência."});
   if (sessions != null && sessions > datedSessionKeys.size) issues.push({severity:"medium",code:"execution-without-date",message:"Há execução registrada sem data real; ela conta como continuidade, mas não entra na tendência temporal."});
@@ -542,7 +555,11 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     },
     quality:{
       issues,ageHours,sourceSyncedAt:dashboard.source?.synced_at || null,
-      sourceStatus:dashboard.source?.status || null,lawRegressionCount:lawRegression.length,
+      sourceStatus:dashboard.source?.status || null,
+      partialComponents,
+      componentSources:dashboard.source?.component_sources || null,
+      componentSyncedAt:dashboard.source?.component_synced_at || null,
+      lawRegressionCount:lawRegression.length,
     },
     agenda,
     aliases:op?.aliases || {safe:[],ambiguous:[]},
