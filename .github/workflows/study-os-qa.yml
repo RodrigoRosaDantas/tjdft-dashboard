@@ -14,6 +14,10 @@ on:
       - ".github/workflows/post-deploy-smoke.yml"
   push:
     branches: [main]
+  workflow_run:
+    workflows: ["Sincronizar snapshot TJDFT"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -22,6 +26,7 @@ permissions:
 jobs:
   visual-qa:
     name: Visual QA
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -64,6 +69,7 @@ jobs:
 
   e2e:
     name: E2E
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
