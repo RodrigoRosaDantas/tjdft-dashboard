@@ -1,4 +1,4 @@
-import { extractPlannedMaterials, normalizeDay } from "./materials.ts";
+import { extractPlannedMaterials, findDay, normalizeDay } from "./materials.ts";
 
 Deno.test("código de dia exige prefixo canônico e não captura o índice", () => {
   if (normalizeDay("D01 — Material | Interpretação") !== "D01") {
@@ -29,7 +29,7 @@ Deno.test("plano do Notion distingue ciclo ativo e cobertura ainda não criada",
   if (result.items[0].label !== "CTJ-002 · D01–D14") throw new Error("O ciclo atual deve permanecer explícito.");
   if (result.items[1].label !== "5 ciclos previstos — Técnico") throw new Error("A trilha do Técnico deve usar a quantidade da fonte.");
   if (result.items[2].label !== "7 ciclos previstos — Analista") throw new Error("A trilha do Analista deve usar a quantidade da fonte.");
-  if (!result.items[1].detail.includes("não páginas/ciclos já criados")) {
+  if (!result.items[1].detail.includes("já criados no Notion")) {
     throw new Error("A cobertura planejada não pode parecer um conjunto de ciclos já criados.");
   }
   if (!result.items[3].detail.includes("erros reais")) throw new Error("As revisões posteriores precisam preservar o vínculo com erros reais.");

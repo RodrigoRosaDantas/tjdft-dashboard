@@ -29,9 +29,8 @@ export function extractPlannedMaterials(text: string): {
     /roteiro de cobertura, nao paginas\/ciclos ja criados/.test(normalized);
   const technicianCount = normalized.match(/\b(\d+)\s+ciclos?\s+do tecnico\b/)?.[1];
   const analystCount = normalized.match(/\b(\d+)\s+ciclos?\s+do analista\b/)?.[1];
-  const laterLayers = normalized.includes("consolidacao") &&
-    normalized.includes("revisoes") &&
-    normalized.includes("discursivas");
+  const laterLayers =
+    /(?:seguida de|entram) consolidacao.{0,90}revisoes.{0,100}discursivas/.test(normalized);
   const items: PlannedMaterial[] = [];
 
   if (currentCycle && currentStatus) {
