@@ -1173,7 +1173,7 @@ function parseReadingDay(line: string, materialPages: Map<string, string>): AnyR
     title: stripMarkup(match[2]),
     detail: stripMarkup(rawDetail),
     meta: META_BY_DAY[day] || "",
-    href: materialPages.get(day) || notionPageUrl(CYCLE_PAGE_ID),
+    href: materialPages.get(day) || notionPageUrl(MATERIAL_CYCLE_PAGE_ID),
     status: STATUS_BY_DAY[day] || "Material do ciclo",
     tone: TONE_BY_DAY[day] || "teal",
     links: extractLinks(rawDetail).filter((link) => !/notion\.so|app\.notion\.com/i.test(link.href)),
@@ -1234,7 +1234,7 @@ function buildMaterialsSnapshot(
       title: materialTitles.get(day) || law?.title || day,
       detail: law?.title ? "Leitura vinculada: " + law.title + "." : "Material do ciclo no Notion.",
       meta: META_BY_DAY[day] || "",
-      href: materialPages.get(day) || notionPageUrl(CYCLE_PAGE_ID),
+      href: materialPages.get(day) || notionPageUrl(MATERIAL_CYCLE_PAGE_ID),
       tone: TONE_BY_DAY[day] || "teal",
     };
   });
@@ -1310,7 +1310,7 @@ export async function buildSnapshot(token: string) {
     const [materialsPage, materialBlocks, cycleBlocks, sequencePage, sequenceBlocks] = await Promise.all([
       request("/pages/" + MATERIALS_PAGE_ID),
       getAllChildren(MATERIALS_PAGE_ID, request),
-      getAllChildren(CYCLE_PAGE_ID, request),
+      getAllChildren(MATERIAL_CYCLE_PAGE_ID, request),
       request("/pages/" + SEQUENTIAL_MATERIALS_PAGE_ID),
       getAllChildren(SEQUENTIAL_MATERIALS_PAGE_ID, request),
     ]);
