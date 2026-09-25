@@ -27,27 +27,69 @@ function Notice({children}:{children:ReactNode}) { return <div className="os-not
 export default function StudyOsPage({view,root=false}:{view:View;root?:boolean}) {
   const m=getStudyOsModel();
   const base = root ? "./" : "../";
-  const nav: Array<[View,string]> = [
-    ["hoje","hoje"],["mentor","mentor"],["trilha","trilha"],["agenda","agenda"],["revisoes","revisoes"],
-    ["erros","erros"],["desempenho","desempenho"],["riscos","riscos"],["tecnico","tecnico"],["analista","analista"],
-    ["qualidade","qualidade-dados"],["sincronizacao","sincronizacao"],
+  const navGroups: Array<{label:string;items:Array<{label:string;href:string;symbol:string;active:boolean}>}> = [
+    {label:"Operação",items:[
+      {label:"Dashboard",href:base,symbol:"⌂",active:view==="home"},
+      {label:"Hoje",href:route(root,"hoje"),symbol:"◷",active:view==="hoje"},
+      {label:"Trilha",href:route(root,"trilha"),symbol:"⇢",active:view==="trilha"},
+      {label:"Português + RLM",href:route(root,"portugues-rlm"),symbol:"P/R",active:false},
+      {label:"Leis Primeiro",href:route(root,"leis"),symbol:"§",active:false},
+      {label:"Revisões",href:route(root,"revisoes"),symbol:"↻",active:view==="revisoes"},
+      {label:"Agenda",href:route(root,"agenda"),symbol:"▦",active:view==="agenda"},
+    ]},
+    {label:"Diagnóstico",items:[
+      {label:"Mentor",href:route(root,"mentor"),symbol:"✳",active:view==="mentor"},
+      {label:"Caderno de erros",href:route(root,"erros"),symbol:"!",active:view==="erros"},
+      {label:"Desempenho",href:route(root,"desempenho"),symbol:"▥",active:view==="desempenho"},
+      {label:"Riscos",href:route(root,"riscos"),symbol:"△",active:view==="riscos"},
+    ]},
+    {label:"Cobertura",items:[
+      {label:"Técnico",href:route(root,"tecnico"),symbol:"T",active:view==="tecnico"},
+      {label:"Analista",href:route(root,"analista"),symbol:"A",active:view==="analista"},
+    ]},
+    {label:"Sistema",items:[
+      {label:"Qualidade dos dados",href:route(root,"qualidade-dados"),symbol:"✓",active:view==="qualidade"},
+      {label:"Sincronização",href:route(root,"sincronizacao"),symbol:"⟳",active:view==="sincronizacao"},
+    ]},
   ];
+  const renderNavGroups=()=>navGroups.map((group)=><section className="os-nav-group" key={group.label}>
+    <h2>{group.label}</h2>
+    {group.items.map((item)=><a key={item.label} className={item.active?"os-nav-link active":"os-nav-link"} href={item.href} aria-current={item.active?"page":undefined}>
+      <span className="os-nav-symbol" aria-hidden="true">{item.symbol}</span><span>{item.label}</span>
+    </a>)}
+  </section>);
   const actionHref = m.nextAction?.href ? (root ? `./${m.nextAction.href}` : `../${m.nextAction.href}`) : route(root,"portugues-rlm");
-  return <main className="study-os">
-    <header className="os-topbar">
-      <a className="os-brand" href={base}><b>TJDFT</b><span>Study OS</span></a>
-      <nav aria-label="Navegação operacional">
-        {nav.map(([id,slug])=><a key={id} className={view===id?"active":""} href={route(root,slug)}>{labels[id]}</a>)}
-        <a href={route(root,"leis")}>Leis</a><a href={route(root,"portugues-rlm")}>Português + RLM</a>
-      </nav>
-    </header>
-
-    <section className="os-hero">
-      <div><p className="os-kicker">TJDFT · TÉCNICO + ANALISTA · {m.meta.phase} · {m.meta.editalReference}</p>
-      <h1>{view==="home"?"Central de comando":labels[view]}</h1>
-      <p>Notion é a fonte operacional. O site interpreta apenas evidências disponíveis; ausência nunca vira zero, fraqueza ou domínio.</p></div>
-      <div className="os-source"><span>Fonte</span><strong>{m.meta.sourceTitle}</strong><small>{m.quality.sourceSyncedAt ? new Date(m.quality.sourceSyncedAt).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo"}) : "não informada"}</small></div>
-    </section>
+  const sourceUpdated=m.quality.sourceSyncedAt?new Date(m.quality.sourceSyncedAt).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo"}):"atualização não informada";
+  return <div className="study-os-shell">
+    <aside className="os-sidebar">
+      <a className="os-side-brand" href={base}>
+        <span className="os-brand-mark" aria-hidden="true">T</span>
+        <span><b>TJDFT</b><small>Dashboard · Área administrativa</small></span>
+      </a>
+      <div className="os-side-context"><span className="os-state-dot" aria-hidden="true"/><span><b>{m.meta.phase}</b><small>{m.meta.editalReference}</small></span></div>
+      <nav className="os-side-nav" aria-label="Navegação principal">{renderNavGroups()}</nav>
+      <div className="os-side-footer"><span className="os-state-dot" aria-hidden="true"/><span>Notion é a fonte operacional do TJDFT.</span></div>
+    </aside>
+    <div className="os-main-column">
+      <header className="os-topbar">
+        <details className="os-mobile-menu">
+          <summary aria-label="Abrir menu de navegação"><span aria-hidden="true">☰</span><b>Menu</b></summary>
+          <div className="os-menu-panel"><nav aria-label="Navegação do site">{renderNavGroups()}</nav><small>Notion · {sourceUpdated}</small></div>
+        </details>
+        <div className="os-page-context"><span>TJDFT · ÁREA ADMINISTRATIVA</span><strong>{view==="home"?"Dashboard":labels[view]}</strong></div>
+        <div className="os-topbar-end">
+          <div className="os-source" aria-label={`Fonte operacional: ${m.meta.sourceTitle}; ${sourceUpdated}`}>
+            <span className="os-state-dot" aria-hidden="true"/><span><b>{m.meta.sourceTitle}</b><small>{sourceUpdated}</small></span>
+          </div>
+          <a className="os-law-link" href={route(root,"leis")}><span aria-hidden="true">§</span> Leis Primeiro</a>
+        </div>
+      </header>
+      <main className="study-os">
+        <section className="os-hero">
+          <div><p className="os-kicker">TJDFT · Técnico + Analista · {m.meta.phase} · {m.meta.editalReference}</p>
+          <h1>{view==="home"?"Central de comando":labels[view]}</h1>
+          <p>Prioridade de estudo, evidências e continuidade da trilha de Técnico e Analista em um só lugar.</p></div>
+        </section>
 
     {(view==="home"||view==="hoje"||view==="mentor") && <section className="os-action">
       <div><span className="os-pill">{m.nextAction.label}</span><h2>{m.nextAction.code ? `${m.nextAction.code} · ` : ""}{m.nextAction.title}</h2>
@@ -135,5 +177,15 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
     </div>}
 
     <footer className="os-footer"><span>Eu estudo → registro → o sistema entende → o Mentor interpreta.</span><div><a href={route(root,"qualidade-dados")}>Qualidade</a><a href={route(root,"sincronizacao")}>Sync</a><a href={base+"painel-legado/"}>Painel detalhado</a></div></footer>
-  </main>;
+
+      </main>
+      <nav className="os-bottom-nav" aria-label="Navegação rápida">
+        <a className={view==="home"?"active":""} href={base} aria-current={view==="home"?"page":undefined}><span aria-hidden="true">⌂</span><small>Dashboard</small></a>
+        <a className={view==="hoje"?"active":""} href={route(root,"hoje")} aria-current={view==="hoje"?"page":undefined}><span aria-hidden="true">◷</span><small>Hoje</small></a>
+        <a className={view==="trilha"?"active":""} href={route(root,"trilha")} aria-current={view==="trilha"?"page":undefined}><span aria-hidden="true">⇢</span><small>Trilha</small></a>
+        <a className={view==="mentor"?"active":""} href={route(root,"mentor")} aria-current={view==="mentor"?"page":undefined}><span aria-hidden="true">✳</span><small>Mentor</small></a>
+        <a href={route(root,"leis")}><span aria-hidden="true">§</span><small>Leis Primeiro</small></a>
+      </nav>
+    </div>
+  </div>;
 }
