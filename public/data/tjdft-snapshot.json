@@ -6,9 +6,19 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-24T23:54:47.419Z",
-    "content_hash": "56a84d96f3d9edff5211272e80866d0b12477c6aabf74e9ef5789388a19712fa",
-    "status": "synced"
+    "synced_at": "2026-09-25T02:07:26.611Z",
+    "content_hash": "b961239adcbfe52ffa94939f5c78e86653e2efcb73374393c86a4b5d15686a01",
+    "status": "partial",
+    "component_sources": {
+      "materials": "snapshot",
+      "execution": "notion",
+      "operational": "notion"
+    },
+    "component_synced_at": {
+      "materials": "2026-09-24T23:54:47.419Z",
+      "execution": "2026-09-25T02:07:26.611Z",
+      "operational": "2026-09-25T02:07:26.611Z"
+    }
   },
   "dashboard": {
     "phase": "F-TJ-01 — Núcleo comum",
@@ -389,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-24T23:54:47.415Z",
+    "as_of": "2026-09-25T02:07:26.609Z",
     "c01": {
       "days": [
         {
@@ -1521,5 +1531,5 @@
       "ambiguous": []
     }
   },
-  "notice": "Snapshot validado a partir do Notion privado e publicado pelo GitHub."
+  "notice": "Snapshot parcialmente atualizado. materiais: snapshot anterior do GitHub. Confira a sincronização antes de tratar essas métricas como atuais."
 }
