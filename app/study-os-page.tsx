@@ -19,6 +19,14 @@ function shortDate(v:string|null|undefined){
 }
 function route(root:boolean, slug:string){ return root ? `./${slug}/` : `../${slug}/`; }
 
+function actionTitle(code:string|null|undefined,title:string) {
+  const trimmed=title.trim();
+  if(!code || trimmed.slice(0,code.length).toLocaleUpperCase()!==code.toLocaleUpperCase()) return trimmed;
+  const rest=trimmed.slice(code.length);
+  if(!rest.trim()) return "";
+  return /^\s*[—–-·:]\s*/.test(rest) ? rest.replace(/^\s*[—–-·:]\s*/,"").trim() : trimmed;
+}
+
 function Metric({label,value,detail}:{label:string;value:string|number;detail:string}) {
   return <article className="os-metric"><span>{label}</span><strong>{value}</strong><small>{detail}</small></article>;
 }
@@ -106,7 +114,7 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
         {sourceWarning && <aside className="os-notice os-data-warning" role="alert">{sourceWarning} <a href={route(root,"sincronizacao")}>Ver sincronização →</a></aside>}
 
     {(view==="home"||view==="hoje"||view==="mentor") && <section className="os-action">
-      <div><span className="os-pill">{m.nextAction.label}</span><h2>{m.nextAction.code ? `${m.nextAction.code} · ` : ""}{m.nextAction.title}</h2>
+      <div><span className="os-pill">{m.nextAction.label}</span><h2>{m.nextAction.code ? `${m.nextAction.code} · ` : ""}{actionTitle(m.nextAction.code,m.nextAction.title)}</h2>
       <p>{m.nextAction.reason}</p><div className="os-evidence"><span>Confiança: <b>{m.nextAction.confidence}</b></span><span>Amostra: <b>{m.execution.evidence.label}</b></span><span>Ordem 1–37: <b>{m.sequence.valid?"íntegra":"divergente"}</b></span></div></div>
       <a className="os-cta" href={actionHref}>Executar agora →</a>
     </section>}
