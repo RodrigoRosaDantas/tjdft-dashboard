@@ -55,6 +55,8 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Validar IDs das páginas e bancos Notion
+        run: node scripts/validate-tjdft-notion-ids.mjs
       - name: Verificar Edge Function TJDFT
         run: deno check --config supabase/functions/tjdft-notion/deno.json supabase/functions/tjdft-notion/index.ts
       - name: Testar proveniência parcial dos snapshots

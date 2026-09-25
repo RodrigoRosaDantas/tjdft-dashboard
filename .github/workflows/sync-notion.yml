@@ -8,6 +8,7 @@ on:
     paths:
       - "supabase/functions/tjdft-notion/**"
       - "scripts/validate-tjdft-snapshot.mjs"
+      - "scripts/validate-tjdft-notion-ids.mjs"
       - "scripts/sync-leis-primeiro.mjs"
       - "scripts/sync-portugues-rlm.mjs"
       - "scripts/validate-portugues-rlm.mjs"
@@ -52,6 +53,9 @@ jobs:
             echo "TJDFT_NOTION_TOKEN não configurado nos secrets do repositório." >&2
             exit 1
           fi
+
+      - name: Validar IDs das páginas e bancos Notion
+        run: node scripts/validate-tjdft-notion-ids.mjs
 
       - name: Gerar snapshots a partir do Notion privado
         run: |
