@@ -798,19 +798,19 @@ const sequentialMaterialsFallback: SequenceMaterial[] = [
 const futureMaterials: FutureMaterial[] = [
   {
     "label": "CTJ-002 · D01–D14",
-    "detail": "Ciclo atual de núcleo comum; D01 é a primeira ação real e os demais dias aguardam registro."
+    "detail": "Único ciclo ativo, ainda Planejado; D01 é a primeira unidade a executar."
   },
   {
-    "label": "CTJ-T01 a CTJ-T05",
-    "detail": "Cinco ciclos específicos da trilha de Técnico Judiciário."
+    "label": "5 ciclos previstos — Técnico",
+    "detail": "Roteiro de cobertura por cargo; não são páginas ou ciclos executáveis já criados no Notion."
   },
   {
-    "label": "CTJ-A01 a CTJ-A07",
-    "detail": "Sete ciclos específicos da trilha de Analista Judiciário — Administração."
+    "label": "7 ciclos previstos — Analista",
+    "detail": "Roteiro de cobertura por cargo; não são páginas ou ciclos executáveis já criados no Notion."
   },
   {
-    "label": "Revisões e discursiva",
-    "detail": "Consolidação posterior, condicionada aos registros reais e ao edital oficial."
+    "label": "Consolidação, revisões e discursivas",
+    "detail": "Etapas posteriores; revisões baseadas em erros reais e discursivas separadas por cargo."
   }
 ];
 
@@ -1408,7 +1408,7 @@ function Progress({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
 }
 
 function MaterialsLegacy() {
-  return <div className="inner-page"><section className="page-intro"><div><p className="eyebrow">BIBLIOTECA TJDFT</p><h1>Fontes que alimentam a preparação</h1><p>O site organiza o acesso. A verdade continua no material oficial e no Notion operacional.</p></div><StatusPill tone="teal">Fonte: Notion TJDFT</StatusPill></section><section className="source-grid">{sources.map((source) => <article className="panel source-card" key={source.title}><div className="source-card-top"><span className="source-icon"><FileCheck2 size={18} /></span><StatusPill>{source.tag}</StatusPill></div><h3>{source.title}</h3><p>{source.detail}</p><a className="text-button" href={source.href} target="_blank" rel="noreferrer">Abrir no Notion <ChevronRight size={16} /></a></article>)}</section><section className="panel materials-roadmap"><SectionHeading eyebrow="CTJ-002 · MATERIAL COMPLETO" title="Materiais do D01 ao D14" description="Cada cartão abre a página correspondente no Notion. A meta e o estado seguem a sequência operacional do CTJ-002." action={<a className="text-button" href={notionMaterialsPage} target="_blank" rel="noreferrer">Abrir biblioteca no Notion <ChevronRight size={16} /></a>} /><div className="material-grid">{studyMaterials.map((material) => <article className={`material-card material-${material.tone}`} key={material.day}><div className="material-card-top"><span className="material-day">{material.day}</span><StatusPill tone={material.tone === "coral" ? "coral" : material.tone === "gold" ? "gold" : material.tone === "violet" ? "violet" : "teal"}>{material.meta}</StatusPill></div><h3>{material.title}</h3><p>{material.detail}</p><a className="text-button" href={material.href} target="_blank" rel="noreferrer">Abrir material <ArrowRight size={15} /></a></article>)}</div></section><section className="panel legislation-panel"><SectionHeading eyebrow="LEITURA LEGISLATIVA · AUDITORIA 10/09/2026" title="Leis e fontes oficiais por dia" description="O roteiro abaixo foi organizado a partir da página de materiais do Notion. “Sem lei seca nuclear” significa que o dia prioriza material técnico, conceitos ou revisão adaptativa." action={<a className="text-button" href={notionMaterialsPage} target="_blank" rel="noreferrer">Ver roteiro no Notion <ChevronRight size={16} /></a>} /><div className="legislation-list">{legislationPlan.map((item) => <article className={`legislation-item legislation-${item.tone}`} key={item.day}><div className="legislation-day">{item.day}</div><div className="legislation-body"><div className="legislation-title-row"><h3>{item.title}</h3><StatusPill tone={item.tone === "coral" ? "coral" : item.tone === "gold" ? "gold" : item.tone === "violet" ? "violet" : "teal"}>{item.status}</StatusPill></div><p>{item.detail}</p>{item.links.length > 0 ? <div className="law-links">{item.links.map((link) => <a href={link.href} target="_blank" rel="noreferrer" key={link.href}>{link.label} <ArrowRight size={13} /></a>)}</div> : <span className="law-empty">Sem lei seca nuclear neste recorte</span>}</div></article>)}</div></section><section className="panel future-materials"><SectionHeading eyebrow="FILA POSTERIOR · NOTION" title="Materiais já previstos para depois do CTJ-002" description="Eles permanecem no repositório, mas não deslocam o D01 nem antecipam um novo ciclo." action={<a className="text-button" href={notionMaterialsPage} target="_blank" rel="noreferrer">Abrir materiais sequenciais <ChevronRight size={16} /></a>} /><div className="future-material-grid">{futureMaterials.map((material) => <div className="future-material" key={material.label}><strong>{material.label}</strong><span>{material.detail}</span></div>)}</div></section><section className="panel materials-note"><div className="note-icon"><CircleAlert size={19} /></div><div><p className="eyebrow">REGRA-MÃE</p><h3>Fonte oficial atualizada prevalece sobre resumo antigo.</h3><p>O Notion mantém o material completo; o site oferece uma visão rápida, com links para a fonte oficial e para cada página do CTJ-002.</p></div></section></div>;
+  return <div className="inner-page"><section className="page-intro"><div><p className="eyebrow">BIBLIOTECA TJDFT</p><h1>Fontes que alimentam a preparação</h1><p>O site organiza o acesso. A verdade continua no material oficial e no Notion operacional.</p></div><StatusPill tone="teal">Fonte: Notion TJDFT</StatusPill></section><section className="source-grid">{sources.map((source) => <article className="panel source-card" key={source.title}><div className="source-card-top"><span className="source-icon"><FileCheck2 size={18} /></span><StatusPill>{source.tag}</StatusPill></div><h3>{source.title}</h3><p>{source.detail}</p><a className="text-button" href={source.href} target="_blank" rel="noreferrer">Abrir no Notion <ChevronRight size={16} /></a></article>)}</section><section className="panel materials-roadmap"><SectionHeading eyebrow="CTJ-002 · MATERIAL COMPLETO" title="Materiais do D01 ao D14" description="Cada cartão abre a página correspondente no Notion. A meta e o estado seguem a sequência operacional do CTJ-002." action={<a className="text-button" href={notionMaterialsPage} target="_blank" rel="noreferrer">Abrir biblioteca no Notion <ChevronRight size={16} /></a>} /><div className="material-grid">{studyMaterials.map((material) => <article className={`material-card material-${material.tone}`} key={material.day}><div className="material-card-top"><span className="material-day">{material.day}</span><StatusPill tone={material.tone === "coral" ? "coral" : material.tone === "gold" ? "gold" : material.tone === "violet" ? "violet" : "teal"}>{material.meta}</StatusPill></div><h3>{material.title}</h3><p>{material.detail}</p><a className="text-button" href={material.href} target="_blank" rel="noreferrer">Abrir material <ArrowRight size={15} /></a></article>)}</div></section><section className="panel legislation-panel"><SectionHeading eyebrow="LEITURA LEGISLATIVA · AUDITORIA 10/09/2026" title="Leis e fontes oficiais por dia" description="O roteiro abaixo foi organizado a partir da página de materiais do Notion. “Sem lei seca nuclear” significa que o dia prioriza material técnico, conceitos ou revisão adaptativa." action={<a className="text-button" href={notionMaterialsPage} target="_blank" rel="noreferrer">Ver roteiro no Notion <ChevronRight size={16} /></a>} /><div className="legislation-list">{legislationPlan.map((item) => <article className={`legislation-item legislation-${item.tone}`} key={item.day}><div className="legislation-day">{item.day}</div><div className="legislation-body"><div className="legislation-title-row"><h3>{item.title}</h3><StatusPill tone={item.tone === "coral" ? "coral" : item.tone === "gold" ? "gold" : item.tone === "violet" ? "violet" : "teal"}>{item.status}</StatusPill></div><p>{item.detail}</p>{item.links.length > 0 ? <div className="law-links">{item.links.map((link) => <a href={link.href} target="_blank" rel="noreferrer" key={link.href}>{link.label} <ArrowRight size={13} /></a>)}</div> : <span className="law-empty">Sem lei seca nuclear neste recorte</span>}</div></article>)}</div></section><section className="panel future-materials"><SectionHeading eyebrow="CICLOS E COBERTURA · NOTION" title="Ciclo atual e cobertura planejada" description="CTJ-002 é o único ciclo ativo e segue Planejado; as trilhas por cargo ainda são roteiro de cobertura." action={<a className="text-button" href={notionMaterialsPage} target="_blank" rel="noreferrer">Abrir materiais sequenciais <ChevronRight size={16} /></a>} /><div className="future-material-grid">{futureMaterials.length ? futureMaterials.map((material) => <div className="future-material" key={material.label}><strong>{material.label}</strong><span>{material.detail}</span></div>) : <div className="future-material"><strong>Sem itens posteriores registrados</strong><span>A fonte consultada não informa etapas adicionais.</span></div>}</div></section><section className="panel materials-note"><div className="note-icon"><CircleAlert size={19} /></div><div><p className="eyebrow">REGRA-MÃE</p><h3>Fonte oficial atualizada prevalece sobre resumo antigo.</h3><p>O Notion mantém o material completo; o site oferece uma visão rápida, com links para a fonte oficial e para cada página do CTJ-002.</p></div></section></div>;
 }
 
 function normalizeSearch(value: string) {
@@ -1460,7 +1460,7 @@ function Materials({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
       (lawFilter === "Sem lei seca" && !hasOfficialSource);
     return matchesQuery && matchesFilter;
   });
-  const displayedFuture = liveMaterials?.future?.length ? liveMaterials.future : futureMaterials;
+  const displayedFuture = liveMaterials?.future != null ? liveMaterials.future : futureMaterials;
   const displayedSequence = liveMaterials?.sequence?.length ? liveMaterials.sequence : sequentialMaterialsFallback;
   const sequenceSource = displayedSequence[0]?.href || notionSequentialMaterialsPage;
   const [sequenceQuery, setSequenceQuery] = useState("");
@@ -1707,12 +1707,12 @@ function Materials({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
 
       <section id="future-materials" role="tabpanel" aria-labelledby="materials-tab-future" className={`panel future-materials materials-anchor ${materialsView === "future" ? "" : "materials-view-hidden"}`}>
         <SectionHeading
-          eyebrow="FILA POSTERIOR · NOTION"
-          title="Materiais já previstos para depois do CTJ-002"
-          description="Eles permanecem no repositório, mas não deslocam o D01 nem antecipam um novo ciclo."
+          eyebrow="CICLOS E COBERTURA · NOTION"
+          title="Ciclo atual e cobertura planejada"
+          description="CTJ-002 é o único ciclo ativo e segue Planejado; as trilhas por cargo ainda são roteiro de cobertura."
           action={<a className="text-button" href={materialSource} target="_blank" rel="noreferrer">Abrir materiais sequenciais <ChevronRight size={16} /></a>}
         />
-        <div className="future-material-grid">{displayedFuture.map((material) => <div className="future-material" key={material.label}><strong>{material.label}</strong><span>{material.detail}</span></div>)}</div>
+        <div className="future-material-grid">{displayedFuture.length ? displayedFuture.map((material) => <div className="future-material" key={material.label}><strong>{material.label}</strong><span>{material.detail}</span></div>) : <div className="future-material"><strong>Sem itens posteriores registrados</strong><span>A fonte consultada não informa etapas adicionais.</span></div>}</div>
       </section>
 
       <section className="panel materials-note">
