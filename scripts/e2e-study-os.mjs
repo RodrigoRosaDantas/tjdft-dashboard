@@ -18,19 +18,66 @@ async function waitForPageReady() {
   await page.waitForFunction(() => !/\bCarregando\b/i.test(document.body?.innerText || ""), { timeout:10000 });
 }
 
-async function clickDestination(route) {
-  const target = await destinationPath(route);
-  const index = await page.locator("a[href]").evaluateAll((links, targetPath) => links.findIndex((link) => {
-    try { return new URL(link.href, location.href).pathname === targetPath; } catch { return false; }
-  }), target);
-  assert.notEqual(index, -1, `link para ${target} ausente em ${page.url()}`);
+async function findRouteIndex(links, targetPath) {
+  return links.evaluateAll((nodes, path) => nodes.findIndex((node) => {
+    try { return new URL(node.href, location.href).pathname === path; } catch { return false; }
+  }), targetPath);
+}
+
+async function findVisibleDestination(targetPath) {
+  return page.locator("a[href]").evaluateAll((links, path) => {
+    const matches = links.map((link, index) => {
+      try {
+        const target = new URL(link.href, location.href);
+        const style = getComputedStyle(link);
+        const rect = link.getBoundingClientRect();
+        if (target.pathname !== path || style.display === "none" || style.visibility === "hidden" || rect.width === 0 || rect.height === 0) return null;
+        const priority = link.closest(".os-bottom-nav") ? 0 : link.closest(".os-menu-panel,.os-side-nav") ? 1 : 2;
+        return { index, priority };
+      } catch { return null; }
+    }).filter(Boolean);
+    matches.sort((a,b) => a.priority - b.priority);
+    return matches[0]?.index ?? -1;
+  }, targetPath);
+}
+
+async function followLink(link, target) {
   await Promise.all([
-    page.waitForURL((url) => url.pathname === target, { timeout:10000 }),
-    page.locator("a[href]").nth(index).click(),
+    page.waitForURL((url) => url.pathname === target, { waitUntil:"domcontentloaded", timeout:10000 }),
+    link.click({ noWaitAfter:true }),
   ]);
   await waitForPageReady();
 }
 
+async function clickDestination(route) {
+  const target = await destinationPath(route);
+  const mobileMenu = page.locator(".os-mobile-menu");
+  const menuSummary = mobileMenu.locator("summary");
+  const bottomNav = page.locator(".os-bottom-nav a[href]");
+  if (await bottomNav.count() && await bottomNav.first().isVisible()) {
+    const quickIndex = await findRouteIndex(bottomNav,target);
+    if (quickIndex >= 0) {
+      await followLink(bottomNav.nth(quickIndex),target);
+      return;
+    }
+  }
+  const drawerLinks = page.locator(".os-menu-panel a[href]");
+  const drawerIndex = await findRouteIndex(drawerLinks,target);
+  if (drawerIndex >= 0 && await menuSummary.isVisible()) {
+    if (!await mobileMenu.evaluate((node) => node.open)) await menuSummary.click();
+    await followLink(drawerLinks.nth(drawerIndex),target);
+    return;
+  }
+  const sideLinks = page.locator(".os-side-nav a[href]");
+  const sideIndex = await findRouteIndex(sideLinks,target);
+  if (sideIndex >= 0 && await sideLinks.first().isVisible()) {
+    await followLink(sideLinks.nth(sideIndex),target);
+    return;
+  }
+  const index = await findVisibleDestination(target);
+  assert.notEqual(index, -1, `link visível para ${target} ausente em ${page.url()}`);
+  await followLink(page.locator("a[href]").nth(index),target);
+}
 async function open(route) {
   const response = await page.goto(`${baseUrl}/${route ? `${route}/` : ""}`, { waitUntil:"domcontentloaded", timeout:30000 });
   assert.ok(response && response.status() < 400, `HTTP inválido em ${route || "/"}`);
