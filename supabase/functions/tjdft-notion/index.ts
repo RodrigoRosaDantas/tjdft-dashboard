@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { resolveSnapshotProvenance, type ComponentSource, type SnapshotComponent } from "./provenance.ts";
 import { extractPlannedMaterials, findDay, normalizeDay } from "./materials.ts";
+import { summarizeActiveErrors } from "./error-counts.ts";
 
 const NOTION_API_BASE = "https://api.notion.com/v1";
 const NOTION_VERSION = "2026-03-11";
@@ -648,6 +649,9 @@ function buildExecutionSnapshot(
     correct: row.correct, errors: row.errors, doubts: row.doubts,
     annulled: row.known_annulled ? row.annulled : null, sessions: row.date_keys.size,
   }));
+  const errorSummary = summarizeActiveErrors(
+    errorPages.map((page) => propertyText(page.properties || {}, "Estado")),
+  );
   return {
     as_of: new Date().toISOString(),
     c01: {
@@ -656,7 +660,8 @@ function buildExecutionSnapshot(
       subjects: subjectList,
       statuses,
       active_day: activeDay,
-      error_count: errorPages.length,
+      error_count: errorSummary.active_count,
+      error_records_present: errorSummary.records_present,
       question_rows: questions.length,
       questions: {
         total: doneTotal,
@@ -899,6 +904,9 @@ function buildOperationalSnapshot(
     ? effectiveQuestions.filter((q) => q.doubt).length
     : null;
 
+  const errorSummary = summarizeActiveErrors(
+    errorPages.map((page) => propertyText(page.properties || {}, "Estado")),
+  );
   const unclassifiedErrors = errorPages.filter((page) => !propertyText(page.properties || {}, "Estado")).length;
   const activeErrors = errorPages.map((page) => {
     const p = page.properties || {};
@@ -1062,7 +1070,7 @@ function buildOperationalSnapshot(
       by_cargo_date: Array.from(byCargoDate.values()).map((row) => ({ ...row })).sort((a, b) => a.date.localeCompare(b.date)),
     },
     errors: {
-      active_count: activeErrors.length,
+      ...errorSummary,
       by_subject: errorBySubject,
       top: activeErrors.slice(0, 8),
     },

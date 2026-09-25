@@ -131,7 +131,8 @@ type ExecutionSnapshot = {
     subjects: SubjectExecution[];
     statuses: Record<string, number>;
     active_day: string | null;
-    error_count: number;
+    error_count: number | null;
+    error_records_present?: boolean;
     question_rows: number;
   };
 };
@@ -1345,7 +1346,14 @@ function Progress({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
   const hasQuestionEvidence = Boolean(typeof execution?.question_rows === "number" && execution.question_rows > 0) || Boolean(execution?.days?.some(dayHasExecution));
   const done = hasQuestionEvidence ? totals?.done ?? null : null;
   const precisionValue = totals?.precision ?? null;
-  const errorBank = execution?.error_count ?? null;
+  const rawErrorBank = execution?.error_count ?? null;
+  const errorBank = execution?.error_records_present === true
+    ? rawErrorBank
+    : execution?.error_records_present === false
+    ? null
+    : rawErrorBank != null && rawErrorBank > 0
+    ? rawErrorBank
+    : null;
   const averageMinutes = totals ? formatExecutionMinutes(totals.minutes, totals.done) : "—";
   const hasExecutionData = Boolean(execution && done != null);
   const statusLabel = hasExecutionData ? "Execução registrada" : "Sem sessões registradas";
@@ -1366,7 +1374,7 @@ function Progress({ snapshot }: { snapshot?: DashboardSnapshot | null }) {
       <section className="stats-grid progress-stats">
         <StatCard icon={Check} label="Questões feitas" value={done == null ? "—" : String(done)} detail={`de ${projectedPlanned} projetadas · ${fixedPlanned} fixas`} tone="blue" />
         <StatCard icon={TrendingUp} label="Precisão" value={formatExecutionPercent(precisionValue)} detail={precisionValue === null ? "Aparece após a primeira correção" : (totals?.correct ?? "—") + " acertos em " + (done ?? "—") + " questões"} tone="teal" />
-        <StatCard icon={CircleAlert} label="Caderno de erros" value={String(errorBank)} detail={errorBank == null ? "Sem contagem operacional" : errorBank > 0 ? "Registros ativos no banco de questões" : "Zero erro ativo informado pelo Notion"} tone="coral" />
+        <StatCard icon={CircleAlert} label="Caderno de erros" value={errorBank == null ? "—" : String(errorBank)} detail={errorBank == null ? "Sem registros ou sem contagem confiável" : errorBank > 0 ? "Registros ativos no banco de questões" : "Nenhum ativo entre os registros consultados"} tone="coral" />
         <StatCard icon={Clock3} label="Tempo médio" value={averageMinutes} detail={totals?.minutes != null ? `${totals.minutes} min acumulados` : "Exige registro de tempo"} tone="violet" />
       </section>
 
