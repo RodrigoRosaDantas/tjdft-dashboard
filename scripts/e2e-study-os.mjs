@@ -68,6 +68,16 @@ async function clickDestination(route) {
     await followLink(drawerLinks.nth(drawerIndex),target);
     return;
   }
+  const dashboardGroup = page.locator(".sidebar-routes");
+  const dashboardLinks = dashboardGroup.locator("a[href]");
+  const dashboardIndex = await findRouteIndex(dashboardLinks,target);
+  if (dashboardIndex >= 0) {
+    const dashboardMenuButton = page.getByRole("button",{name:/Abrir menu/i});
+    if (await dashboardMenuButton.isVisible()) await dashboardMenuButton.click();
+    if (!await dashboardGroup.evaluate((node) => node.open)) await dashboardGroup.locator("summary").click();
+    await followLink(dashboardLinks.nth(dashboardIndex),target);
+    return;
+  }
   const sideLinks = page.locator(".os-side-nav a[href]");
   const sideIndex = await findRouteIndex(sideLinks,target);
   if (sideIndex >= 0 && await sideLinks.first().isVisible()) {
@@ -85,10 +95,11 @@ async function open(route) {
 }
 
 await open("");
-assert.match(await page.locator("h1").first().innerText(), /Central de comando/i);
-const homeActionTitle = await page.locator(".os-action h2").innerText();
+assert.ok(await page.locator(".site-shell").count(), "a Home não preservou o painel TJDFT conhecido");
+assert.match(await page.locator(".hero-card h1").innerText(), /O próximo passo está definido|Retome de onde parou|A próxima ação aguarda dados/i);
+const homeActionTitle = await page.locator(".focus-card h3").innerText();
+assert.match(homeActionTitle, /^(P\d{2}|RL\d{2})\s*·/i, "a Home deve mostrar a recomendação canônica do núcleo de inteligência");
 assert.doesNotMatch(homeActionTitle, /^(P\d{2}|RL\d{2})\s*·\s*\1\b/i, "a ação principal não deve repetir o código da unidade");
-await open("painel-legado");
 await page.getByRole("button", { name:/Abrir menu/i }).click();
 await page.locator(".main-nav .nav-item").filter({ hasText:"Materiais" }).click();
 await page.locator("#materials-tab-future").click();
