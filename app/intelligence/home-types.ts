@@ -23,6 +23,6 @@ export type StudyOsClientSeed = {
       title: string;
       canonical_order: number;
       material_ready: boolean | null;
-    }>; 
+    }>;
   };
 };
