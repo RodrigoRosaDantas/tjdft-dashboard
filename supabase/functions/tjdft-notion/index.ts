@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { resolveSnapshotProvenance, type ComponentSource, type SnapshotComponent } from "./provenance.ts";
+import { extractPlannedMaterials, findDay, normalizeDay } from "./materials.ts";
+import { summarizeActiveErrors } from "./error-counts.ts";
 
 const NOTION_API_BASE = "https://api.notion.com/v1";
 const NOTION_VERSION = "2026-03-11";
@@ -344,11 +346,6 @@ function propertyDate(properties: AnyRecord | undefined, names: string | string[
   return null;
 }
 
-function normalizeDay(value: string) {
-  const match = value.match(/\bD(0[1-9]|1[0-4])\b/i);
-  return match ? "D" + match[1] : null;
-}
-
 function precision(correct: number | null, done: number | null) {
   return done != null && done > 0 && correct != null ? correct / done : null;
 }
@@ -363,7 +360,7 @@ function parseExecutionDay(page: AnyRecord) {
   const properties = page.properties || {};
   const title = propertyText(properties, "Dia de execução") ||
     propertyText(properties, "Dia") || page.url || "";
-  const day = normalizeDay(title);
+  const day = findDay(title);
   const cycle = propertyText(properties, "Ciclo");
   if (!day || (cycle && !/CTJ-002|Ciclo 01/i.test(cycle))) return null;
   const planned = propertyNumber(properties, ["Meta de questões", "Meta questões"]);
@@ -422,7 +419,7 @@ function buildExecutionSnapshot(
       propertyText(properties, "Questão"),
       propertyText(properties, "Dia de execução"),
     ].filter(Boolean).join(" ");
-    return { page, properties, day: normalizeDay(dayText) };
+    return { page, properties, day: findDay(dayText) };
   }).filter((item) => item.day != null);
 
   const subjects = new Map<string, AnyRecord>();
@@ -652,6 +649,9 @@ function buildExecutionSnapshot(
     correct: row.correct, errors: row.errors, doubts: row.doubts,
     annulled: row.known_annulled ? row.annulled : null, sessions: row.date_keys.size,
   }));
+  const errorSummary = summarizeActiveErrors(
+    errorPages.map((page) => propertyText(page.properties || {}, "Estado")),
+  );
   return {
     as_of: new Date().toISOString(),
     c01: {
@@ -660,7 +660,8 @@ function buildExecutionSnapshot(
       subjects: subjectList,
       statuses,
       active_day: activeDay,
-      error_count: errorPages.length,
+      error_count: errorSummary.active_count,
+      error_records_present: errorSummary.records_present,
       question_rows: questions.length,
       questions: {
         total: doneTotal,
@@ -903,6 +904,9 @@ function buildOperationalSnapshot(
     ? effectiveQuestions.filter((q) => q.doubt).length
     : null;
 
+  const errorSummary = summarizeActiveErrors(
+    errorPages.map((page) => propertyText(page.properties || {}, "Estado")),
+  );
   const unclassifiedErrors = errorPages.filter((page) => !propertyText(page.properties || {}, "Estado")).length;
   const activeErrors = errorPages.map((page) => {
     const p = page.properties || {};
@@ -1066,7 +1070,7 @@ function buildOperationalSnapshot(
       by_cargo_date: Array.from(byCargoDate.values()).map((row) => ({ ...row })).sort((a, b) => a.date.localeCompare(b.date)),
     },
     errors: {
-      active_count: activeErrors.length,
+      ...errorSummary,
       by_subject: errorBySubject,
       top: activeErrors.slice(0, 8),
     },
@@ -1238,15 +1242,14 @@ function buildMaterialsSnapshot(
       tone: TONE_BY_DAY[day] || "teal",
     };
   });
-  const future = materialsText.split(/\n+/).map((line) => line.trim())
-    .filter((line) => /^(?:[-*]\s*)?(?:\*{1,2})?(?:CTJ|MS)\d/i.test(line))
-    .map((line) => ({ label: stripMarkup(line.replace(/^[-*]\s*/, "")), detail: "Fila posterior registrada no Notion." }));
+  const plannedMaterials = extractPlannedMaterials(materialsText);
   return {
     source_url: page.url || notionPageUrl(MATERIALS_PAGE_ID),
     last_edited_time: page.last_edited_time || null,
     days,
     legislation,
-    future,
+    future: plannedMaterials.items,
+    plan_complete: plannedMaterials.complete,
     sequence: extractSequentialMaterials(
       sequenceText,
       sequencePage.url || notionPageUrl(SEQUENTIAL_MATERIALS_PAGE_ID),
@@ -1304,6 +1307,7 @@ export async function buildSnapshot(token: string) {
     fallback?.source?.component_synced_at?.[component] ?? fallback?.source?.synced_at ?? null;
 
   let materials = null;
+  let materialsPlanComplete = false;
   let materialsText = "";
   let sequenceText = "";
   try {
@@ -1321,7 +1325,15 @@ export async function buildSnapshot(token: string) {
     ]);
     materialsText = expandedMaterials.map(blockToText).filter(Boolean).join("\n");
     sequenceText = expandedSequence.map(blockToText).filter(Boolean).join("\n");
-    materials = buildMaterialsSnapshot(materialsPage, materialsText, expandedCycle, sequencePage, sequenceText);
+    const { plan_complete: planComplete, ...builtMaterials } = buildMaterialsSnapshot(
+      materialsPage,
+      materialsText,
+      expandedCycle,
+      sequencePage,
+      sequenceText,
+    );
+    materialsPlanComplete = planComplete;
+    materials = builtMaterials;
   } catch (error) {
     console.error("TJDFT materials sync unavailable:", error instanceof Error ? error.message : "unknown error");
   }
@@ -1347,11 +1359,12 @@ export async function buildSnapshot(token: string) {
       if (componentSources.materials === "notion") componentSources.materials = "mixed";
       componentSyncedAt.materials = fallbackComponentDate("materials");
     }
-    if ((materials.future?.length ?? 0) === 0 && fallback.materials.future) {
-      materials.future = fallback.materials.future;
-      if (componentSources.materials === "notion") componentSources.materials = "mixed";
-      componentSyncedAt.materials = fallbackComponentDate("materials");
-    }
+  }
+  if (
+    materials && !materialsPlanComplete &&
+    (componentSources.materials === "notion" || componentSources.materials === "mixed")
+  ) {
+    componentSources.materials = "partial";
   }
 
   let execution = null;

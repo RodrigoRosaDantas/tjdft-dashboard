@@ -244,8 +244,18 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     impact:"Finaliza a sessão parcial antes de iniciar outra unidade.",
     after_action:"Depois da conclusão: voltar à próxima posição canônica.",
   } : null;
-  const activeErrors = (op?.errors?.top || []).filter((item) => !/resolvid|validado|arquivad|fechado/i.test(item.state || item.status || ""));
-  const errorCount = n(op?.errors?.active_count);
+  const listedErrors = op?.errors?.top || [];
+  const activeErrors = listedErrors.filter((item) => !/resolvid|validado|arquivad|fechado/i.test(item.state || item.status || ""));
+  const hasClosedErrorInActiveList = listedErrors.some((item) => /resolvid|validado|arquivad|fechado/i.test(item.state || item.status || ""));
+  const rawErrorCount = n(op?.errors?.active_count);
+  const rawErrorRecordsPresent = op?.errors?.records_present;
+  const errorRecordsPresent = rawErrorRecordsPresent === true ||
+    activeErrors.length > 0 || (rawErrorCount != null && rawErrorCount > 0)
+    ? true
+    : rawErrorRecordsPresent === false
+    ? false
+    : null;
+  const errorCount = errorRecordsPresent === true && !hasClosedErrorInActiveList ? rawErrorCount : null;
   const criticalError = activeErrors.find((item) => /crític|\bP1\b/i.test(item.severity || ""));
   const recurrentError = activeErrors.find((item) => n(item.recurrence) >= 2);
   const today = localDateKey(now);
@@ -546,7 +556,7 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
       bySubject:performance,
       byCargo,
     },
-    nextAction,strengths,weaknesses,risks,reviews,activeErrors,errorCount,
+    nextAction,strengths,weaknesses,risks,reviews,activeErrors,errorCount,errorRecordsPresent,
     coverage:{
       tecnico:cargoCoverage.tecnico,
       analista:cargoCoverage.analista,

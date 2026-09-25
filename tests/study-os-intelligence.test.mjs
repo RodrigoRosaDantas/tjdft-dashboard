@@ -67,7 +67,7 @@ function operationalBase() {
     },
     continuity:{active:null,activities_with_evidence:0,minutes:0,questions:0},
     questions:{total:0,correct:0,errors:0,doubts:0,annulled:0,precision:null,by_subject:[],by_cargo:[],by_date:[]},
-    errors:{active_count:0,by_subject:[],top:[]},
+    errors:{records_present:false,active_count:null,by_subject:[],top:[]},
     reviews:{dated:[],formal:seq.filter(code=>code.startsWith("REV")).map((code)=>({code,title:code,order:seq.indexOf(code)+1,state:"Não estudado"}))},
     coverage:{
       tecnico:{matrix:12,mapped:0,studied:0,consolidated:0,practiced_questions:0,subjects:["Língua Portuguesa","Direito Administrativo"]},
@@ -98,8 +98,26 @@ test("atividade em andamento prevalece sobre próxima unidade",()=>{
   assert.equal(m.nextAction.code,"D01");
 });
 
-test("zero erro ativo explícito não é confundido com ausência",()=>{
+test("ausência de registros no Caderno não vira zero erro ativo",()=>{
   const m=buildTJDFTIntelligence(operationalBase());
+  assert.equal(m.errorRecordsPresent,false);
+  assert.equal(m.errorCount,null);
+  assert.equal(m.activeErrors.length,0);
+});
+
+test("snapshot legado com zero e sem evidência de registros mantém presença desconhecida",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.errors={active_count:0,by_subject:[],top:[]};
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.errorRecordsPresent,null);
+  assert.equal(m.errorCount,null);
+});
+
+test("zero erro ativo requer registros classificados no Caderno",()=>{
+  const x=operationalBase();
+  x.dashboard.operational.errors={records_present:true,active_count:0,by_subject:[],top:[]};
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.errorRecordsPresent,true);
   assert.equal(m.errorCount,0);
   assert.equal(m.activeErrors.length,0);
 });
@@ -319,11 +337,12 @@ test("D7 e D20 aparecem depois de D0 sem receber data inventada",()=>{
   assert.ok(m.agenda.some(item=>item.code==="P01-D20"&&item.date===null&&item.state==="programada"));
 });
 
-test("estado fechado de erro não permanece fragilidade ou risco",()=>{
+test("erro fechado sai das fragilidades e invalida uma contagem contraditória",()=>{
   const x=operationalBase();
-  x.dashboard.operational.errors={active_count:1,top:[{state:"Resolvido",subject:"Português",topic:"Crase",severity:"Crítica",recurrence:4}]};
+  x.dashboard.operational.errors={records_present:true,active_count:1,top:[{state:"Resolvido",subject:"Português",topic:"Crase",severity:"Crítica",recurrence:4}]};
   const m=buildTJDFTIntelligence(x);
   assert.equal(m.activeErrors.length,0);
+  assert.equal(m.errorCount,null);
   assert.equal(m.risks.some(risk=>risk.title==="Crase"),false);
 });
 
