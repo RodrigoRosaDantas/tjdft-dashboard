@@ -32,6 +32,7 @@ test("exporta as rotas de Pages como diretórios", async () => {
 test("renderiza os marcadores públicos principais", async () => {
   const [home, laws, portuguese] = await Promise.all([html("index.html"), html("leis/index.html"), html("portugues-rlm/index.html")]);
   assert.match(home, /class="site-shell"/);
+  assert.doesNotMatch(home, /class="law-fab/);
   assert.match(home, /Visão geral/);
   assert.match(home, /data-home-intelligence="true"/);
   assert.match(home, /PRÓXIMA AÇÃO/);
