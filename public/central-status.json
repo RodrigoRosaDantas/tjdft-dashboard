@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "projectId": "tjdft",
+  "publishedAt": "2026-09-27",
+  "source": {
+    "kind": "public-project-state",
+    "ref": "data/tjdft-snapshot.json#dashboard",
+    "status": "partial",
+    "updatedAt": "2026-09-25T05:46:15.226Z"
+  },
+  "state": {
+    "phase": "F-TJ-01 — Núcleo comum",
+    "cycle": "CTJ-002 — Núcleo comum | Ciclo 01 de estudo real",
+    "currentUnit": "D01",
+    "nextAction": "D01 — Português: interpretação e coesão + Regimento I",
+    "nextActionKind": "operational",
+    "alerts": [
+      "O snapshot público de origem está marcado como parcial."
+    ]
+  }
+}
