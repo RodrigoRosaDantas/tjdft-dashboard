@@ -73,14 +73,14 @@ jobs:
           NOTION_VERSION: "2026-03-11"
 
       - name: Sincronizar Leis Primeiro
-        timeout-minutes: 4
+        timeout-minutes: 6
         run: node scripts/sync-leis-primeiro.mjs
         env:
           TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
           NOTION_VERSION: "2026-03-11"
 
       - name: Sincronizar Português + RLM
-        timeout-minutes: 4
+        timeout-minutes: 8
         run: node scripts/sync-portugues-rlm.mjs
         env:
           TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
