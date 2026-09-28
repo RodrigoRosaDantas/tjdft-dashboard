@@ -5,7 +5,7 @@ const LIVE_NOTION_API_URL = "https://ugxdmvlynyzfmmgshvyq.supabase.co/functions/
 const LIVE_NOTION_API_KEY = "sb_publishable_acJ3KnWmZLidHTFhtTGYUw_RkYu39ca";
 const SNAPSHOT_REQUEST_TIMEOUT_MS = 8000;
 
-export type OperationalSnapshotMode = "live" | "fallback";
+export type OperationalSnapshotMode = "live" | "supabase" | "fallback";
 
 type SnapshotResult<T> = {
   snapshot: T;
@@ -33,12 +33,27 @@ async function readJson<T>(url: string, options: RequestInit = {}) {
   }
 }
 
+function sourceInfo(value: unknown) {
+  if (!value || typeof value !== "object") return null;
+  return (value as {
+    source?: {
+      synced_at?: string | null;
+      last_edited_time?: string | null;
+      component_synced_at?: Record<string, string | null>;
+      component_sources?: Record<string, string | null>;
+    };
+  }).source || null;
+}
+
 function syncedAt(value: unknown) {
-  if (!value || typeof value !== "object") return 0;
-  const source = (value as { source?: { synced_at?: string | null; last_edited_time?: string | null } }).source;
-  const raw = source?.synced_at || source?.last_edited_time || "";
+  const source = sourceInfo(value);
+  const raw = source?.component_synced_at?.operational || source?.synced_at || source?.last_edited_time || "";
   const parsed = Date.parse(raw);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function liveMode(value: unknown): OperationalSnapshotMode {
+  return sourceInfo(value)?.component_sources?.operational === "notion" ? "live" : "supabase";
 }
 
 export async function loadOperationalSnapshot<T>(fallbackUrl: string): Promise<SnapshotResult<T>> {
@@ -57,9 +72,9 @@ export async function loadOperationalSnapshot<T>(fallbackUrl: string): Promise<S
     if (syncedAt(fallback.value.snapshot) > syncedAt(live.value.snapshot)) {
       return { ...fallback.value, mode: "fallback" };
     }
-    return { ...live.value, mode: "live" };
+    return { ...live.value, mode: liveMode(live.value.snapshot) };
   }
-  if (live.status === "fulfilled") return { ...live.value, mode: "live" };
+  if (live.status === "fulfilled") return { ...live.value, mode: liveMode(live.value.snapshot) };
   if (fallback.status === "fulfilled") return { ...fallback.value, mode: "fallback" };
   throw new Error("snapshot operacional indisponível nas fontes live e fallback");
 }
