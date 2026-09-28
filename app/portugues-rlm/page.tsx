@@ -29,6 +29,39 @@ type Snapshot = {
   units: Unit[];
 };
 
+type LiveTrailItem = {
+  code: string;
+  state: string | null;
+  d0: boolean | null;
+  d7: boolean | null;
+  d20: boolean | null;
+  material_ready: boolean | null;
+};
+
+type QuestionStats = {
+  code?: string;
+  total: number | null;
+  correct: number | null;
+  errors: number | null;
+  doubts?: number | null;
+  annulled?: number | null;
+  sessions?: number | null;
+  precision: number | null;
+};
+
+type DashboardSnapshot = {
+  source?: { synced_at?: string | null };
+  operational?: {
+    trail?: {
+      next?: LiveTrailItem | null;
+      items?: LiveTrailItem[];
+      checkpoints?: { d0?: number; d7?: number; d20?: number };
+    };
+    questions?: QuestionStats & { by_unit?: QuestionStats[] };
+    errors?: { active_count?: number | null };
+  };
+};
+
 const tracks = ["Todos", "Português Primeiro", "RLM Preventivo", "Revisão integrada"];
 const blocks = ["Todos", "B1", "B2", "B3", "B4", "B5", "B6", "Fechamento"];
 
@@ -49,18 +82,26 @@ function isStudyUnit(unit: Unit) {
   return unit.track !== "Revisão integrada";
 }
 
+function formatPercent(value: number | null | undefined) {
+  if (value == null || !Number.isFinite(value)) return "—";
+  return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(value);
+}
+
 export default function PortuguesRlmPage() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
+  const [operational, setOperational] = useState<DashboardSnapshot | null>(null);
   const [error, setError] = useState(false);
+  const [operationalError, setOperationalError] = useState(false);
   const [query, setQuery] = useState("");
   const [track, setTrack] = useState("Todos");
   const [block, setBlock] = useState("Todos");
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`../data/portugues-rlm.json?ts=${Date.now()}`, { cache: "no-store" })
+    const timestamp = Date.now();
+    fetch("../data/portugues-rlm.json?ts=" + timestamp, { cache: "no-store" })
       .then((response) => {
-        if (!response.ok) throw new Error("snapshot indisponível");
+        if (!response.ok) throw new Error("snapshot editorial indisponível");
         return response.json();
       })
       .then((value: Snapshot) => {
@@ -69,11 +110,31 @@ export default function PortuguesRlmPage() {
       .catch(() => {
         if (!cancelled) setError(true);
       });
+    fetch("../data/tjdft-snapshot.json?ts=" + timestamp, { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error("snapshot operacional indisponível");
+        return response.json();
+      })
+      .then((value: DashboardSnapshot) => {
+        if (!cancelled) setOperational(value);
+      })
+      .catch(() => {
+        if (!cancelled) setOperationalError(true);
+      });
     return () => { cancelled = true; };
   }, []);
 
   const units = useMemo(() => [...(snapshot?.units || [])].sort((left, right) => left.canonical_order - right.canonical_order), [snapshot]);
-  const nextUnit = units.find((unit) => unit.material_ready) || units[0] || null;
+  const liveByCode = useMemo(() => new Map((operational?.operational?.trail?.items || []).map((item) => [item.code, item])), [operational]);
+  const questionsByCode = useMemo(() => new Map((operational?.operational?.questions?.by_unit || []).map((item) => [item.code || "", item])), [operational]);
+  const operationalNextCode = operational?.operational?.trail?.next?.code || null;
+  const nextUnit = (operationalNextCode ? units.find((unit) => unit.code === operationalNextCode) : null)
+    || units.find((unit) => unit.material_ready && liveByCode.get(unit.code)?.d0 !== true)
+    || units[0]
+    || null;
+  const completedUnits = units.filter((unit) => liveByCode.get(unit.code)?.d0 === true);
+  const latestStudied = completedUnits.at(-1) || null;
+  const overallQuestions = operational?.operational?.questions || null;
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("pt-BR");
     return units.filter((unit) => {
@@ -87,6 +148,10 @@ export default function PortuguesRlmPage() {
   const studyCount = units.filter(isStudyUnit).length;
   const reviewCount = units.filter((unit) => unit.track === "Revisão integrada").length;
   const flowPreview = units.slice(0, 5);
+  const nextLive = nextUnit ? liveByCode.get(nextUnit.code) : null;
+  const nextQuestions = nextUnit ? questionsByCode.get(nextUnit.code) : null;
+  const latestLive = latestStudied ? liveByCode.get(latestStudied.code) : null;
+  const latestQuestions = latestStudied ? questionsByCode.get(latestStudied.code) : null;
 
   return (
     <main className="laws-page portugues-page">
@@ -119,12 +184,12 @@ export default function PortuguesRlmPage() {
           </div>
         </div>
         <aside className="laws-next-card">
-          <div className="laws-next-top"><div><p className="laws-kicker">PRÓXIMO MATERIAL DISPONÍVEL</p><span>{nextUnit?.block || "—"} · posição {nextUnit?.canonical_order || "—"}</span></div><span className="laws-next-badge">{String(nextUnit?.canonical_order || 0).padStart(2, "0")} / {units.length || 37}</span></div>
+          <div className="laws-next-top"><div><p className="laws-kicker">PRÓXIMA UNIDADE OPERACIONAL</p><span>{nextUnit?.block || "—"} · posição {nextUnit?.canonical_order || "—"}</span></div><span className="laws-next-badge">{String(nextUnit?.canonical_order || 0).padStart(2, "0")} / {units.length || 37}</span></div>
           <div className="laws-next-law"><span className="laws-next-code">{nextUnit?.code || "—"}</span><h2>{nextUnit?.title || "Aguardando sincronização"}</h2></div>
-          <div className="laws-next-context"><span>{nextUnit ? trackShort(nextUnit.track) : "—"}</span><span>{nextUnit?.layer || "—"}</span><span>{nextUnit?.material_ready ? "Material pronto" : "Em edição"}</span></div>
-          <div className="laws-next-focus"><span>→</span><div><small>FAÇA AGORA</small><strong>Leia a página e abra as questões</strong></div></div>
-          <p>Material pronto é checkpoint editorial. Seu status, D0, D7 e D20 continuam registrados no Notion depois da execução real.</p>
-          <div className="laws-checkpoints"><span className="laws-checkpoint is-done">✓ Teoria</span><span className="laws-checkpoint">○ Questões</span><span className="laws-checkpoint">○ Erros</span><span className="laws-checkpoint">○ D0</span></div>
+          <div className="laws-next-context"><span>{nextUnit ? trackShort(nextUnit.track) : "—"}</span><span>{nextLive?.state || "Não estudado"}</span><span>{nextUnit?.material_ready ? "Material pronto" : "Em edição"}</span></div>
+          <div className="laws-next-focus"><span>→</span><div><small>FAÇA AGORA</small><strong>{nextUnit ? "Abrir " + nextUnit.code + " e iniciar a sessão" : "Aguardar sincronização"}</strong></div></div>
+          <p>{latestStudied ? latestStudied.code + " já consta com D0 concluído. A sequência avançou para " + (nextUnit?.code || "a próxima unidade") + "." : "A próxima unidade é definida pelo estado real da esteira no Notion."}</p>
+          <div className="laws-checkpoints"><span className={"laws-checkpoint " + (nextQuestions?.total ? "is-done" : "")}>{nextQuestions?.total ? "✓" : "○"} Questões</span><span className={"laws-checkpoint " + (nextLive?.d0 ? "is-done" : "")}>{nextLive?.d0 ? "✓" : "○"} D0</span><span className={"laws-checkpoint " + (nextLive?.d7 ? "is-done" : "")}>{nextLive?.d7 ? "✓" : "○"} D7</span><span className={"laws-checkpoint " + (nextLive?.d20 ? "is-done" : "")}>{nextLive?.d20 ? "✓" : "○"} D20</span></div>
           <a className="laws-next-cta" href={nextUnit ? `./${nextUnit.code.toLowerCase()}/` : "#mapa"}>Abrir página <span aria-hidden="true">↗</span></a>
           <a className="laws-next-notion" href={nextUnit?.notion_url || snapshot?.source.page_url || "#"} target="_blank" rel="noreferrer">Abrir no Notion ↗</a>
         </aside>
@@ -139,10 +204,21 @@ export default function PortuguesRlmPage() {
       </section>
 
       <section className="laws-status-strip portugues-stats" aria-label="Resumo da trilha">
-        <article className="laws-stat-progress portugues-stat-ready"><div className="laws-stat-top"><span className="laws-stat-icon">01</span><span>MATERIAIS PRONTOS</span></div><strong>{snapshot ? `${readyCount}/${units.length}` : "—"}</strong><small>checkpoint editorial</small></article>
-        <article className="laws-stat-questions portugues-stat-units"><div className="laws-stat-top"><span className="laws-stat-icon">02</span><span>UNIDADES DE CONTEÚDO</span></div><strong>{snapshot ? studyCount : "—"}</strong><small>Português + RLM</small></article>
-        <article className="laws-stat-map portugues-stat-reviews"><div className="laws-stat-top"><span className="laws-stat-icon">03</span><span>REVISÕES FORMAIS</span></div><strong>{snapshot ? reviewCount : "—"}</strong><small>blocos integrados 5+1</small></article>
-        <article className="laws-stat-source portugues-stat-source"><div className="laws-stat-top"><span className="laws-stat-icon">04</span><span>FONTE OPERACIONAL</span></div><strong>Notion</strong><small>GitHub publica o espelho</small></article>
+        <article className="laws-stat-progress portugues-stat-ready"><div className="laws-stat-top"><span className="laws-stat-icon">01</span><span>MATERIAIS PRONTOS</span></div><strong>{snapshot ? readyCount + "/" + units.length : "—"}</strong><small>checkpoint editorial</small></article>
+        <article className="laws-stat-questions portugues-stat-units"><div className="laws-stat-top"><span className="laws-stat-icon">02</span><span>D0 CONCLUÍDO</span></div><strong>{operational ? completedUnits.length + "/" + units.length : "—"}</strong><small>execução real da esteira</small></article>
+        <article className="laws-stat-map portugues-stat-reviews"><div className="laws-stat-top"><span className="laws-stat-icon">03</span><span>QUESTÕES RESPONDIDAS</span></div><strong>{overallQuestions?.total ?? "—"}</strong><small>{overallQuestions?.total ? (overallQuestions.correct ?? 0) + " acertos · " + (overallQuestions.errors ?? 0) + " erros" : "sem evidência registrada"}</small></article>
+        <article className="laws-stat-source portugues-stat-source"><div className="laws-stat-top"><span className="laws-stat-icon">04</span><span>PRECISÃO</span></div><strong>{formatPercent(overallQuestions?.precision)}</strong><small>{overallQuestions?.sessions ? overallQuestions.sessions + " sessão(ões)" : "Notion → GitHub"}</small></article>
+      </section>
+
+      <section className="laws-panel portugues-method" id="execucao-real">
+        <div className="laws-heading"><div><p className="laws-kicker">EXECUÇÃO REAL</p><h2>{latestStudied ? latestStudied.code + " registrado no Notion" : "Ainda sem D0 concluído"}</h2><p>{latestStudied ? (latestLive?.state || "Estudado") + ". O site agora usa o mesmo estado operacional do Notion." : "Quando uma unidade receber D0, ela aparecerá aqui automaticamente."}</p></div><CheckCircle2 size={21} color="#5e54bd" /></div>
+        {latestStudied ? <div className="laws-status-strip portugues-stats" aria-label={"Desempenho de " + latestStudied.code}>
+          <article className="laws-stat-progress"><div className="laws-stat-top"><span className="laws-stat-icon">✓</span><span>UNIDADE</span></div><strong>{latestStudied.code}</strong><small>{latestLive?.state || "D0 concluído"}</small></article>
+          <article className="laws-stat-questions"><div className="laws-stat-top"><span className="laws-stat-icon">Q</span><span>QUESTÕES</span></div><strong>{latestQuestions?.total ?? "—"}</strong><small>{latestQuestions?.total ? (latestQuestions.correct ?? 0) + " acertos · " + (latestQuestions.errors ?? 0) + " erros" : "sem vínculo por unidade"}</small></article>
+          <article className="laws-stat-map"><div className="laws-stat-top"><span className="laws-stat-icon">%</span><span>PRECISÃO</span></div><strong>{formatPercent(latestQuestions?.precision)}</strong><small>{latestQuestions?.sessions ? latestQuestions.sessions + " sessão(ões)" : "resultado da unidade"}</small></article>
+          <article className="laws-stat-source"><div className="laws-stat-top"><span className="laws-stat-icon">↻</span><span>REVISÕES</span></div><strong>{latestLive?.d7 ? "D7 ✓" : "D7 pendente"}</strong><small>{latestLive?.d20 ? "D20 concluído" : "D20 pendente"}</small></article>
+        </div> : null}
+        {operationalError ? <div className="laws-error">O material editorial carregou, mas o snapshot operacional não respondeu. O Notion continua sendo a fonte de verdade até a próxima sincronização.</div> : null}
       </section>
 
       <section className="laws-panel portugues-method" id="metodo">
@@ -165,11 +241,15 @@ export default function PortuguesRlmPage() {
           {!snapshot && !error ? <div className="laws-loading">Carregando a esteira editorial…</div> : null}
           {snapshot && !filtered.length ? <div className="laws-empty">Nenhuma unidade corresponde aos filtros atuais.</div> : null}
           <div className="portugues-sequence-grid">
-            {filtered.map((unit) => <article className="portugues-unit-card" key={unit.code}>
-              <span className="portugues-order">{String(unit.canonical_order).padStart(2, "0")}</span>
-              <div className="portugues-unit-main"><div className="portugues-unit-topline"><strong>{unit.code}</strong><span>·</span><span>{trackShort(unit.track)}</span><span>·</span><span>{unit.block}</span><span className={`portugues-unit-badge ${unit.material_ready ? "is-ready" : ""}`}>{unit.material_ready ? "Material pronto" : "Em edição"}</span></div><h3>{unit.title}</h3><p>{unit.layer}{unit.priority ? ` · ${unit.priority}` : ""}</p></div>
-              <a className="portugues-unit-link" href={`./${unit.code.toLowerCase()}/`}>Abrir página <ExternalLink size={13} /></a>
-            </article>)}
+            {filtered.map((unit) => {
+              const live = liveByCode.get(unit.code);
+              const questionStats = questionsByCode.get(unit.code);
+              return <article className="portugues-unit-card" key={unit.code}>
+                <span className="portugues-order">{String(unit.canonical_order).padStart(2, "0")}</span>
+                <div className="portugues-unit-main"><div className="portugues-unit-topline"><strong>{unit.code}</strong><span>·</span><span>{trackShort(unit.track)}</span><span>·</span><span>{unit.block}</span><span className={"portugues-unit-badge " + (live?.d0 ? "is-ready" : "")}>{live?.d0 ? "D0 concluído" : (live?.state || (unit.material_ready ? "Material pronto" : "Em edição"))}</span></div><h3>{unit.title}</h3><p>{questionStats?.total ? questionStats.total + " questões · " + (questionStats.correct ?? 0) + " acertos · " + formatPercent(questionStats.precision) : unit.layer + (unit.priority ? " · " + unit.priority : "")}</p></div>
+                <a className="portugues-unit-link" href={"./" + unit.code.toLowerCase() + "/"}>Abrir página <ExternalLink size={13} /></a>
+              </article>;
+            })}
           </div>
         </div>
       </details>
