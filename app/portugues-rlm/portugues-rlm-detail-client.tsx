@@ -89,7 +89,7 @@ export default function PortuguesRlmDetailClient({ code }: { code: string }) {
   if (!snapshot || !unit) return <StatePage title="Carregando a unidade…" description="A página editorial está sendo buscada no snapshot publicado." />;
 
   return (
-    <main className="portugues-detail-page">
+    <main className="portugues-detail-page" data-content-state={unit.material_ready ? "published" : "editing"}>
       <header className="laws-topbar">
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Português + RLM</a>
         <div className="laws-topbar-tools"><ReadingSettings /><span className="laws-sync"><span className="laws-live-dot" /> {operationalMode === "live" ? "Notion · ao vivo" : operationalMode === "supabase" ? "Supabase · snapshot" : operationalMode === "fallback" ? "GitHub · backup" : "Sincronizando"}</span></div>
