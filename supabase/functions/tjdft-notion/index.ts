@@ -19,7 +19,7 @@ const CONTENTS_DATA_SOURCE_ID = "01da7685-5903-4a48-ae8e-987a7d35b447";
 const CARGOS_DATA_SOURCE_ID = "3014ed18-cb49-4de7-a2c6-9c3cd5ba5d12";
 const CACHE_TTL_MS = 60_000;
 const FORCE_REFRESH_COOLDOWN_MS = 15_000;
-const MAX_NOTION_CONCURRENCY = 4;
+const MAX_NOTION_CONCURRENCY = 3;
 
 const allowedOrigins = new Set([
   "https://rodrigorosadantas.github.io",
@@ -181,23 +181,58 @@ async function loadFallbackSnapshot(preferPublished = false) {
 }
 
 async function notionRequest(token: string, endpoint: string, init: RequestInit = {}) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
-  try {
-    const headers = new Headers(init.headers);
-    headers.set("Authorization", "Bearer " + token);
-    headers.set("Notion-Version", NOTION_VERSION);
-    headers.set("Content-Type", "application/json");
-    const response = await fetch(NOTION_API_BASE + endpoint, {
-      ...init,
-      headers,
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error("Notion API returned " + response.status);
-    return await response.json() as AnyRecord;
-  } finally {
-    clearTimeout(timeout);
+  const maxAttempts = 6;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+    let response: Response;
+    try {
+      const headers = new Headers(init.headers);
+      headers.set("Authorization", "Bearer " + token);
+      headers.set("Notion-Version", NOTION_VERSION);
+      headers.set("Content-Type", "application/json");
+      response = await fetch(NOTION_API_BASE + endpoint, {
+        ...init,
+        headers,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (response.ok) return await response.json() as AnyRecord;
+
+    const bodyText = await response.text();
+    let errorBody: AnyRecord | null = null;
+    try {
+      errorBody = JSON.parse(bodyText) as AnyRecord;
+    } catch {
+      // Corpo não JSON: a mensagem bruta será usada no erro final.
+    }
+
+    const rateLimitReason = String(errorBody?.additional_data?.rate_limit_reason || "");
+    const blocked = response.status === 429 && rateLimitReason === "public_api_request_blocked";
+    const retryable = (response.status === 429 || response.status === 529) && !blocked && attempt < maxAttempts - 1;
+
+    if (!retryable) {
+      throw new Error("Notion API returned " + response.status + ": " + bodyText.slice(0, 300));
+    }
+
+    const headerRetryAfter = Number(response.headers.get("retry-after"));
+    const bodyRetryAfter = Number(errorBody?.additional_data?.retry_after);
+    const retryAfterSeconds = Number.isFinite(headerRetryAfter) && headerRetryAfter >= 0
+      ? headerRetryAfter
+      : Number.isFinite(bodyRetryAfter) && bodyRetryAfter >= 0
+        ? bodyRetryAfter
+        : Math.min(2 ** attempt, 30);
+    const delayMs = retryAfterSeconds * 1000 + Math.floor(Math.random() * 250);
+    console.warn(
+      "Notion API " + response.status + " (" + (rateLimitReason || "rate_limit") +
+      "); tentativa " + (attempt + 1) + "/" + maxAttempts + " em " + delayMs + "ms.",
+    );
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
+  throw new Error("Notion API retry loop exhausted.");
 }
 
 type NotionRequest = (endpoint: string, init?: RequestInit) => Promise<AnyRecord>;
