@@ -23,13 +23,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: tjdft-notion-sync
+  group: tjdft-notion-sync-v2
   cancel-in-progress: true
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
