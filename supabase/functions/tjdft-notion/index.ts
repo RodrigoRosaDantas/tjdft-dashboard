@@ -24,7 +24,9 @@ const MAX_NOTION_CONCURRENCY = 4;
 const allowedOrigins = new Set([
   "https://rodrigorosadantas.github.io",
   "http://localhost:3000",
+  "http://127.0.0.1:3000",
   "http://localhost:4173",
+  "http://127.0.0.1:4173",
   "http://terminal.local:4173",
 ]);
 
@@ -778,6 +780,8 @@ function buildOperationalSnapshot(
       d0: propertyCheckbox(properties, "D0"),
       d7: propertyCheckbox(properties, "D7"),
       d20: propertyCheckbox(properties, "D20"),
+      last_execution: publicDate(propertyDate(properties, "Última execução")),
+      next_review: publicDate(propertyDate(properties, "Próxima revisão")),
     };
   }).filter(Boolean).sort((a, b) => (a?.order || 0) - (b?.order || 0)) as AnyRecord[];
 
