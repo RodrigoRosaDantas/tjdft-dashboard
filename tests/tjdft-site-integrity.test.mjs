@@ -186,6 +186,11 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(edgeFunction, /FORCE_REFRESH_COOLDOWN_MS/);
   assert.match(edgeFunction, /refreshPromise/);
   assert.match(edgeFunction, /buildSnapshot\(token\)/);
+  assert.match(edgeFunction, /MAX_NOTION_CONCURRENCY = 3/);
+  assert.match(edgeFunction, /response\.status === 429 \|\| response\.status === 529/);
+  assert.match(edgeFunction, /retry-after/);
+  assert.match(edgeFunction, /public_api_request_blocked/);
+  assert.match(edgeFunction, /Math\.random\(\) \* 250/);
   assert.match(edgeFunction, /Access-Control-Expose-Headers/);
   assert.match(edgeFunction, /http:\/\/127\.0\.0\.1:4173/);
   assert.match(edgeFunction, /last_execution: publicDate\(propertyDate\(properties, "Última execução"\)\)/);
