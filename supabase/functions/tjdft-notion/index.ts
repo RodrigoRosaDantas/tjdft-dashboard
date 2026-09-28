@@ -813,6 +813,13 @@ function buildOperationalSnapshot(
   );
   const activeActivity = activities.find((item) => /Em execução|Em andamento/i.test(item.state + " " + item.status)) || null;
 
+  const unitCodeById = new Map<string, string>();
+  for (const page of unitPages) {
+    const code = propertyText(page.properties || {}, "Código").toUpperCase();
+    const normalizedId = normalizePageId(page.id);
+    if (normalizedId && CANONICAL_TRAIL.includes(code)) unitCodeById.set(normalizedId, code);
+  }
+
   const answered = questionPages.map((page) => {
     const p = page.properties || {};
     const result = propertyText(p, "Resultado");
@@ -820,6 +827,13 @@ function buildOperationalSnapshot(
     const error = /erro|errada|incorreta/i.test(result);
     const annulled = /anulada/i.test(result);
     if (!correct && !error && !annulled) return null;
+    const relatedUnitIds = Array.isArray(p["Unidade PP/RLM"]?.relation)
+      ? p["Unidade PP/RLM"].relation.map((item: AnyRecord) => normalizePageId(item.id)).filter(Boolean)
+      : [];
+    const questionTitle = propertyText(p, "Questão");
+    const inferredCode = questionTitle.match(/\b(P\d{2}|RL\d{2}|REV\d{2})\b/i)?.[1]?.toUpperCase() || null;
+    const unitCode = relatedUnitIds.map((id: string) => unitCodeById.get(id)).find(Boolean) ||
+      (inferredCode && CANONICAL_TRAIL.includes(inferredCode) ? inferredCode : null);
     return {
       result,
       correct,
@@ -827,6 +841,7 @@ function buildOperationalSnapshot(
       annulled,
       doubt: propertyCheckbox(p, "Acerto com dúvida"),
       subject: canonicalSubject(propertyText(p, "Matéria")),
+      unit_code: unitCode,
       topic: propertyText(p, "Assunto") || null,
       cargo: propertyText(p, "Cargo-alvo") || null,
       answered_at: publicDate(propertyDate(p, "Data da resolução")),
@@ -846,9 +861,11 @@ function buildOperationalSnapshot(
 
   const bySubject = new Map<string, AnyRecord>();
   const byCargo = new Map<string, AnyRecord>();
+  const byUnit = new Map<string, AnyRecord>();
   const byDate = new Map<string, AnyRecord>();
   const bySubjectDates = new Map<string, Set<string>>();
   const byCargoDates = new Map<string, Set<string>>();
+  const byUnitDates = new Map<string, Set<string>>();
   const bySubjectDate = new Map<string, AnyRecord>();
   const byCargoDate = new Map<string, AnyRecord>();
   for (const q of answered) {
@@ -865,6 +882,7 @@ function buildOperationalSnapshot(
     };
     update(bySubject, q.subject);
     if (q.cargo) update(byCargo, q.cargo);
+    if (q.unit_code) update(byUnit, q.unit_code);
     if (q.answered_at) {
       const dateKey = q.answered_at.slice(0, 10);
       const dateRow = byDate.get(dateKey) || { key:dateKey, total:0, correct:0, errors:0, annulled:0 };
@@ -891,6 +909,10 @@ function buildOperationalSnapshot(
       }
       if (!bySubjectDates.has(q.subject)) bySubjectDates.set(q.subject, new Set<string>());
       bySubjectDates.get(q.subject)?.add(dateKey);
+      if (q.unit_code) {
+        if (!byUnitDates.has(q.unit_code)) byUnitDates.set(q.unit_code, new Set<string>());
+        byUnitDates.get(q.unit_code)?.add(dateKey);
+      }
       if (q.cargo) {
         if (!byCargoDates.has(q.cargo)) byCargoDates.set(q.cargo, new Set<string>());
         byCargoDates.get(q.cargo)?.add(dateKey);
@@ -1059,6 +1081,16 @@ function buildOperationalSnapshot(
         sessions: byCargoDates.get(row.key)?.size ?? 0,
         precision: row.precision,
       })).sort((a: AnyRecord, b: AnyRecord) => (Number(b.total) || 0) - (Number(a.total) || 0)),
+      by_unit: Array.from(byUnit.values()).map((row: AnyRecord): AnyRecord => ({
+        code: row.key,
+        total: row.total,
+        correct: row.correct,
+        errors: row.errors,
+        doubts: row.known_doubts ? row.doubts : null,
+        annulled: row.annulled,
+        sessions: byUnitDates.get(row.key)?.size ?? 0,
+        precision: row.precision,
+      })).sort((a: AnyRecord, b: AnyRecord) => CANONICAL_TRAIL.indexOf(a.code) - CANONICAL_TRAIL.indexOf(b.code)),
       by_date: Array.from(byDate.values()).map((row) => ({
         date: row.key,
         total: row.total,
