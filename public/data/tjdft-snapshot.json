@@ -6,8 +6,8 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-28T19:40:18.962Z",
-    "content_hash": "9679cb80b658a32c7cc2bae5007ba87baa590d9fecaeba3fa25bb69fdec3b63b",
+    "synced_at": "2026-09-28T20:21:16.274Z",
+    "content_hash": "bc76adcba9cd7305aade1eb4cacdd6e45397e194d6b9cc775a9e6b4e47333677",
     "status": "partial",
     "component_sources": {
       "materials": "mixed",
@@ -16,8 +16,8 @@
     },
     "component_synced_at": {
       "materials": "2026-09-25T03:06:49.890Z",
-      "execution": "2026-09-28T19:40:18.962Z",
-      "operational": "2026-09-28T19:40:18.962Z"
+      "execution": "2026-09-28T20:21:16.274Z",
+      "operational": "2026-09-28T20:21:16.274Z"
     }
   },
   "dashboard": {
@@ -399,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-28T19:40:18.956Z",
+    "as_of": "2026-09-28T20:21:16.259Z",
     "c01": {
       "days": [
         {
@@ -756,21 +756,22 @@
       "sequence_valid": true,
       "total": 37,
       "status_counts": {
-        "Não estudado": 37
+        "Em consolidação": 1,
+        "Não estudado": 36
       },
       "material_ready": 37,
       "checkpoints": {
-        "d0": 0,
+        "d0": 1,
         "d7": 0,
         "d20": 0
       },
       "next": {
-        "code": "P01",
-        "title": "P01 — Classes gramaticais e função morfossintática",
-        "order": 1,
+        "code": "P02",
+        "title": "P02 — Morfologia: formação, flexão nominal e verbal, tempos e modos",
+        "order": 2,
         "track": "Português Primeiro",
         "block": "B1",
-        "priority": "Muito alta",
+        "priority": "Alta",
         "state": "Não estudado",
         "material_ready": true,
         "d0": false,
@@ -785,9 +786,9 @@
           "track": "Português Primeiro",
           "block": "B1",
           "priority": "Muito alta",
-          "state": "Não estudado",
+          "state": "Em consolidação",
           "material_ready": true,
-          "d0": false,
+          "d0": true,
           "d7": false,
           "d20": false
         },
@@ -1342,22 +1343,10 @@
       ]
     },
     "continuity": {
-      "active": {
-        "type": "Questões",
-        "activity": "P01 — QUEST — Classes gramaticais e função morfossintática",
-        "day": null,
-        "state": "Em andamento",
-        "status": "Em execução",
-        "subject": "Língua Portuguesa",
-        "date": "2026-09-28T00:00:00.000Z",
-        "planned_date": null,
-        "minutes": null,
-        "questions": null,
-        "next_action": "Responder a bateria principal de 33 itens da P01."
-      },
+      "active": null,
       "activities_with_evidence": 1,
       "minutes": null,
-      "questions": null
+      "questions": 33
     },
     "questions": {
       "total": 33,
@@ -1431,70 +1420,70 @@
       ],
       "top": [
         {
-          "state": "Aberto",
-          "subject": "Língua Portuguesa",
-          "topic": "Advérbios invariáveis: muito, meio e bastante",
-          "pattern": "Conceito",
-          "causes": "Lacuna conceitual",
-          "severity": "Alta",
-          "recurrence": 0,
-          "review_at": null,
-          "review_kind": "Consolidação",
-          "action": "Identificar o alvo: se muito/meio/bastante intensifica verbo, adjetivo ou advérbio, funciona como advérbio e fica invariável; diante de substantivo, investigar emprego variável.",
-          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
-          "occurred_at": "2026-09-28T00:00:00.000Z"
-        },
-        {
-          "state": "Aberto",
-          "subject": "Língua Portuguesa",
-          "topic": "Substantivação",
-          "pattern": "Conceito",
-          "causes": "Lacuna conceitual",
-          "severity": "Alta",
-          "recurrence": 0,
-          "review_at": null,
-          "review_kind": "Consolidação",
-          "action": "Verificar se a forma passa a funcionar como núcleo nominal. Artigo/determinante é indício forte, mas a classificação depende da função efetiva no contexto.",
-          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
-          "occurred_at": "2026-09-28T00:00:00.000Z"
-        },
-        {
-          "state": "Aberto",
-          "subject": "Língua Portuguesa",
-          "topic": "Classe gramatical × função sintática",
-          "pattern": "Conceito",
-          "causes": "Lacuna conceitual",
-          "severity": "Alta",
-          "recurrence": 0,
-          "review_at": null,
-          "review_kind": "Consolidação",
-          "action": "Separar os planos: substantivo/adjetivo/pronome etc. = classe; sujeito/objeto/adjunto/predicativo etc. = função sintática; valor semântico = sentido produzido.",
-          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
-          "occurred_at": "2026-09-28T00:00:00.000Z"
-        },
-        {
-          "state": "Aberto",
+          "state": "Em revisão",
           "subject": "Língua Portuguesa",
           "topic": "Só: advérbio × adjetivo",
-          "pattern": "Conceito",
-          "causes": "Lacuna conceitual",
-          "severity": "Média",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
           "recurrence": 0,
-          "review_at": null,
+          "review_at": "2026-10-05T00:00:00.000Z",
           "review_kind": "Consolidação",
           "action": "Fixar: só = somente → advérbio invariável; sós = sozinhos → adjetivo, com concordância.",
           "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
           "occurred_at": "2026-09-28T00:00:00.000Z"
         },
         {
-          "state": "Aberto",
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Advérbios invariáveis: muito, meio e bastante",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-05T00:00:00.000Z",
+          "review_kind": "Consolidação",
+          "action": "Identificar o alvo: se muito/meio/bastante intensifica verbo, adjetivo ou advérbio, funciona como advérbio e fica invariável; diante de substantivo, investigar emprego variável.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Substantivação",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-05T00:00:00.000Z",
+          "review_kind": "Consolidação",
+          "action": "Verificar se a forma passa a funcionar como núcleo nominal. Artigo/determinante é indício forte, mas a classificação depende da função efetiva no contexto.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Classe gramatical × função sintática",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-05T00:00:00.000Z",
+          "review_kind": "Consolidação",
+          "action": "Separar os planos: substantivo/adjetivo/pronome etc. = classe; sujeito/objeto/adjunto/predicativo etc. = função sintática; valor semântico = sentido produzido.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
           "subject": "Língua Portuguesa",
           "topic": "Pronome relativo × conjunção integrante",
-          "pattern": "Conceito",
-          "causes": "Lacuna conceitual",
-          "severity": "Média",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
           "recurrence": 0,
-          "review_at": null,
+          "review_at": "2026-10-05T00:00:00.000Z",
           "review_kind": "Consolidação",
           "action": "Buscar antecedente nominal. Se 'que' retoma termo anterior e admite 'o qual/a qual', é pronome relativo; se apenas introduz conteúdo, é conjunção integrante.",
           "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
@@ -1503,7 +1492,99 @@
       ]
     },
     "reviews": {
-      "dated": [],
+      "dated": [
+        {
+          "type": "QUESTÃO",
+          "title": "Substantivação",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Pronome relativo",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Bastante como advérbio invariável",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Meio como advérbio invariável",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Substantivação",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Só: advérbio × adjetivo",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Muito como advérbio invariável",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Classe gramatical × função sintática",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "ERRO",
+          "title": "Só: advérbio × adjetivo",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Consolidação"
+        },
+        {
+          "type": "ERRO",
+          "title": "Advérbios invariáveis: muito, meio e bastante",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Consolidação"
+        },
+        {
+          "type": "ERRO",
+          "title": "Substantivação",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Consolidação"
+        },
+        {
+          "type": "ERRO",
+          "title": "Classe gramatical × função sintática",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Consolidação"
+        },
+        {
+          "type": "ERRO",
+          "title": "Pronome relativo × conjunção integrante",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-05T00:00:00.000Z",
+          "origin": "Consolidação"
+        }
+      ],
       "formal": [
         {
           "code": "REV01",
