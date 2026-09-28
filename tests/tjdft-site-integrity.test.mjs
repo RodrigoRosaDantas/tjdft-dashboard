@@ -131,6 +131,9 @@ test("o exportador mantém desconhecidos como null e não duplica séries tempor
   assert.match(edge, /total: answered\.length \? answered\.length : null/);
   assert.match(edge, /invalidDayTimes = dayPages\.map\(parseExecutionDay\)/);
   assert.match(edge, /buildOperationalSnapshot\(unitPages, activityPages, dayPages, questionPages/);
+  assert.match(edge, /Unidade PP\/RLM/);
+  assert.match(edge, /unit_code: unitCode/);
+  assert.match(edge, /by_unit: Array\.from\(byUnit\.values\(\)\)/);
   assert.match(edge, /unclassified_errors: unclassifiedErrors/);
   assert.match(edge, /missing_trail_orders: missingTrailOrders/);
   assert.match(edge, /executed_questions: execution\?\.c01\?\.totals\?\.done \?\? null/);
@@ -204,12 +207,20 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
 });
 
 test("mantém a trilha Português + RLM legível no celular", async () => {
-  const [page, styles] = await Promise.all([
+  const [page, detail, styles] = await Promise.all([
     read("app/portugues-rlm/page.tsx"),
+    read("app/portugues-rlm/portugues-rlm-detail-client.tsx"),
     read("app/portugues-rlm/portugues-rlm.css"),
   ]);
   assert.match(page, /portugues-sync-source/);
   assert.match(page, /portugues-sync-short/);
+  assert.match(page, /tjdft-snapshot\.json/);
+  assert.match(page, /operationalNextCode/);
+  assert.match(page, /questionsByCode/);
+  assert.match(page, /D0 CONCLUÍDO/);
+  assert.match(detail, /tjdft-snapshot\.json/);
+  assert.match(detail, /questionStats/);
+  assert.match(detail, /D0 concluído/);
   assert.match(page, /className="laws-panel portugues-method"/);
   assert.match(page, /portugues-method-step/);
   assert.match(styles, /portugues-page \.laws-sync/);
