@@ -81,10 +81,6 @@ function trackShort(track: Unit["track"]) {
   return "Revisão";
 }
 
-function isStudyUnit(unit: Unit) {
-  return unit.track !== "Revisão integrada";
-}
-
 function formatPercent(value: number | null | undefined) {
   if (value == null || !Number.isFinite(value)) return "—";
   return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(value);
@@ -155,8 +151,6 @@ export default function PortuguesRlmPage() {
     });
   }, [block, query, track, units]);
   const readyCount = units.filter((unit) => unit.material_ready).length;
-  const studyCount = units.filter(isStudyUnit).length;
-  const reviewCount = units.filter((unit) => unit.track === "Revisão integrada").length;
   const flowPreview = units.slice(0, 5);
   const nextLive = nextUnit ? liveByCode.get(nextUnit.code) : null;
   const nextQuestions = nextUnit ? questionsByCode.get(nextUnit.code) : null;
