@@ -200,6 +200,8 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(syncRunner, /component_synced_at/);
   assert.doesNotMatch(syncRunner, /existing\?\.source\?\.content_hash === snapshot\.source\.content_hash/);
   assert.match(workflow, /cron: "\*\/15 \* \* \* \*"/);
+  assert.match(workflow, /group: tjdft-notion-sync-v2/);
+  assert.match(workflow, /cancel-in-progress: false/);
   assert.match(workflow, /git pull --rebase origin main/);
   assert.doesNotMatch(workflow, /app\/leis\/\*\*/);
   assert.match(backendWorkflow, /TJDFT_NOTION_TOKEN: \$\{\{ secrets\.TJDFT_NOTION_TOKEN \}\}/);
