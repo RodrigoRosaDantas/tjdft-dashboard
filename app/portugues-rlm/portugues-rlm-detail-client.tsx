@@ -92,7 +92,7 @@ export default function PortuguesRlmDetailClient({ code }: { code: string }) {
     <main className="portugues-detail-page">
       <header className="laws-topbar">
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Português + RLM</a>
-        <div className="laws-topbar-tools"><ReadingSettings /><span className="laws-sync"><span className="laws-live-dot" /> {operationalMode === "live" ? "Notion · ao vivo" : operationalMode === "fallback" ? "GitHub · backup" : "Sincronizando"}</span></div>
+        <div className="laws-topbar-tools"><ReadingSettings /><span className="laws-sync"><span className="laws-live-dot" /> {operationalMode === "live" ? "Notion · ao vivo" : operationalMode === "supabase" ? "Supabase · snapshot" : operationalMode === "fallback" ? "GitHub · backup" : "Sincronizando"}</span></div>
       </header>
 
       <section className="portugues-detail-hero">
