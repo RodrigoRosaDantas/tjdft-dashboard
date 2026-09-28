@@ -174,8 +174,9 @@ test("Visual QA e E2E esperam os snapshots das listas antes de inspecionar links
 });
 
 test("mantém a sincronização viva com fallback e publicação controlada", async () => {
-  const [edgeFunction, workflow, backendWorkflow, panel, dashboard, editalExport] = await Promise.all([
+  const [edgeFunction, syncRunner, workflow, backendWorkflow, panel, dashboard, editalExport] = await Promise.all([
     read("supabase/functions/tjdft-notion/index.ts"),
+    read("supabase/functions/tjdft-notion/sync.ts"),
     read(".github/workflows/sync-notion.yml"),
     read(".github/workflows/deploy-supabase.yml"),
     read("app/sync-workflow-panel.tsx"),
@@ -187,6 +188,9 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(edgeFunction, /buildSnapshot\(token\)/);
   assert.match(edgeFunction, /Access-Control-Expose-Headers/);
   assert.doesNotMatch(edgeFunction, /github->supabase/);
+  assert.match(syncRunner, /stableSnapshotFingerprint/);
+  assert.match(syncRunner, /component_synced_at/);
+  assert.doesNotMatch(syncRunner, /existing\?\.source\?\.content_hash === snapshot\.source\.content_hash/);
   assert.match(workflow, /cron: "\*\/15 \* \* \* \*"/);
   assert.match(workflow, /git pull --rebase origin main/);
   assert.doesNotMatch(workflow, /app\/leis\/\*\*/);
