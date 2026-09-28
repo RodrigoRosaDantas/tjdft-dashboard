@@ -6,8 +6,8 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-25T05:46:15.226Z",
-    "content_hash": "996c7f3235cd9ca4fea2716fed414428f0c0a8ba8d687dd02bf38b127d4ac176",
+    "synced_at": "2026-09-28T19:40:18.962Z",
+    "content_hash": "9679cb80b658a32c7cc2bae5007ba87baa590d9fecaeba3fa25bb69fdec3b63b",
     "status": "partial",
     "component_sources": {
       "materials": "mixed",
@@ -16,8 +16,8 @@
     },
     "component_synced_at": {
       "materials": "2026-09-25T03:06:49.890Z",
-      "execution": "2026-09-25T05:46:15.226Z",
-      "operational": "2026-09-25T05:46:15.226Z"
+      "execution": "2026-09-28T19:40:18.962Z",
+      "operational": "2026-09-28T19:40:18.962Z"
     }
   },
   "dashboard": {
@@ -399,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-25T05:46:15.223Z",
+    "as_of": "2026-09-28T19:40:18.956Z",
     "c01": {
       "days": [
         {
@@ -732,8 +732,8 @@
         "Planejado": 13
       },
       "active_day": "D01",
-      "error_count": null,
-      "error_records_present": false,
+      "error_count": 5,
+      "error_records_present": true,
       "question_rows": 0,
       "questions": {
         "total": null,
@@ -1342,29 +1342,165 @@
       ]
     },
     "continuity": {
-      "active": null,
-      "activities_with_evidence": 0,
+      "active": {
+        "type": "Questões",
+        "activity": "P01 — QUEST — Classes gramaticais e função morfossintática",
+        "day": null,
+        "state": "Em andamento",
+        "status": "Em execução",
+        "subject": "Língua Portuguesa",
+        "date": "2026-09-28T00:00:00.000Z",
+        "planned_date": null,
+        "minutes": null,
+        "questions": null,
+        "next_action": "Responder a bateria principal de 33 itens da P01."
+      },
+      "activities_with_evidence": 1,
       "minutes": null,
       "questions": null
     },
     "questions": {
-      "total": null,
-      "correct": null,
-      "errors": null,
-      "doubts": null,
-      "annulled": null,
-      "precision": null,
-      "by_subject": [],
-      "by_cargo": [],
-      "by_date": [],
-      "by_subject_date": [],
-      "by_cargo_date": []
+      "total": 33,
+      "correct": 25,
+      "errors": 8,
+      "doubts": 0,
+      "annulled": 0,
+      "precision": 0.7575757575757576,
+      "by_subject": [
+        {
+          "subject": "Língua Portuguesa",
+          "total": 33,
+          "correct": 25,
+          "errors": 8,
+          "doubts": 0,
+          "annulled": 0,
+          "sessions": 1,
+          "precision": 0.7575757575757576
+        }
+      ],
+      "by_cargo": [
+        {
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "total": 33,
+          "correct": 25,
+          "errors": 8,
+          "doubts": 0,
+          "annulled": 0,
+          "sessions": 1,
+          "precision": 0.7575757575757576
+        }
+      ],
+      "by_date": [
+        {
+          "date": "2026-09-28",
+          "total": 33,
+          "correct": 25,
+          "errors": 8,
+          "annulled": 0
+        }
+      ],
+      "by_subject_date": [
+        {
+          "subject": "Língua Portuguesa",
+          "date": "2026-09-28",
+          "total": 33,
+          "correct": 25,
+          "errors": 8,
+          "annulled": 0
+        }
+      ],
+      "by_cargo_date": [
+        {
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "date": "2026-09-28",
+          "total": 33,
+          "correct": 25,
+          "errors": 8,
+          "annulled": 0
+        }
+      ]
     },
     "errors": {
-      "records_present": false,
-      "active_count": null,
-      "by_subject": [],
-      "top": []
+      "records_present": true,
+      "active_count": 5,
+      "by_subject": [
+        {
+          "subject": "Língua Portuguesa",
+          "count": 5
+        }
+      ],
+      "top": [
+        {
+          "state": "Aberto",
+          "subject": "Língua Portuguesa",
+          "topic": "Advérbios invariáveis: muito, meio e bastante",
+          "pattern": "Conceito",
+          "causes": "Lacuna conceitual",
+          "severity": "Alta",
+          "recurrence": 0,
+          "review_at": null,
+          "review_kind": "Consolidação",
+          "action": "Identificar o alvo: se muito/meio/bastante intensifica verbo, adjetivo ou advérbio, funciona como advérbio e fica invariável; diante de substantivo, investigar emprego variável.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        },
+        {
+          "state": "Aberto",
+          "subject": "Língua Portuguesa",
+          "topic": "Substantivação",
+          "pattern": "Conceito",
+          "causes": "Lacuna conceitual",
+          "severity": "Alta",
+          "recurrence": 0,
+          "review_at": null,
+          "review_kind": "Consolidação",
+          "action": "Verificar se a forma passa a funcionar como núcleo nominal. Artigo/determinante é indício forte, mas a classificação depende da função efetiva no contexto.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        },
+        {
+          "state": "Aberto",
+          "subject": "Língua Portuguesa",
+          "topic": "Classe gramatical × função sintática",
+          "pattern": "Conceito",
+          "causes": "Lacuna conceitual",
+          "severity": "Alta",
+          "recurrence": 0,
+          "review_at": null,
+          "review_kind": "Consolidação",
+          "action": "Separar os planos: substantivo/adjetivo/pronome etc. = classe; sujeito/objeto/adjunto/predicativo etc. = função sintática; valor semântico = sentido produzido.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        },
+        {
+          "state": "Aberto",
+          "subject": "Língua Portuguesa",
+          "topic": "Só: advérbio × adjetivo",
+          "pattern": "Conceito",
+          "causes": "Lacuna conceitual",
+          "severity": "Média",
+          "recurrence": 0,
+          "review_at": null,
+          "review_kind": "Consolidação",
+          "action": "Fixar: só = somente → advérbio invariável; sós = sozinhos → adjetivo, com concordância.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        },
+        {
+          "state": "Aberto",
+          "subject": "Língua Portuguesa",
+          "topic": "Pronome relativo × conjunção integrante",
+          "pattern": "Conceito",
+          "causes": "Lacuna conceitual",
+          "severity": "Média",
+          "recurrence": 0,
+          "review_at": null,
+          "review_kind": "Consolidação",
+          "action": "Buscar antecedente nominal. Se 'que' retoma termo anterior e admite 'o qual/a qual', é pronome relativo; se apenas introduz conteúdo, é conjunção integrante.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "occurred_at": "2026-09-28T00:00:00.000Z"
+        }
+      ]
     },
     "reviews": {
       "dated": [],
@@ -1414,8 +1550,8 @@
         "available": null,
         "mapped": 0,
         "studied": 0,
-        "evidence": null,
-        "practiced_questions": null,
+        "evidence": 1,
+        "practiced_questions": 33,
         "consolidated": 0,
         "subjects": [
           "Administração Pública; gestão de pessoas; orçamento público",
@@ -1438,8 +1574,8 @@
         "available": null,
         "mapped": 0,
         "studied": 0,
-        "evidence": null,
-        "practiced_questions": null,
+        "evidence": 1,
+        "practiced_questions": 33,
         "consolidated": 0,
         "subjects": [
           "Administração geral; comportamento organizacional",
