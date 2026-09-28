@@ -56,6 +56,43 @@ function liveMode(value: unknown): OperationalSnapshotMode {
   return sourceInfo(value)?.component_sources?.operational === "notion" ? "live" : "supabase";
 }
 
+function operationalProgress(value: unknown) {
+  const operational = (value as {
+    operational?: {
+      trail?: {
+        checkpoints?: { d0?: number; d7?: number; d20?: number };
+        items?: Array<{ d0?: boolean; d7?: boolean; d20?: boolean; last_execution?: string | null }>;
+      };
+      questions?: { total?: number | null };
+    };
+  } | null)?.operational;
+  const items = operational?.trail?.items || [];
+  const count = (key: "d0" | "d7" | "d20") =>
+    Number(operational?.trail?.checkpoints?.[key]) ||
+    items.filter((item) => item[key] === true).length;
+  const latestExecution = items.reduce((latest, item) => {
+    const parsed = Date.parse(item.last_execution || "");
+    return Number.isFinite(parsed) ? Math.max(latest, parsed) : latest;
+  }, 0);
+  return {
+    questions: Math.max(0, Number(operational?.questions?.total) || 0),
+    d0: count("d0"),
+    d7: count("d7"),
+    d20: count("d20"),
+    latestExecution,
+  };
+}
+
+function regressesAgainst(candidate: unknown, baseline: unknown) {
+  const current = operationalProgress(candidate);
+  const previous = operationalProgress(baseline);
+  return current.questions < previous.questions ||
+    current.d0 < previous.d0 ||
+    current.d7 < previous.d7 ||
+    current.d20 < previous.d20 ||
+    current.latestExecution < previous.latestExecution;
+}
+
 export async function loadOperationalSnapshot<T>(fallbackUrl: string): Promise<SnapshotResult<T>> {
   const livePromise = readJson<T>(LIVE_NOTION_API_URL + "?refresh=1", {
     headers: {
@@ -69,6 +106,12 @@ export async function loadOperationalSnapshot<T>(fallbackUrl: string): Promise<S
   const [live, fallback] = await Promise.allSettled([livePromise, fallbackPromise]);
 
   if (live.status === "fulfilled" && fallback.status === "fulfilled") {
+    if (regressesAgainst(live.value.snapshot, fallback.value.snapshot)) {
+      return { ...fallback.value, mode: "fallback" };
+    }
+    if (regressesAgainst(fallback.value.snapshot, live.value.snapshot)) {
+      return { ...live.value, mode: liveMode(live.value.snapshot) };
+    }
     if (syncedAt(fallback.value.snapshot) > syncedAt(live.value.snapshot)) {
       return { ...fallback.value, mode: "fallback" };
     }
