@@ -58,13 +58,37 @@ jobs:
       - name: Validar IDs das páginas e bancos Notion
         run: node scripts/validate-tjdft-notion-ids.mjs
 
-      - name: Gerar snapshots a partir do Notion privado
-        run: |
-          deno run --allow-net --allow-env --allow-read --allow-write supabase/functions/tjdft-notion/sync.ts
-          deno run --allow-net --allow-env --allow-read --allow-write scripts/export-edital-verticalizado.ts
-          node scripts/sync-leis-primeiro.mjs
-          node scripts/sync-portugues-rlm.mjs
-          node scripts/sync-legislation-bank.mjs
+      - name: Gerar snapshot operacional TJDFT
+        timeout-minutes: 10
+        run: deno run --allow-net --allow-env --allow-read --allow-write supabase/functions/tjdft-notion/sync.ts
+        env:
+          TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
+          NOTION_VERSION: "2026-03-11"
+
+      - name: Exportar edital verticalizado
+        timeout-minutes: 4
+        run: deno run --allow-net --allow-env --allow-read --allow-write scripts/export-edital-verticalizado.ts
+        env:
+          TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
+          NOTION_VERSION: "2026-03-11"
+
+      - name: Sincronizar Leis Primeiro
+        timeout-minutes: 4
+        run: node scripts/sync-leis-primeiro.mjs
+        env:
+          TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
+          NOTION_VERSION: "2026-03-11"
+
+      - name: Sincronizar Português + RLM
+        timeout-minutes: 4
+        run: node scripts/sync-portugues-rlm.mjs
+        env:
+          TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
+          NOTION_VERSION: "2026-03-11"
+
+      - name: Sincronizar banco legislativo
+        timeout-minutes: 4
+        run: node scripts/sync-legislation-bank.mjs
         env:
           TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
           NOTION_VERSION: "2026-03-11"
