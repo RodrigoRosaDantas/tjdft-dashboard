@@ -221,6 +221,8 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(workflow, /Gerar snapshot operacional TJDFT/);
   assert.match(workflow, /Exportar edital verticalizado/);
   assert.match(workflow, /timeout-minutes: 10/);
+  assert.match(workflow, /Sincronizar Leis Primeiro[\s\S]*timeout-minutes: 6/);
+  assert.match(workflow, /Sincronizar Português \+ RLM[\s\S]*timeout-minutes: 8/);
   assert.match(workflow, /deno run --allow-net --allow-env --allow-read --allow-write scripts\/export-edital-verticalizado\.ts/);
 });
 
