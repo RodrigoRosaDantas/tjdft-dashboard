@@ -2,6 +2,7 @@ name: Sincronizar snapshot TJDFT
 
 on:
   # Mantém o disparo manual disponível para atualizações editoriais do Notion.
+  # Último disparo solicitado pelo ChatGPT: 2026-09-28 17:19 BRT.
   workflow_dispatch:
   push:
     branches: [main]
