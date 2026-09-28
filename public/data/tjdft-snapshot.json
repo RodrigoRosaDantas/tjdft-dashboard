@@ -6,7 +6,7 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-28T20:21:16.274Z",
+    "synced_at": "2026-09-28T21:07:09.579Z",
     "content_hash": "bc76adcba9cd7305aade1eb4cacdd6e45397e194d6b9cc775a9e6b4e47333677",
     "status": "partial",
     "component_sources": {
@@ -16,8 +16,8 @@
     },
     "component_synced_at": {
       "materials": "2026-09-25T03:06:49.890Z",
-      "execution": "2026-09-28T20:21:16.274Z",
-      "operational": "2026-09-28T20:21:16.274Z"
+      "execution": "2026-09-28T21:07:09.579Z",
+      "operational": "2026-09-28T21:07:09.579Z"
     }
   },
   "dashboard": {
@@ -399,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-28T20:21:16.259Z",
+    "as_of": "2026-09-28T21:07:09.568Z",
     "c01": {
       "days": [
         {
@@ -1370,6 +1370,18 @@
       "by_cargo": [
         {
           "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
+          "total": 33,
+          "correct": 25,
+          "errors": 8,
+          "doubts": 0,
+          "annulled": 0,
+          "sessions": 1,
+          "precision": 0.7575757575757576
+        }
+      ],
+      "by_unit": [
+        {
+          "code": "P01",
           "total": 33,
           "correct": 25,
           "errors": 8,
