@@ -16,7 +16,9 @@ function propValue(prop:any):any{
   if(prop.type==='checkbox'||Object.prototype.hasOwnProperty.call(prop,'checkbox'))return Boolean(prop.checkbox);
   return '';
 }
-async function request(cursor:string|null=null){
+const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
+
+async function request(cursor:string|null=null,attempt=0){
   const body:any={page_size:100};
   if(cursor)body.start_cursor=cursor;
   const response=await fetch(`https://api.notion.com/v1/data_sources/${dataSourceId}/query`,{
@@ -24,8 +26,24 @@ async function request(cursor:string|null=null){
     headers:{Authorization:`Bearer ${token}`,'Notion-Version':apiVersion,'Content-Type':'application/json'},
     body:JSON.stringify(body)
   });
-  if(!response.ok)throw new Error(`Notion ${response.status}: ${(await response.text()).slice(0,300)}`);
-  return response.json();
+  const responseText=await response.text();
+  if((response.status===429||response.status>=500)&&attempt<6){
+    let retryAfter=Number(response.headers.get('retry-after')||0);
+    if(!retryAfter){
+      try{
+        const parsed=JSON.parse(responseText);
+        retryAfter=Number(parsed?.additional_data?.retry_after||0);
+      }catch{/* resposta não JSON */}
+    }
+    const delayMs=retryAfter>0
+      ? Math.max(500,retryAfter*1000)
+      : Math.min(1000*(2**attempt),10000);
+    console.warn(`Notion ${response.status}; nova tentativa ${attempt+1}/6 em ${delayMs}ms.`);
+    await sleep(delayMs);
+    return request(cursor,attempt+1);
+  }
+  if(!response.ok)throw new Error(`Notion ${response.status}: ${responseText.slice(0,300)}`);
+  return JSON.parse(responseText);
 }
 
 let cursor:string|null=null;
