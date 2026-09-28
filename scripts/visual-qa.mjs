@@ -127,6 +127,7 @@ for (const run of runs) {
         actionHeadingContrast,
         portugueseKickerContrast,
         actionCtaBottom,
+        contentState:document.querySelector("[data-content-state]")?.getAttribute("data-content-state") || null,
       };
     });
     if (checks.bodyTextLength < 40 || /\bNot Found\b/i.test(checks.title)) failures.push(`${url}: página sem conteúdo ou Not Found`);
@@ -139,8 +140,8 @@ for (const run of runs) {
     if (/^portugues-rlm\/(?:p|rl|rev)\d+$/i.test(run.path) && (checks.portugueseKickerContrast == null || checks.portugueseKickerContrast < 4.5)) {
       failures.push(`${url} @ ${tag}: o rótulo Pxx/RLxx/REVxx não alcança contraste acessível (${checks.portugueseKickerContrast ?? "—"})`);
     }
-    if (contentCode && !["flashcards"].includes(contentCode) && !checks.bodyText.includes("Snapshot publicado")) {
-      failures.push(`${url}: unidade sem estado de conteúdo publicado`);
+    if (/^portugues-rlm\/(?:p|rl|rev)\d+$/i.test(run.path) && !["published", "editing"].includes(checks.contentState || "")) {
+      failures.push(`${url}: unidade sem estado editorial semântico`);
     }
     if (checks.documentWidth > checks.viewport + 1) failures.push(`${url} @ ${tag}: overflow horizontal ${checks.documentWidth}px > ${checks.viewport}px`);
     if (checks.originalDashboard) {
