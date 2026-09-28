@@ -33,18 +33,33 @@ async function readJson<T>(url: string, options: RequestInit = {}) {
   }
 }
 
+function syncedAt(value: unknown) {
+  if (!value || typeof value !== "object") return 0;
+  const source = (value as { source?: { synced_at?: string | null; last_edited_time?: string | null } }).source;
+  const raw = source?.synced_at || source?.last_edited_time || "";
+  const parsed = Date.parse(raw);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export async function loadOperationalSnapshot<T>(fallbackUrl: string): Promise<SnapshotResult<T>> {
-  try {
-    const live = await readJson<T>(LIVE_NOTION_API_URL + "?refresh=1", {
-      headers: {
-        Accept: "application/json",
-        apikey: LIVE_NOTION_API_KEY,
-        Authorization: "Bearer " + LIVE_NOTION_API_KEY,
-      },
-    });
-    return { ...live, mode: "live" };
-  } catch {
-    const fallback = await readJson<T>(fallbackUrl);
-    return { ...fallback, mode: "fallback" };
+  const livePromise = readJson<T>(LIVE_NOTION_API_URL + "?refresh=1", {
+    headers: {
+      Accept: "application/json",
+      apikey: LIVE_NOTION_API_KEY,
+      Authorization: "Bearer " + LIVE_NOTION_API_KEY,
+    },
+  });
+  const fallbackPromise = readJson<T>(fallbackUrl);
+
+  const [live, fallback] = await Promise.allSettled([livePromise, fallbackPromise]);
+
+  if (live.status === "fulfilled" && fallback.status === "fulfilled") {
+    if (syncedAt(fallback.value.snapshot) > syncedAt(live.value.snapshot)) {
+      return { ...fallback.value, mode: "fallback" };
+    }
+    return { ...live.value, mode: "live" };
   }
+  if (live.status === "fulfilled") return { ...live.value, mode: "live" };
+  if (fallback.status === "fulfilled") return { ...fallback.value, mode: "fallback" };
+  throw new Error("snapshot operacional indisponível nas fontes live e fallback");
 }
