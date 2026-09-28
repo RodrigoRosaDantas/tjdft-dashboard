@@ -232,6 +232,8 @@ test("mantém a trilha Português + RLM legível no celular", async () => {
   assert.match(detail, /D0 concluído/);
   assert.match(liveReader, /functions\/v1\/tjdft-notion/);
   assert.match(liveReader, /refresh=1/);
+  assert.match(liveReader, /Promise\.allSettled/);
+  assert.match(liveReader, /syncedAt\(fallback\.value\.snapshot\) > syncedAt\(live\.value\.snapshot\)/);
   assert.match(liveReader, /mode: "fallback"/);
   assert.match(liveReader, /SNAPSHOT_REQUEST_TIMEOUT_MS/);
   assert.match(page, /className="laws-panel portugues-method"/);
