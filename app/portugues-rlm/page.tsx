@@ -140,7 +140,7 @@ export default function PortuguesRlmPage() {
   })[0] || null;
   const overallQuestions = operational?.operational?.questions || null;
   const operationalSyncedAt = operational?.source?.synced_at || snapshot?.source.synced_at || null;
-  const operationalSourceLabel = operationalMode === "live" ? "Notion · ao vivo" : operationalMode === "fallback" ? "GitHub · backup" : "Sincronizando";
+  const operationalSourceLabel = operationalMode === "live" ? "Notion · ao vivo" : operationalMode === "supabase" ? "Supabase · snapshot" : operationalMode === "fallback" ? "GitHub · backup" : "Sincronizando";
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("pt-BR");
     return units.filter((unit) => {
@@ -168,7 +168,7 @@ export default function PortuguesRlmPage() {
             <span className="portugues-sync-source">{operationalSourceLabel}</span>
             <span className="portugues-sync-separator" aria-hidden="true">·</span>
             <time className="portugues-sync-date" dateTime={operationalSyncedAt || undefined}>{formatDate(operationalSyncedAt)}</time>
-            <span className="portugues-sync-short" aria-hidden="true">{operationalMode === "live" ? "Ao vivo" : "Backup"}</span>
+            <span className="portugues-sync-short" aria-hidden="true">{operationalMode === "live" ? "Ao vivo" : operationalMode === "supabase" ? "Snapshot" : "Backup"}</span>
           </div>
         </div>
       </header>
