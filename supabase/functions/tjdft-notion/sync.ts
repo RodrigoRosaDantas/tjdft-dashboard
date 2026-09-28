@@ -6,6 +6,14 @@ if (!token) {
 }
 
 const outputPath = "public/data/tjdft-snapshot.json";
+
+function stableSnapshotFingerprint(value: Record<string, any> | null) {
+  if (!value) return null;
+  return JSON.stringify(value, (key, item) => {
+    if (key === "synced_at" || key === "component_synced_at" || key === "as_of") return undefined;
+    return item;
+  });
+}
 let existing: Record<string, any> | null = null;
 try {
   existing = JSON.parse(await Deno.readTextFile(outputPath));
@@ -26,13 +34,8 @@ snapshot.notice = snapshot.source.status === "partial"
   ? snapshot.notice || "Snapshot parcial: alguns componentes operacionais não foram atualizados pelo Notion."
   : "Snapshot validado a partir do Notion privado e publicado pelo GitHub.";
 
-if (
-  existing?.source?.content_hash === snapshot.source.content_hash &&
-  existing?.source?.status === snapshot.source.status &&
-  JSON.stringify(existing?.source?.component_sources || null) === JSON.stringify(snapshot.source.component_sources || null) &&
-  existing?.notice === snapshot.notice
-) {
-  console.log("Nenhuma alteração editorial detectada no Notion.");
+if (stableSnapshotFingerprint(existing) === stableSnapshotFingerprint(snapshot)) {
+  console.log("Nenhuma alteração material detectada no snapshot TJDFT.");
   Deno.exit(0);
 }
 
