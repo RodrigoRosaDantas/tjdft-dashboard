@@ -128,10 +128,13 @@ export default function PortuguesRlmPage() {
   const liveByCode = useMemo(() => new Map((operational?.operational?.trail?.items || []).map((item) => [item.code, item])), [operational]);
   const questionsByCode = useMemo(() => new Map((operational?.operational?.questions?.by_unit || []).map((item) => [item.code || "", item])), [operational]);
   const operationalNextCode = operational?.operational?.trail?.next?.code || null;
-  const nextUnit = (operationalNextCode ? units.find((unit) => unit.code === operationalNextCode) : null)
-    || units.find((unit) => unit.material_ready && liveByCode.get(unit.code)?.d0 !== true)
-    || units[0]
-    || null;
+  const nextUnit = operational
+    ? ((operationalNextCode ? units.find((unit) => unit.code === operationalNextCode) : null)
+      || units.find((unit) => unit.material_ready && liveByCode.get(unit.code)?.d0 !== true)
+      || null)
+    : operationalError
+      ? (units.find((unit) => unit.material_ready) || units[0] || null)
+      : null;
   const completedUnits = units.filter((unit) => liveByCode.get(unit.code)?.d0 === true);
   const latestStudied = [...completedUnits].sort((left, right) => {
     const leftTime = Date.parse(liveByCode.get(left.code)?.last_execution || "") || 0;
@@ -163,7 +166,7 @@ export default function PortuguesRlmPage() {
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Dashboard TJDFT</a>
         <div className="laws-topbar-tools">
           <ReadingSettings />
-          <div className="laws-sync" aria-label={`Execução operacional: ${operationalSourceLabel}; atualização ${formatDate(operationalSyncedAt)}`}>
+          <div className="laws-sync" data-operational-source={operationalMode || "loading"} data-next-code={nextUnit?.code || ""} aria-label={`Execução operacional: ${operationalSourceLabel}; atualização ${formatDate(operationalSyncedAt)}`}>
             <span className="laws-live-dot" aria-hidden="true" />
             <span className="portugues-sync-source">{operationalSourceLabel}</span>
             <span className="portugues-sync-separator" aria-hidden="true">·</span>
