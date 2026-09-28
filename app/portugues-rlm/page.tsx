@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BookOpen, CheckCircle2, ExternalLink, Filter, Search, Sparkles } from "lucide-react";
 import ReadingSettings from "../reading-settings";
+import { loadOperationalSnapshot, type OperationalSnapshotMode } from "./operational-snapshot";
 
 type Unit = {
   code: string;
@@ -36,6 +37,8 @@ type LiveTrailItem = {
   d7: boolean | null;
   d20: boolean | null;
   material_ready: boolean | null;
+  last_execution?: string | null;
+  next_review?: string | null;
 };
 
 type QuestionStats = {
@@ -90,6 +93,7 @@ function formatPercent(value: number | null | undefined) {
 export default function PortuguesRlmPage() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [operational, setOperational] = useState<DashboardSnapshot | null>(null);
+  const [operationalMode, setOperationalMode] = useState<OperationalSnapshotMode | null>(null);
   const [error, setError] = useState(false);
   const [operationalError, setOperationalError] = useState(false);
   const [query, setQuery] = useState("");
@@ -110,13 +114,13 @@ export default function PortuguesRlmPage() {
       .catch(() => {
         if (!cancelled) setError(true);
       });
-    fetch("../data/tjdft-snapshot.json?ts=" + timestamp, { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) throw new Error("snapshot operacional indisponível");
-        return response.json();
-      })
-      .then((value: DashboardSnapshot) => {
-        if (!cancelled) setOperational(value);
+    loadOperationalSnapshot<DashboardSnapshot>("../data/tjdft-snapshot.json")
+      .then(({ snapshot: value, mode }) => {
+        if (!cancelled) {
+          setOperational(value);
+          setOperationalMode(mode);
+          setOperationalError(false);
+        }
       })
       .catch(() => {
         if (!cancelled) setOperationalError(true);
@@ -133,8 +137,14 @@ export default function PortuguesRlmPage() {
     || units[0]
     || null;
   const completedUnits = units.filter((unit) => liveByCode.get(unit.code)?.d0 === true);
-  const latestStudied = completedUnits.at(-1) || null;
+  const latestStudied = [...completedUnits].sort((left, right) => {
+    const leftTime = Date.parse(liveByCode.get(left.code)?.last_execution || "") || 0;
+    const rightTime = Date.parse(liveByCode.get(right.code)?.last_execution || "") || 0;
+    return rightTime - leftTime || right.canonical_order - left.canonical_order;
+  })[0] || null;
   const overallQuestions = operational?.operational?.questions || null;
+  const operationalSyncedAt = operational?.source?.synced_at || snapshot?.source.synced_at || null;
+  const operationalSourceLabel = operationalMode === "live" ? "Notion · ao vivo" : operationalMode === "fallback" ? "GitHub · backup" : "Sincronizando";
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("pt-BR");
     return units.filter((unit) => {
@@ -159,12 +169,12 @@ export default function PortuguesRlmPage() {
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Dashboard TJDFT</a>
         <div className="laws-topbar-tools">
           <ReadingSettings />
-          <div className="laws-sync" aria-label={`Sincronização Notion para GitHub: ${formatDate(snapshot?.source.synced_at)}`}>
+          <div className="laws-sync" aria-label={`Execução operacional: ${operationalSourceLabel}; atualização ${formatDate(operationalSyncedAt)}`}>
             <span className="laws-live-dot" aria-hidden="true" />
-            <span className="portugues-sync-source">Notion → GitHub</span>
+            <span className="portugues-sync-source">{operationalSourceLabel}</span>
             <span className="portugues-sync-separator" aria-hidden="true">·</span>
-            <time className="portugues-sync-date" dateTime={snapshot?.source.synced_at || undefined}>{formatDate(snapshot?.source.synced_at)}</time>
-            <span className="portugues-sync-short" aria-hidden="true">Sincronizado</span>
+            <time className="portugues-sync-date" dateTime={operationalSyncedAt || undefined}>{formatDate(operationalSyncedAt)}</time>
+            <span className="portugues-sync-short" aria-hidden="true">{operationalMode === "live" ? "Ao vivo" : "Backup"}</span>
           </div>
         </div>
       </header>
@@ -175,7 +185,7 @@ export default function PortuguesRlmPage() {
           <h1>Português Primeiro + RLM Preventivo<span className="laws-hero-dot">.</span></h1>
           <p className="laws-lead">Estude pela página, resolva as questões, transforme os erros em revisão e avance pela sequência oficial. O banco organiza; o material ensina.</p>
           <div className="laws-hero-thesis"><span>TEORIA</span><i>→</i><span>QUESTÕES</span><i>→</i><span>ERROS</span><i>→</i><span>REVISÃO</span></div>
-          <div className="laws-hero-meta"><span className="laws-live-dot" /><span>Fonte editorial: Notion</span><span className="laws-meta-separator">·</span><span>Espelho público: GitHub</span></div>
+          <div className="laws-hero-meta"><span className="laws-live-dot" /><span>Execução: {operationalSourceLabel}</span><span className="laws-meta-separator">·</span><span>Materiais: GitHub</span></div>
           <div className="laws-hero-actions">
             <a className="laws-primary" href={nextUnit ? `./${nextUnit.code.toLowerCase()}/` : "#mapa"}>▶️ Abrir {nextUnit?.code || "a trilha"}</a>
             <a className="laws-secondary" href="#mapa">Ver sequência ↓</a>
@@ -207,7 +217,7 @@ export default function PortuguesRlmPage() {
         <article className="laws-stat-progress portugues-stat-ready"><div className="laws-stat-top"><span className="laws-stat-icon">01</span><span>MATERIAIS PRONTOS</span></div><strong>{snapshot ? readyCount + "/" + units.length : "—"}</strong><small>checkpoint editorial</small></article>
         <article className="laws-stat-questions portugues-stat-units"><div className="laws-stat-top"><span className="laws-stat-icon">02</span><span>D0 CONCLUÍDO</span></div><strong>{operational ? completedUnits.length + "/" + units.length : "—"}</strong><small>execução real da esteira</small></article>
         <article className="laws-stat-map portugues-stat-reviews"><div className="laws-stat-top"><span className="laws-stat-icon">03</span><span>QUESTÕES RESPONDIDAS</span></div><strong>{overallQuestions?.total ?? "—"}</strong><small>{overallQuestions?.total ? (overallQuestions.correct ?? 0) + " acertos · " + (overallQuestions.errors ?? 0) + " erros" : "sem evidência registrada"}</small></article>
-        <article className="laws-stat-source portugues-stat-source"><div className="laws-stat-top"><span className="laws-stat-icon">04</span><span>PRECISÃO</span></div><strong>{formatPercent(overallQuestions?.precision)}</strong><small>{overallQuestions?.sessions ? overallQuestions.sessions + " sessão(ões)" : "Notion → GitHub"}</small></article>
+        <article className="laws-stat-source portugues-stat-source"><div className="laws-stat-top"><span className="laws-stat-icon">04</span><span>PRECISÃO</span></div><strong>{formatPercent(overallQuestions?.precision)}</strong><small>{operationalSourceLabel}</small></article>
       </section>
 
       <section className="laws-panel portugues-method" id="execucao-real">
