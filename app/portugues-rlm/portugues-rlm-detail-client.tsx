@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import ReadingSettings from "../reading-settings";
+import { loadOperationalSnapshot, type OperationalSnapshotMode } from "./operational-snapshot";
 
 type Unit = {
   code: string;
@@ -56,6 +57,7 @@ function fallbackHtml(unit: Unit) {
 export default function PortuguesRlmDetailClient({ code }: { code: string }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [operational, setOperational] = useState<DashboardSnapshot | null>(null);
+  const [operationalMode, setOperationalMode] = useState<OperationalSnapshotMode | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -67,12 +69,11 @@ export default function PortuguesRlmDetailClient({ code }: { code: string }) {
       })
       .then((value: Snapshot) => setSnapshot(value))
       .catch(() => setError(true));
-    fetch("../../data/tjdft-snapshot.json?ts=" + timestamp, { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) throw new Error("snapshot operacional indisponível");
-        return response.json();
+    loadOperationalSnapshot<DashboardSnapshot>("../../data/tjdft-snapshot.json")
+      .then(({ snapshot: value, mode }) => {
+        setOperational(value);
+        setOperationalMode(mode);
       })
-      .then((value: DashboardSnapshot) => setOperational(value))
       .catch(() => undefined);
   }, []);
 
@@ -91,7 +92,7 @@ export default function PortuguesRlmDetailClient({ code }: { code: string }) {
     <main className="portugues-detail-page">
       <header className="laws-topbar">
         <a className="laws-back" href="../"><ArrowLeft size={17} /> Voltar para Português + RLM</a>
-        <div className="laws-topbar-tools"><ReadingSettings /><span className="laws-sync"><span className="laws-live-dot" /> Snapshot publicado</span></div>
+        <div className="laws-topbar-tools"><ReadingSettings /><span className="laws-sync"><span className="laws-live-dot" /> {operationalMode === "live" ? "Notion · ao vivo" : operationalMode === "fallback" ? "GitHub · backup" : "Sincronizando"}</span></div>
       </header>
 
       <section className="portugues-detail-hero">
