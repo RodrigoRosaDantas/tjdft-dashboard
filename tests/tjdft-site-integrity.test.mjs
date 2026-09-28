@@ -187,6 +187,9 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(edgeFunction, /refreshPromise/);
   assert.match(edgeFunction, /buildSnapshot\(token\)/);
   assert.match(edgeFunction, /Access-Control-Expose-Headers/);
+  assert.match(edgeFunction, /http:\/\/127\.0\.0\.1:4173/);
+  assert.match(edgeFunction, /last_execution: publicDate\(propertyDate\(properties, "Última execução"\)\)/);
+  assert.match(edgeFunction, /next_review: publicDate\(propertyDate\(properties, "Próxima revisão"\)\)/);
   assert.doesNotMatch(edgeFunction, /github->supabase/);
   assert.match(syncRunner, /stableSnapshotFingerprint/);
   assert.match(syncRunner, /component_synced_at/);
@@ -211,20 +214,26 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
 });
 
 test("mantém a trilha Português + RLM legível no celular", async () => {
-  const [page, detail, styles] = await Promise.all([
+  const [page, detail, liveReader, styles] = await Promise.all([
     read("app/portugues-rlm/page.tsx"),
     read("app/portugues-rlm/portugues-rlm-detail-client.tsx"),
+    read("app/portugues-rlm/operational-snapshot.ts"),
     read("app/portugues-rlm/portugues-rlm.css"),
   ]);
   assert.match(page, /portugues-sync-source/);
   assert.match(page, /portugues-sync-short/);
-  assert.match(page, /tjdft-snapshot\.json/);
+  assert.match(page, /loadOperationalSnapshot/);
   assert.match(page, /operationalNextCode/);
   assert.match(page, /questionsByCode/);
+  assert.match(page, /last_execution/);
   assert.match(page, /D0 CONCLUÍDO/);
-  assert.match(detail, /tjdft-snapshot\.json/);
+  assert.match(detail, /loadOperationalSnapshot/);
   assert.match(detail, /questionStats/);
   assert.match(detail, /D0 concluído/);
+  assert.match(liveReader, /functions\/v1\/tjdft-notion/);
+  assert.match(liveReader, /refresh=1/);
+  assert.match(liveReader, /mode: "fallback"/);
+  assert.match(liveReader, /SNAPSHOT_REQUEST_TIMEOUT_MS/);
   assert.match(page, /className="laws-panel portugues-method"/);
   assert.match(page, /portugues-method-step/);
   assert.match(styles, /portugues-page \.laws-sync/);
