@@ -134,6 +134,26 @@ for (let index = 0; index < await mentorTrailLinks.count(); index++) {
 }
 assert.ok(mentorTrailHref && /\/portugues-rlm\/(?:p|rl|rev)\d{2}\/?$/i.test(new URL(mentorTrailHref, page.url()).pathname), "Mentor não aponta para uma unidade válida da esteira");
 await open("portugues-rlm");
+const operationalExpectation = await page.evaluate(async () => {
+  const response = await fetch(new URL("../data/tjdft-snapshot.json?e2e=1", location.href), { cache:"no-store" });
+  const snapshot = await response.json();
+  return {
+    nextCode:snapshot?.operational?.trail?.next?.code || null,
+    completedCodes:(snapshot?.operational?.trail?.items || []).filter((item) => item.d0 === true).map((item) => item.code),
+    totalQuestions:snapshot?.operational?.questions?.total ?? null,
+  };
+});
+if (operationalExpectation.nextCode) {
+  assert.match(await page.locator(".laws-next-law").innerText(), new RegExp("\\b" + operationalExpectation.nextCode + "\\b"), "card principal não acompanha operational.trail.next");
+}
+for (const completedCode of operationalExpectation.completedCodes) {
+  const completedCard = page.locator(".portugues-unit-card").filter({ hasText:completedCode }).first();
+  assert.ok(await completedCard.count(), "unidade concluída ausente da sequência: " + completedCode);
+  assert.match(await completedCard.innerText(), /D0 concluído/i, "D0 do snapshot não refletiu no cartão de " + completedCode);
+}
+if (operationalExpectation.totalQuestions != null) {
+  assert.match(await page.locator(".portugues-stats").first().innerText(), new RegExp(String(operationalExpectation.totalQuestions)), "total de questões do snapshot não refletiu na trilha");
+}
 await clickDestination("portugues-rlm/p01");
 assert.match(await page.locator("body").innerText(), /P01/);
 assert.ok(await page.locator("article.study-html").count(), "material da unidade não carregou");
