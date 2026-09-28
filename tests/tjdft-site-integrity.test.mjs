@@ -210,6 +210,12 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(dashboard, /clearTimeout\(timeout\)/);
   assert.match(editalExport, /stableSnapshot/);
   assert.match(editalExport, /previousSnapshot\?\.generatedAt/);
+  assert.match(editalExport, /response\.status===429/);
+  assert.match(editalExport, /retry-after/);
+  assert.match(editalExport, /additional_data\?\.retry_after/);
+  assert.match(workflow, /Gerar snapshot operacional TJDFT/);
+  assert.match(workflow, /Exportar edital verticalizado/);
+  assert.match(workflow, /timeout-minutes: 10/);
   assert.match(workflow, /deno run --allow-net --allow-env --allow-read --allow-write scripts\/export-edital-verticalizado\.ts/);
 });
 
