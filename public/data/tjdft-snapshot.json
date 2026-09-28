@@ -6,7 +6,7 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-28T21:07:09.579Z",
+    "synced_at": "2026-09-28T21:21:41.731Z",
     "content_hash": "bc76adcba9cd7305aade1eb4cacdd6e45397e194d6b9cc775a9e6b4e47333677",
     "status": "partial",
     "component_sources": {
@@ -16,8 +16,8 @@
     },
     "component_synced_at": {
       "materials": "2026-09-25T03:06:49.890Z",
-      "execution": "2026-09-28T21:07:09.579Z",
-      "operational": "2026-09-28T21:07:09.579Z"
+      "execution": "2026-09-28T21:21:41.731Z",
+      "operational": "2026-09-28T21:21:41.731Z"
     }
   },
   "dashboard": {
@@ -399,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-28T21:07:09.568Z",
+    "as_of": "2026-09-28T21:21:41.716Z",
     "c01": {
       "days": [
         {
@@ -776,7 +776,9 @@
         "material_ready": true,
         "d0": false,
         "d7": false,
-        "d20": false
+        "d20": false,
+        "last_execution": null,
+        "next_review": null
       },
       "items": [
         {
@@ -790,7 +792,9 @@
           "material_ready": true,
           "d0": true,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": "2026-09-28T00:00:00.000Z",
+          "next_review": "2026-10-05T00:00:00.000Z"
         },
         {
           "code": "P02",
@@ -803,7 +807,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P03",
@@ -816,7 +822,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL01",
@@ -829,7 +837,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P04",
@@ -842,7 +852,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV01",
@@ -855,7 +867,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P05",
@@ -868,7 +882,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P06",
@@ -881,7 +897,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL02",
@@ -894,7 +912,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P07",
@@ -907,7 +927,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P08",
@@ -920,7 +942,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV02",
@@ -933,7 +957,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P09",
@@ -946,7 +972,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL03",
@@ -959,7 +987,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P10",
@@ -972,7 +1002,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P11",
@@ -985,7 +1017,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P12",
@@ -998,7 +1032,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV03",
@@ -1011,7 +1047,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL04",
@@ -1024,7 +1062,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P13",
@@ -1037,7 +1077,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P14",
@@ -1050,7 +1092,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P15",
@@ -1063,7 +1107,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL05",
@@ -1076,7 +1122,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV04",
@@ -1089,7 +1137,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P16",
@@ -1102,7 +1152,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P17",
@@ -1115,7 +1167,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "P18",
@@ -1128,7 +1182,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL06",
@@ -1141,7 +1197,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL07",
@@ -1154,7 +1212,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV05",
@@ -1167,7 +1227,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL08",
@@ -1180,7 +1242,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL09",
@@ -1193,7 +1257,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL10",
@@ -1206,7 +1272,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL11",
@@ -1219,7 +1287,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL12",
@@ -1232,7 +1302,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV06",
@@ -1245,7 +1317,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "RL13",
@@ -1258,7 +1332,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         }
       ],
       "formal_reviews": [
@@ -1273,7 +1349,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV02",
@@ -1286,7 +1364,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV03",
@@ -1299,7 +1379,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV04",
@@ -1312,7 +1394,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV05",
@@ -1325,7 +1409,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         },
         {
           "code": "REV06",
@@ -1338,7 +1424,9 @@
           "material_ready": true,
           "d0": false,
           "d7": false,
-          "d20": false
+          "d20": false,
+          "last_execution": null,
+          "next_review": null
         }
       ]
     },
