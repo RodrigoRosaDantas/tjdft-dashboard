@@ -6,8 +6,8 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-28T21:21:41.731Z",
-    "content_hash": "bc76adcba9cd7305aade1eb4cacdd6e45397e194d6b9cc775a9e6b4e47333677",
+    "synced_at": "2026-09-29T21:15:25.021Z",
+    "content_hash": "195eb0314504fd786d602731e8190c35a748129238f50b11b76256f64a0d32b3",
     "status": "partial",
     "component_sources": {
       "materials": "mixed",
@@ -16,8 +16,8 @@
     },
     "component_synced_at": {
       "materials": "2026-09-25T03:06:49.890Z",
-      "execution": "2026-09-28T21:21:41.731Z",
-      "operational": "2026-09-28T21:21:41.731Z"
+      "execution": "2026-09-29T21:15:25.021Z",
+      "operational": "2026-09-29T21:15:25.021Z"
     }
   },
   "dashboard": {
@@ -399,7 +399,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-28T21:21:41.716Z",
+    "as_of": "2026-09-29T21:15:25.004Z",
     "c01": {
       "days": [
         {
@@ -732,7 +732,7 @@
         "Planejado": 13
       },
       "active_day": "D01",
-      "error_count": 5,
+      "error_count": 12,
       "error_records_present": true,
       "question_rows": 0,
       "questions": {
@@ -756,22 +756,22 @@
       "sequence_valid": true,
       "total": 37,
       "status_counts": {
-        "Em consolidação": 1,
-        "Não estudado": 36
+        "Em consolidação": 2,
+        "Não estudado": 35
       },
       "material_ready": 37,
       "checkpoints": {
-        "d0": 1,
+        "d0": 2,
         "d7": 0,
         "d20": 0
       },
       "next": {
-        "code": "P02",
-        "title": "P02 — Morfologia: formação, flexão nominal e verbal, tempos e modos",
-        "order": 2,
+        "code": "P03",
+        "title": "P03 — Sintaxe I: frase, oração, período, sujeito, predicado e núcleos",
+        "order": 3,
         "track": "Português Primeiro",
         "block": "B1",
-        "priority": "Alta",
+        "priority": "Muito alta",
         "state": "Não estudado",
         "material_ready": true,
         "d0": false,
@@ -803,13 +803,13 @@
           "track": "Português Primeiro",
           "block": "B1",
           "priority": "Alta",
-          "state": "Não estudado",
+          "state": "Em consolidação",
           "material_ready": true,
-          "d0": false,
+          "d0": true,
           "d7": false,
           "d20": false,
-          "last_execution": null,
-          "next_review": null
+          "last_execution": "2026-09-29T00:00:00.000Z",
+          "next_review": "2026-10-06T00:00:00.000Z"
         },
         {
           "code": "P03",
@@ -1432,27 +1432,27 @@
     },
     "continuity": {
       "active": null,
-      "activities_with_evidence": 1,
+      "activities_with_evidence": 4,
       "minutes": null,
-      "questions": 33
+      "questions": null
     },
     "questions": {
-      "total": 33,
-      "correct": 25,
-      "errors": 8,
+      "total": 61,
+      "correct": 41,
+      "errors": 20,
       "doubts": 0,
       "annulled": 0,
-      "precision": 0.7575757575757576,
+      "precision": 0.6721311475409836,
       "by_subject": [
         {
           "subject": "Língua Portuguesa",
-          "total": 33,
-          "correct": 25,
-          "errors": 8,
+          "total": 61,
+          "correct": 41,
+          "errors": 20,
           "doubts": 0,
           "annulled": 0,
-          "sessions": 1,
-          "precision": 0.7575757575757576
+          "sessions": 2,
+          "precision": 0.6721311475409836
         }
       ],
       "by_cargo": [
@@ -1465,6 +1465,16 @@
           "annulled": 0,
           "sessions": 1,
           "precision": 0.7575757575757576
+        },
+        {
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "total": 28,
+          "correct": 16,
+          "errors": 12,
+          "doubts": 0,
+          "annulled": 0,
+          "sessions": 1,
+          "precision": 0.5714285714285714
         }
       ],
       "by_unit": [
@@ -1477,6 +1487,16 @@
           "annulled": 0,
           "sessions": 1,
           "precision": 0.7575757575757576
+        },
+        {
+          "code": "P02",
+          "total": 28,
+          "correct": 16,
+          "errors": 12,
+          "doubts": 0,
+          "annulled": 0,
+          "sessions": 1,
+          "precision": 0.5714285714285714
         }
       ],
       "by_date": [
@@ -1485,6 +1505,13 @@
           "total": 33,
           "correct": 25,
           "errors": 8,
+          "annulled": 0
+        },
+        {
+          "date": "2026-09-29",
+          "total": 28,
+          "correct": 16,
+          "errors": 12,
           "annulled": 0
         }
       ],
@@ -1496,6 +1523,14 @@
           "correct": 25,
           "errors": 8,
           "annulled": 0
+        },
+        {
+          "subject": "Língua Portuguesa",
+          "date": "2026-09-29",
+          "total": 28,
+          "correct": 16,
+          "errors": 12,
+          "annulled": 0
         }
       ],
       "by_cargo_date": [
@@ -1506,19 +1541,125 @@
           "correct": 25,
           "errors": 8,
           "annulled": 0
+        },
+        {
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "date": "2026-09-29",
+          "total": 28,
+          "correct": 16,
+          "errors": 12,
+          "annulled": 0
         }
       ]
     },
     "errors": {
       "records_present": true,
-      "active_count": 5,
+      "active_count": 12,
       "by_subject": [
         {
           "subject": "Língua Portuguesa",
-          "count": 5
+          "count": 12
         }
       ],
       "top": [
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Particípio e formas nominais",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-06T00:00:00.000Z",
+          "review_kind": "Posterior",
+          "action": "Reconhecer o particípio em tempos compostos: auxiliar ter/haver + particípio, como “tinha estudado”. Diferenciar de infinitivo e gerúndio.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "occurred_at": "2026-09-29T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Indicativo × subjuntivo",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-06T00:00:00.000Z",
+          "review_kind": "Posterior",
+          "action": "Em estruturas hipotéticas com “se”, reconhecer o pretérito imperfeito do subjuntivo: se estudasse, passaria. Indicativo tende a apresentar fato como mais assertivo; subjuntivo marca hipótese, possibilidade, desejo ou condição.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "occurred_at": "2026-09-29T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Pretérito perfeito × pretérito imperfeito",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-06T00:00:00.000Z",
+          "review_kind": "Posterior",
+          "action": "Usar o valor aspectual: imperfeito tende a duração, hábito ou pano de fundo; perfeito tende a evento delimitado/concluído. Em “estudava quando tocou”, “estudava” é imperfeito.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "occurred_at": "2026-09-29T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Derivação sufixal × flexão",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-06T00:00:00.000Z",
+          "review_kind": "Posterior",
+          "action": "Separar criação lexical de flexão: real → realidade cria novo substantivo por sufixação; servidor → servidores altera apenas número e é flexão.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "occurred_at": "2026-09-29T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Futuro do pretérito — valores modais",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-06T00:00:00.000Z",
+          "review_kind": "Posterior",
+          "action": "Reconhecer que o futuro do pretérito não marca só tempo: em pedidos como “gostaria” e “poderia”, ele pode atenuar a formulação e produzir polidez.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "occurred_at": "2026-09-29T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Tempo verbal × valor contextual",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-06T00:00:00.000Z",
+          "review_kind": "Posterior",
+          "action": "Separar forma morfológica de valor contextual: “amanhã viajo” está no presente com valor futuro; “onde estará?” está no futuro do presente com valor conjectural.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "occurred_at": "2026-09-29T00:00:00.000Z"
+        },
+        {
+          "state": "Em revisão",
+          "subject": "Língua Portuguesa",
+          "topic": "Infinitivo pessoal",
+          "pattern": null,
+          "causes": null,
+          "severity": null,
+          "recurrence": 0,
+          "review_at": "2026-10-06T00:00:00.000Z",
+          "review_kind": "Posterior",
+          "action": "Quando o infinitivo explicita o sujeito e flexiona pessoa/número, reconhecer infinitivo pessoal: estudarmos, sairmos, revisarem.",
+          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Apoio Especializado — Administração",
+          "occurred_at": "2026-09-29T00:00:00.000Z"
+        },
         {
           "state": "Em revisão",
           "subject": "Língua Portuguesa",
@@ -1530,62 +1671,6 @@
           "review_at": "2026-10-05T00:00:00.000Z",
           "review_kind": "Consolidação",
           "action": "Fixar: só = somente → advérbio invariável; sós = sozinhos → adjetivo, com concordância.",
-          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
-          "occurred_at": "2026-09-28T00:00:00.000Z"
-        },
-        {
-          "state": "Em revisão",
-          "subject": "Língua Portuguesa",
-          "topic": "Advérbios invariáveis: muito, meio e bastante",
-          "pattern": null,
-          "causes": null,
-          "severity": null,
-          "recurrence": 0,
-          "review_at": "2026-10-05T00:00:00.000Z",
-          "review_kind": "Consolidação",
-          "action": "Identificar o alvo: se muito/meio/bastante intensifica verbo, adjetivo ou advérbio, funciona como advérbio e fica invariável; diante de substantivo, investigar emprego variável.",
-          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
-          "occurred_at": "2026-09-28T00:00:00.000Z"
-        },
-        {
-          "state": "Em revisão",
-          "subject": "Língua Portuguesa",
-          "topic": "Substantivação",
-          "pattern": null,
-          "causes": null,
-          "severity": null,
-          "recurrence": 0,
-          "review_at": "2026-10-05T00:00:00.000Z",
-          "review_kind": "Consolidação",
-          "action": "Verificar se a forma passa a funcionar como núcleo nominal. Artigo/determinante é indício forte, mas a classificação depende da função efetiva no contexto.",
-          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
-          "occurred_at": "2026-09-28T00:00:00.000Z"
-        },
-        {
-          "state": "Em revisão",
-          "subject": "Língua Portuguesa",
-          "topic": "Classe gramatical × função sintática",
-          "pattern": null,
-          "causes": null,
-          "severity": null,
-          "recurrence": 0,
-          "review_at": "2026-10-05T00:00:00.000Z",
-          "review_kind": "Consolidação",
-          "action": "Separar os planos: substantivo/adjetivo/pronome etc. = classe; sujeito/objeto/adjunto/predicativo etc. = função sintática; valor semântico = sentido produzido.",
-          "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
-          "occurred_at": "2026-09-28T00:00:00.000Z"
-        },
-        {
-          "state": "Em revisão",
-          "subject": "Língua Portuguesa",
-          "topic": "Pronome relativo × conjunção integrante",
-          "pattern": null,
-          "causes": null,
-          "severity": null,
-          "recurrence": 0,
-          "review_at": "2026-10-05T00:00:00.000Z",
-          "review_kind": "Consolidação",
-          "action": "Buscar antecedente nominal. Se 'que' retoma termo anterior e admite 'o qual/a qual', é pronome relativo; se apenas introduz conteúdo, é conjunção integrante.",
           "cargo": "Técnico Judiciário — Área Administrativa + Analista Judiciário — Administração",
           "occurred_at": "2026-09-28T00:00:00.000Z"
         }
@@ -1683,6 +1768,125 @@
           "subject": "Língua Portuguesa",
           "date": "2026-10-05T00:00:00.000Z",
           "origin": "Consolidação"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Tempo verbal × valor contextual",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Pretérito imperfeito",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Futuro do pretérito — polidez/atenuação",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Futuro do pretérito — polidez/atenuação",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Infinitivo pessoal",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Infinitivo pessoal",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Pretérito imperfeito do subjuntivo",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Particípio em forma verbal composta",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Derivação sufixal e mudança de classe",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Futuro do pretérito — polidez/atenuação",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Infinitivo pessoal",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "QUESTÃO",
+          "title": "Futuro do presente — conjectura",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Revisão posterior"
+        },
+        {
+          "type": "ERRO",
+          "title": "Particípio e formas nominais",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Posterior"
+        },
+        {
+          "type": "ERRO",
+          "title": "Indicativo × subjuntivo",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Posterior"
+        },
+        {
+          "type": "ERRO",
+          "title": "Pretérito perfeito × pretérito imperfeito",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Posterior"
+        },
+        {
+          "type": "ERRO",
+          "title": "Derivação sufixal × flexão",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Posterior"
+        },
+        {
+          "type": "ERRO",
+          "title": "Futuro do pretérito — valores modais",
+          "subject": "Língua Portuguesa",
+          "date": "2026-10-06T00:00:00.000Z",
+          "origin": "Posterior"
         }
       ],
       "formal": [
@@ -1732,7 +1936,7 @@
         "mapped": 0,
         "studied": 0,
         "evidence": 1,
-        "practiced_questions": 33,
+        "practiced_questions": 61,
         "consolidated": 0,
         "subjects": [
           "Administração Pública; gestão de pessoas; orçamento público",
@@ -1756,7 +1960,7 @@
         "mapped": 0,
         "studied": 0,
         "evidence": 1,
-        "practiced_questions": 33,
+        "practiced_questions": 61,
         "consolidated": 0,
         "subjects": [
           "Administração geral; comportamento organizacional",

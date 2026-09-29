@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
   "projectId": "tjdft",
-  "publishedAt": "2026-09-28",
+  "publishedAt": "2026-09-29",
   "source": {
     "kind": "public-project-state",
     "ref": "data/tjdft-snapshot.json#operational",
     "status": "partial",
-    "updatedAt": "2026-09-28T21:21:41.731Z"
+    "updatedAt": "2026-09-29T21:15:25.021Z"
   },
   "state": {
     "phase": "F-TJ-01 — Núcleo comum",
     "cycle": "Português Primeiro + RLM Preventivo",
-    "currentUnit": "P01",
-    "nextAction": "P02 — Morfologia: formação, flexão nominal e verbal, tempos e modos",
+    "currentUnit": "P02",
+    "nextAction": "P03 — Sintaxe I: frase, oração, período, sujeito, predicado e núcleos",
     "nextActionKind": "operational",
     "alerts": [
       "O snapshot TJDFT está parcial; confira a origem antes de tratar todos os componentes como igualmente atuais."
@@ -21,23 +21,23 @@
   "study": {
     "evidence": "partial",
     "sourceRef": "data/tjdft-snapshot.json#operational",
-    "updatedAt": "2026-09-28T21:21:41.731Z",
+    "updatedAt": "2026-09-29T21:15:25.021Z",
     "trail": "Português Primeiro",
-    "lastCompletedUnit": "P01",
-    "nextUnit": "P02",
-    "lastStudiedAt": "2026-09-28T00:00:00.000Z",
-    "questionsDone": 33,
-    "correct": 25,
-    "errors": 8,
+    "lastCompletedUnit": "P02",
+    "nextUnit": "P03",
+    "lastStudiedAt": "2026-09-29T00:00:00.000Z",
+    "questionsDone": 61,
+    "correct": 41,
+    "errors": 20,
     "doubts": 0,
-    "accuracy": 0.7575757575757576,
+    "accuracy": 0.6721311475409836,
     "reviewsDue": 0,
     "nextReviewAt": "2026-10-05T00:00:00.000Z",
-    "activeErrors": 5,
-    "completedSessions": 1,
+    "activeErrors": 12,
+    "completedSessions": 4,
     "totalSessions": 37,
     "notes": [
-      "Erros ativos: Só: advérbio × adjetivo · Advérbios invariáveis: muito, meio e bastante · Substantivação",
+      "Erros ativos: Particípio e formas nominais · Indicativo × subjuntivo · Pretérito perfeito × pretérito imperfeito",
       "Snapshot TJDFT marcado como parcial; os componentes operacionais podem ter frescor diferente."
     ]
   }
