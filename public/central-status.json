@@ -1,21 +1,44 @@
 {
   "schemaVersion": 1,
   "projectId": "tjdft",
-  "publishedAt": "2026-09-27",
+  "publishedAt": "2026-09-28",
   "source": {
     "kind": "public-project-state",
-    "ref": "data/tjdft-snapshot.json#dashboard",
+    "ref": "data/tjdft-snapshot.json#operational",
     "status": "partial",
-    "updatedAt": "2026-09-25T05:46:15.226Z"
+    "updatedAt": "2026-09-28T21:21:41.731Z"
   },
   "state": {
     "phase": "F-TJ-01 — Núcleo comum",
-    "cycle": "CTJ-002 — Núcleo comum | Ciclo 01 de estudo real",
-    "currentUnit": "D01",
-    "nextAction": "D01 — Português: interpretação e coesão + Regimento I",
+    "cycle": "Português Primeiro + RLM Preventivo",
+    "currentUnit": "P01",
+    "nextAction": "P02 — Morfologia: formação, flexão nominal e verbal, tempos e modos",
     "nextActionKind": "operational",
     "alerts": [
-      "O snapshot público de origem está marcado como parcial."
+      "O snapshot TJDFT está parcial; confira a origem antes de tratar todos os componentes como igualmente atuais."
+    ]
+  },
+  "study": {
+    "evidence": "partial",
+    "sourceRef": "data/tjdft-snapshot.json#operational",
+    "updatedAt": "2026-09-28T21:21:41.731Z",
+    "trail": "Português Primeiro",
+    "lastCompletedUnit": "P01",
+    "nextUnit": "P02",
+    "lastStudiedAt": "2026-09-28T00:00:00.000Z",
+    "questionsDone": 33,
+    "correct": 25,
+    "errors": 8,
+    "doubts": 0,
+    "accuracy": 0.7575757575757576,
+    "reviewsDue": 0,
+    "nextReviewAt": "2026-10-05T00:00:00.000Z",
+    "activeErrors": 5,
+    "completedSessions": 1,
+    "totalSessions": 37,
+    "notes": [
+      "Erros ativos: Só: advérbio × adjetivo · Advérbios invariáveis: muito, meio e bastante · Substantivação",
+      "Snapshot TJDFT marcado como parcial; os componentes operacionais podem ter frescor diferente."
     ]
   }
 }
