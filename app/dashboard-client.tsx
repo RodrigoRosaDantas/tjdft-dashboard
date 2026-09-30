@@ -169,7 +169,9 @@ type DashboardSnapshot = {
     synced_at: string | null;
     content_hash: string | null;
     status: string;
+    operational_status?: "live" | "partial";
     component_sources?: Record<string, "notion" | "snapshot" | "mixed" | "partial" | "unavailable">;
+    operational_partial_components?: string[];
     component_synced_at?: Record<string, string | null>;
   };
   dashboard: {
@@ -222,6 +224,12 @@ function formatSnapshotDate(value: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.valueOf())) return "aguardando sincronização";
   return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(date);
+}
+
+function operationalSourceStatus(source?: DashboardSnapshot["source"] | null) {
+  if (source?.operational_status) return source.operational_status;
+  if (source?.component_sources?.execution === "notion" && source?.component_sources?.operational === "notion") return "live";
+  return source?.status || "snapshot";
 }
 
 function formatMaterialsAudit(value: string | null) {
@@ -1872,8 +1880,9 @@ export default function Home({ initialHomeState, intelligenceSeed }: { initialHo
       const candidate = result.snapshot;
       setSnapshot(candidate);
       setSyncMode("live");
-      const liveLabel = candidate.source.status === "live" ? "Notion · ao vivo" :
-        candidate.source.status === "partial" ? "Notion · dados parciais" : "Supabase · snapshot";
+      const currentOperationalStatus = operationalSourceStatus(candidate.source);
+      const liveLabel = currentOperationalStatus === "live" ? "Notion · ao vivo" :
+        currentOperationalStatus === "partial" ? "Notion · dados operacionais parciais" : "Supabase · snapshot";
       const cacheLabel = result.cacheMode && result.cacheMode !== "miss" ? ` · ${result.cacheMode}` : "";
       setLastUpdated(`${liveLabel}${cacheLabel} · ${formatSnapshotDate(candidate.source.synced_at)}`);
       return "live";
@@ -1883,7 +1892,7 @@ export default function Home({ initialHomeState, intelligenceSeed }: { initialHo
         const candidate = result.snapshot;
         setSnapshot(candidate);
         setSyncMode("fallback");
-        const partialLabel = candidate.source.status === "partial" ? " · dados parciais" : "";
+        const partialLabel = operationalSourceStatus(candidate.source) === "partial" ? " · dados operacionais parciais" : "";
         setLastUpdated(`GitHub · backup${partialLabel} · ${formatSnapshotDate(candidate.source.synced_at)}`);
         return "fallback";
       } catch {
@@ -1926,5 +1935,5 @@ export default function Home({ initialHomeState, intelligenceSeed }: { initialHo
         <div className="sidebar-route-links">
           {intelligenceRoutes.map((item) => { const Icon = item.icon; return <a className="nav-item sidebar-route-link" href={item.href} key={item.href}><Icon size={17} /><span>{item.label}</span></a>; })}
         </div>
-      </details><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><a className="sidebar-action" href={recommendationHref}>{recommendationLabel} <ArrowRight size={15} /></a></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button type="button" className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button type="button" className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><ReadingSettings /><button type="button" className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content" id="dashboard-section" tabIndex={-1}>{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} initialHomeState={initialHomeState} intelligenceSeed={intelligenceSeed} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (snapshot?.source?.status === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : snapshot?.source?.status === "partial" ? `Notion · dados parciais · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub${snapshot?.source?.status === "partial" ? " · dados parciais" : ""} · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
+      </details><div className="sidebar-bottom"><div className="sidebar-card"><p className="eyebrow">PRÓXIMA AÇÃO</p><strong>{nextAction}</strong><a className="sidebar-action" href={recommendationHref}>{recommendationLabel} <ArrowRight size={15} /></a></div><div className="sidebar-footer"><span className="source-dot" /> Notion como fonte operacional do TJDFT</div></div></aside>{menuOpen && <button type="button" className="scrim" onClick={() => setMenuOpen(false)} aria-label="Fechar menu" />}<div className="main-column"><header className="topbar"><div className="topbar-left"><button type="button" className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Abrir menu"><Menu size={20} /></button><div><span className="breadcrumb">TJDFT Dashboard</span><strong>{activeLabel}</strong></div></div><div className="topbar-actions"><span className={`sync-label ${syncError ? "sync-error" : syncMode === "fallback" ? "sync-fallback" : ""}`}><span className="source-dot" /> {lastUpdated}</span><ReadingSettings /><button type="button" className={`refresh-button ${refreshing ? "is-refreshing" : ""}`} onClick={refreshSnapshot} disabled={refreshing} aria-label="Atualizar leitura do snapshot TJDFT" title="Atualizar leitura do Supabase e do snapshot publicado"><RefreshCw size={17} /></button></div></header><div className="page-content" id="dashboard-section" tabIndex={-1}>{section === "inicio" && <Overview onNavigate={handleNavigate} snapshot={snapshot} onRefresh={refreshSnapshot} initialHomeState={initialHomeState} intelligenceSeed={intelligenceSeed} />}{section === "estudar" && <StudyToday snapshot={snapshot} />}{section === "fases" && <Phases />}{section === "cargos" && <Jobs />}{section === "progresso" && <Progress />}{section === "materiais" && <Materials snapshot={snapshot} />}{section === "pre-edital" && <PreEdital snapshot={snapshot} />}</div><footer className="site-footer"><span>TJDFT · Projeto exclusivo</span><span>{syncMode === "live" ? (operationalSourceStatus(snapshot?.source) === "live" ? `Notion ao vivo · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : operationalSourceStatus(snapshot?.source) === "partial" ? `Notion · dados operacionais parciais · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : `Supabase · snapshot · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}`) : syncMode === "fallback" ? `Backup do GitHub${operationalSourceStatus(snapshot?.source) === "partial" ? " · dados operacionais parciais" : ""} · ${formatSnapshotDate(snapshot?.source?.synced_at ?? null)}` : "GitHub · indisponível"}</span></footer></div></main>;
 }

@@ -451,14 +451,18 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     operational:"trilha, revisões e erros",
   };
   const componentSources = dashboard.source?.component_sources || {};
+  const operationalComponentNames = new Set(["execution", "operational"]);
   const partialComponents = Object.entries(componentSources)
-    .filter(([,origin]) => origin !== "notion")
+    .filter(([name, origin]) => operationalComponentNames.has(name) && origin !== "notion")
     .map(([name]) => componentLabels[name] || name);
+  const rawSourceStatus = dashboard.source?.status || null;
+  const operationalSourceStatus = dashboard.source?.operational_status ||
+    (componentSources.execution === "notion" && componentSources.operational === "notion" ? "live" : rawSourceStatus);
   const issues=[];
   if (!sequenceValid) issues.push({severity:"critical", code:"sequence-divergence", message:"A Ordem 1–37 diverge da sequência canônica."});
   if (!dashboard.source?.synced_at) issues.push({severity:"high",code:"snapshot-date-missing",message:"Snapshot operacional sem data de sincronização."});
-  if (dashboard.source?.status === "fallback") issues.push({severity:"medium",code:"snapshot-fallback",message:"O site está usando snapshot de contingência; decisões devem ser lidas com cautela."});
-  if (dashboard.source?.status === "partial" || partialComponents.length) {
+  if (operationalSourceStatus === "fallback") issues.push({severity:"medium",code:"snapshot-fallback",message:"O site está usando snapshot de contingência; decisões devem ser lidas com cautela."});
+  if (operationalSourceStatus === "partial" || partialComponents.length) {
     const detail = partialComponents.length ? partialComponents.join(", ") : "componentes operacionais";
     issues.push({severity:"high",code:"snapshot-partial",message:"Snapshot parcialmente atualizado pelo Notion: " + detail + " não têm leitura atual íntegra."});
   }
@@ -565,7 +569,8 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     },
     quality:{
       issues,ageHours,sourceSyncedAt:dashboard.source?.synced_at || null,
-      sourceStatus:dashboard.source?.status || null,
+      sourceStatus:rawSourceStatus,
+      operationalSourceStatus,
       partialComponents,
       componentSources:dashboard.source?.component_sources || null,
       componentSyncedAt:dashboard.source?.component_synced_at || null,
