@@ -5,7 +5,7 @@
   "source": {
     "kind": "public-project-state",
     "ref": "data/tjdft-snapshot.json#operational",
-    "status": "partial",
+    "status": "synced",
     "updatedAt": "2026-09-29T21:15:25.021Z"
   },
   "state": {
@@ -14,12 +14,10 @@
     "currentUnit": "P02",
     "nextAction": "P03 — Sintaxe I: frase, oração, período, sujeito, predicado e núcleos",
     "nextActionKind": "operational",
-    "alerts": [
-      "O snapshot TJDFT está parcial; confira a origem antes de tratar todos os componentes como igualmente atuais."
-    ]
+    "alerts": []
   },
   "study": {
-    "evidence": "partial",
+    "evidence": "confirmed",
     "sourceRef": "data/tjdft-snapshot.json#operational",
     "updatedAt": "2026-09-29T21:15:25.021Z",
     "trail": "Português Primeiro",
@@ -37,8 +35,7 @@
     "completedSessions": 4,
     "totalSessions": 37,
     "notes": [
-      "Erros ativos: Particípio e formas nominais · Indicativo × subjuntivo · Pretérito perfeito × pretérito imperfeito",
-      "Snapshot TJDFT marcado como parcial; os componentes operacionais podem ter frescor diferente."
+      "Erros ativos: Particípio e formas nominais · Indicativo × subjuntivo · Pretérito perfeito × pretérito imperfeito"
     ]
   }
 }
