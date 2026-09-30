@@ -1518,7 +1518,10 @@ export async function buildSnapshot(token: string) {
       synced_at: syncedAt,
       content_hash: contentHash,
       status: provenance.status,
+      operational_status: provenance.operational_status,
       component_sources: provenance.component_sources,
+      partial_components: provenance.partial_components,
+      operational_partial_components: provenance.operational_partial_components,
       component_synced_at: componentSyncedAt,
     },
     dashboard: {
