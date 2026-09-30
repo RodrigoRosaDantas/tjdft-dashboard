@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "projectId": "tjdft",
-  "publishedAt": "2026-09-29",
+  "publishedAt": "2026-09-30",
   "source": {
     "kind": "public-project-state",
     "ref": "data/tjdft-snapshot.json#operational",
     "status": "synced",
-    "updatedAt": "2026-09-29T21:15:25.021Z"
+    "updatedAt": "2026-09-30T11:02:52.100Z"
   },
   "state": {
     "phase": "F-TJ-01 — Núcleo comum",
@@ -19,7 +19,7 @@
   "study": {
     "evidence": "confirmed",
     "sourceRef": "data/tjdft-snapshot.json#operational",
-    "updatedAt": "2026-09-29T21:15:25.021Z",
+    "updatedAt": "2026-09-30T11:02:52.100Z",
     "trail": "Português Primeiro",
     "lastCompletedUnit": "P02",
     "nextUnit": "P03",
