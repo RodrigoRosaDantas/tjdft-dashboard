@@ -468,3 +468,15 @@ test("Home recompõe a recomendação com o snapshot atual recebido após sincro
   assert.equal(refreshed.nextAction.code,"REV01");
   assert.match(refreshed.nextAction.title,/REV01/);
 });
+
+
+test("materiais legados mistos não geram alerta operacional quando execução e trilha estão íntegras",()=>{
+  const x=base();
+  x.dashboard.source.status="partial";
+  x.dashboard.source.operational_status="live";
+  x.dashboard.source.component_sources={materials:"mixed",execution:"notion",operational:"notion"};
+  const m=buildTJDFTIntelligence(x,"2026-09-30T10:00:00Z");
+  assert.equal(m.quality.operationalSourceStatus,"live");
+  assert.deepEqual(m.quality.partialComponents,[]);
+  assert.equal(m.quality.issues.some(i=>i.code==="snapshot-partial"),false);
+});
