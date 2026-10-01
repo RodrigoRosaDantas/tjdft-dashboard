@@ -13,24 +13,56 @@ if (!token) throw new Error("NOTION_TOKEN is not configured.");
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const request = async (endpoint, init = {}, attempt = 0) => {
-  const response = await fetch(NOTION_API_BASE + endpoint, {
-    ...init,
-    headers: {
-      Authorization: "Bearer " + token,
-      "Notion-Version": NOTION_VERSION,
-      "Content-Type": "application/json",
-      ...(init.headers || {}),
-    },
-  });
-  const body = await response.text();
-  if (response.status === 429 && attempt < 6) {
-    const retryAfter = Number(response.headers.get("retry-after") || 1);
-    await sleep(Math.max(500, retryAfter * 1000));
-    return request(endpoint, init, attempt + 1);
+const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
+const MAX_RETRIES = 4;
+
+const request = async (endpoint, init = {}) => {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    let response;
+
+    try {
+      response = await fetch(NOTION_API_BASE + endpoint, {
+        ...init,
+        headers: {
+          Authorization: "Bearer " + token,
+          "Notion-Version": NOTION_VERSION,
+          "Content-Type": "application/json",
+          ...(init.headers || {}),
+        },
+      });
+    } catch (error) {
+      if (attempt >= MAX_RETRIES) throw error;
+      const delay = Math.min(15000, 1000 * 2 ** attempt);
+      console.warn(
+        "[notion] network error on " + endpoint +
+          "; retry " + (attempt + 1) + "/" + MAX_RETRIES +
+          " in " + delay + "ms: " + (error?.message || error),
+      );
+      await sleep(delay);
+      continue;
+    }
+
+    const body = await response.text();
+    if (response.ok) return JSON.parse(body);
+
+    if (!RETRYABLE_STATUS.has(response.status) || attempt >= MAX_RETRIES) {
+      throw new Error("Notion API " + response.status + ": " + body.slice(0, 300));
+    }
+
+    const retryAfterHeader = Number(response.headers.get("retry-after"));
+    const delay = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+      ? Math.min(30000, retryAfterHeader * 1000)
+      : Math.min(15000, 1000 * 2 ** attempt);
+
+    console.warn(
+      "[notion] HTTP " + response.status + " on " + endpoint +
+        "; retry " + (attempt + 1) + "/" + MAX_RETRIES +
+        " in " + delay + "ms",
+    );
+    await sleep(delay);
   }
-  if (!response.ok) throw new Error("Notion API " + response.status + ": " + body.slice(0, 300));
-  return JSON.parse(body);
+
+  throw new Error("Notion API retry loop exhausted unexpectedly.");
 };
 
 const [page, databasePages] = await Promise.all([
