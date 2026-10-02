@@ -173,6 +173,16 @@ test("Visual QA e E2E esperam os snapshots das listas antes de inspecionar links
   assert.match(e2e, /waitForFunction\(\(\) => !\/\\bCarregando\\b\/i/);
 });
 
+test("contrato da Central só credita horas após D0 concluído", async () => {
+  const source = await read("scripts/build-central-status.mjs");
+  assert.match(source, /const completed = started\.filter\(\(item\) => item\?\.d0 === true\)/);
+  assert.match(source, /for \(const item of completed\)/);
+  assert.match(source, /lastCompletedUnit: latestCompleted\?\.code \|\| null/);
+  assert.match(source, /currentUnit: next\?\.code \|\| latestStarted\?\.code \|\| null/);
+  assert.match(source, /completedSessions: completed\.length/);
+  assert.match(source, /sem crédito de tempo até a conclusão do D0/);
+});
+
 test("mantém a sincronização viva com fallback e publicação controlada", async () => {
   const [edgeFunction, syncRunner, workflow, backendWorkflow, panel, dashboard, editalExport] = await Promise.all([
     read("supabase/functions/tjdft-notion/index.ts"),
