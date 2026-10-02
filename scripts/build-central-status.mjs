@@ -14,6 +14,55 @@ const studied = items
   .filter((item) => item?.last_execution)
   .sort((left, right) => String(right.last_execution).localeCompare(String(left.last_execution)));
 const latest = studied[0] || null;
+
+function dateOnly(value) {
+  const match = String(value || "").match(/^\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : null;
+}
+
+const timeCredits = [];
+const creditIds = new Set();
+function addTimeCredit({ kind, date, unit, trail, sourceRef }) {
+  const normalizedDate = dateOnly(date);
+  const normalizedUnit = String(unit || "").trim();
+  if (!normalizedDate || !normalizedUnit || !["reading", "study"].includes(kind)) return;
+  const id = `tjdft:${kind}:${normalizedUnit}:${normalizedDate}`;
+  if (creditIds.has(id)) return;
+  creditIds.add(id);
+  timeCredits.push({
+    id,
+    date: normalizedDate,
+    kind,
+    unit: normalizedUnit,
+    trail,
+    minutes: 60,
+    sourceRef,
+  });
+}
+
+for (const item of studied) {
+  addTimeCredit({
+    kind: "study",
+    date: item.last_execution,
+    unit: item.code,
+    trail: item.track || "Português Primeiro + RLM Preventivo",
+    sourceRef: "data/tjdft-snapshot.json#operational.trail.items",
+  });
+}
+
+for (const day of Array.isArray(snapshot?.execution?.c01?.days) ? snapshot.execution.c01.days : []) {
+  if (day?.executed_at && /conclu|executad/i.test(String(day?.status || ""))) {
+    addTimeCredit({
+      kind: "study",
+      date: day.executed_at,
+      unit: day.day,
+      trail: "Ciclo diário TJDFT",
+      sourceRef: "data/tjdft-snapshot.json#execution.c01.days",
+    });
+  }
+}
+timeCredits.sort((a, b) => a.date.localeCompare(b.date) || a.kind.localeCompare(b.kind) || a.unit.localeCompare(b.unit));
+
 const questions = op?.questions || {};
 const datedReviews = Array.isArray(op?.reviews?.dated) ? op.reviews.dated : [];
 const reviewDates = datedReviews.map((item) => item?.date).filter(Boolean).sort();
@@ -106,6 +155,7 @@ const contract = {
       ? op.continuity.activities_with_evidence
       : studied.length,
     totalSessions: Number.isFinite(trail?.total) ? trail.total : null,
+    timeCredits,
     notes,
   },
 };
