@@ -21,7 +21,7 @@
     "sourceRef": "data/tjdft-snapshot.json#operational",
     "updatedAt": "2026-10-02T20:08:51.541Z",
     "trail": "Português Primeiro",
-    "lastCompletedUnit": "P03",
+    "lastCompletedUnit": "P02",
     "nextUnit": "P03",
     "lastStudiedAt": "2026-10-02T00:00:00.000Z",
     "questionsDone": 61,
@@ -32,7 +32,7 @@
     "reviewsDue": 0,
     "nextReviewAt": "2026-10-05T00:00:00.000Z",
     "activeErrors": 12,
-    "completedSessions": 6,
+    "completedSessions": 2,
     "totalSessions": 37,
     "timeCredits": [
       {
@@ -52,19 +52,11 @@
         "trail": "Português Primeiro",
         "minutes": 60,
         "sourceRef": "data/tjdft-snapshot.json#operational.trail.items"
-      },
-      {
-        "id": "tjdft:study:P03:2026-10-02",
-        "date": "2026-10-02",
-        "kind": "study",
-        "unit": "P03",
-        "trail": "Português Primeiro",
-        "minutes": 60,
-        "sourceRef": "data/tjdft-snapshot.json#operational.trail.items"
       }
     ],
     "notes": [
-      "Erros ativos: Particípio e formas nominais · Indicativo × subjuntivo · Pretérito perfeito × pretérito imperfeito"
+      "Erros ativos: Particípio e formas nominais · Indicativo × subjuntivo · Pretérito perfeito × pretérito imperfeito",
+      "P03 em execução; sem crédito de tempo até a conclusão do D0."
     ]
   }
 }
