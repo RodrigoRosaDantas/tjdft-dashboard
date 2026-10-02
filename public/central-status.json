@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "projectId": "tjdft",
-  "publishedAt": "2026-09-30",
+  "publishedAt": "2026-10-02",
   "source": {
     "kind": "public-project-state",
     "ref": "data/tjdft-snapshot.json#operational",
     "status": "synced",
-    "updatedAt": "2026-09-30T11:02:52.100Z"
+    "updatedAt": "2026-10-02T20:08:51.541Z"
   },
   "state": {
     "phase": "F-TJ-01 — Núcleo comum",
     "cycle": "Português Primeiro + RLM Preventivo",
-    "currentUnit": "P02",
+    "currentUnit": "P03",
     "nextAction": "P03 — Sintaxe I: frase, oração, período, sujeito, predicado e núcleos",
     "nextActionKind": "operational",
     "alerts": []
@@ -19,11 +19,11 @@
   "study": {
     "evidence": "confirmed",
     "sourceRef": "data/tjdft-snapshot.json#operational",
-    "updatedAt": "2026-09-30T11:02:52.100Z",
+    "updatedAt": "2026-10-02T20:08:51.541Z",
     "trail": "Português Primeiro",
-    "lastCompletedUnit": "P02",
+    "lastCompletedUnit": "P03",
     "nextUnit": "P03",
-    "lastStudiedAt": "2026-09-29T00:00:00.000Z",
+    "lastStudiedAt": "2026-10-02T00:00:00.000Z",
     "questionsDone": 61,
     "correct": 41,
     "errors": 20,
@@ -32,8 +32,37 @@
     "reviewsDue": 0,
     "nextReviewAt": "2026-10-05T00:00:00.000Z",
     "activeErrors": 12,
-    "completedSessions": 4,
+    "completedSessions": 6,
     "totalSessions": 37,
+    "timeCredits": [
+      {
+        "id": "tjdft:study:P01:2026-09-28",
+        "date": "2026-09-28",
+        "kind": "study",
+        "unit": "P01",
+        "trail": "Português Primeiro",
+        "minutes": 60,
+        "sourceRef": "data/tjdft-snapshot.json#operational.trail.items"
+      },
+      {
+        "id": "tjdft:study:P02:2026-09-29",
+        "date": "2026-09-29",
+        "kind": "study",
+        "unit": "P02",
+        "trail": "Português Primeiro",
+        "minutes": 60,
+        "sourceRef": "data/tjdft-snapshot.json#operational.trail.items"
+      },
+      {
+        "id": "tjdft:study:P03:2026-10-02",
+        "date": "2026-10-02",
+        "kind": "study",
+        "unit": "P03",
+        "trail": "Português Primeiro",
+        "minutes": 60,
+        "sourceRef": "data/tjdft-snapshot.json#operational.trail.items"
+      }
+    ],
     "notes": [
       "Erros ativos: Particípio e formas nominais · Indicativo × subjuntivo · Pretérito perfeito × pretérito imperfeito"
     ],

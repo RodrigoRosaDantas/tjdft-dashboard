@@ -6,8 +6,8 @@
     "page_id": "3d5cf5a2-6731-81aa-8acb-ebd128dada89",
     "page_url": "https://app.notion.com/p/TJDFT-Central-de-Comando-Dashboard-PRO-3d5cf5a2673181aa8acbebd128dada89",
     "last_edited_time": "2026-09-19T22:33:00.000Z",
-    "synced_at": "2026-09-30T11:02:52.100Z",
-    "content_hash": "195eb0314504fd786d602731e8190c35a748129238f50b11b76256f64a0d32b3",
+    "synced_at": "2026-10-02T20:08:51.541Z",
+    "content_hash": "f0e3a3da4d2cc895950956e938d348d51a7b6bde87727493119a52db8ba885df",
     "status": "partial",
     "operational_status": "live",
     "component_sources": {
@@ -21,8 +21,8 @@
     "operational_partial_components": [],
     "component_synced_at": {
       "materials": "2026-09-25T03:06:49.890Z",
-      "execution": "2026-09-30T11:02:52.100Z",
-      "operational": "2026-09-30T11:02:52.100Z"
+      "execution": "2026-10-02T20:08:51.541Z",
+      "operational": "2026-10-02T20:08:51.541Z"
     }
   },
   "dashboard": {
@@ -404,7 +404,7 @@
     ]
   },
   "execution": {
-    "as_of": "2026-09-30T11:02:52.085Z",
+    "as_of": "2026-10-02T20:08:51.525Z",
     "c01": {
       "days": [
         {
@@ -762,7 +762,8 @@
       "total": 37,
       "status_counts": {
         "Em consolidação": 2,
-        "Não estudado": 35
+        "Em aprendizagem": 1,
+        "Não estudado": 34
       },
       "material_ready": 37,
       "checkpoints": {
@@ -777,12 +778,12 @@
         "track": "Português Primeiro",
         "block": "B1",
         "priority": "Muito alta",
-        "state": "Não estudado",
+        "state": "Em aprendizagem",
         "material_ready": true,
         "d0": false,
         "d7": false,
         "d20": false,
-        "last_execution": null,
+        "last_execution": "2026-10-02T00:00:00.000Z",
         "next_review": null
       },
       "items": [
@@ -823,12 +824,12 @@
           "track": "Português Primeiro",
           "block": "B1",
           "priority": "Muito alta",
-          "state": "Não estudado",
+          "state": "Em aprendizagem",
           "material_ready": true,
           "d0": false,
           "d7": false,
           "d20": false,
-          "last_execution": null,
+          "last_execution": "2026-10-02T00:00:00.000Z",
           "next_review": null
         },
         {
@@ -1436,8 +1437,20 @@
       ]
     },
     "continuity": {
-      "active": null,
-      "activities_with_evidence": 4,
+      "active": {
+        "type": "Questões",
+        "activity": "L01 · QUEST · Constituição Federal de 1988",
+        "day": "LPD-TJDFT-20261002-L01-NC",
+        "state": "Em andamento",
+        "status": "Em execução",
+        "subject": "Noções de Direito Constitucional",
+        "date": "2026-10-02T00:00:00.000Z",
+        "planned_date": null,
+        "minutes": null,
+        "questions": null,
+        "next_action": "Responder os 30 itens C/E da L01"
+      },
+      "activities_with_evidence": 6,
       "minutes": null,
       "questions": null
     },
