@@ -10,10 +10,12 @@ const op = snapshot?.operational || {};
 const trail = op?.trail || {};
 const next = trail?.next || null;
 const items = Array.isArray(trail?.items) ? trail.items : [];
-const studied = items
+const started = items
   .filter((item) => item?.last_execution)
   .sort((left, right) => String(right.last_execution).localeCompare(String(left.last_execution)));
-const latest = studied[0] || null;
+const completed = started.filter((item) => item?.d0 === true);
+const latestStarted = started[0] || null;
+const latestCompleted = completed[0] || null;
 
 function dateOnly(value) {
   const match = String(value || "").match(/^\d{4}-\d{2}-\d{2}/);
@@ -40,7 +42,7 @@ function addTimeCredit({ kind, date, unit, trail, sourceRef }) {
   });
 }
 
-for (const item of studied) {
+for (const item of completed) {
   addTimeCredit({
     kind: "study",
     date: item.last_execution,
@@ -98,6 +100,9 @@ const topTopics = (Array.isArray(op?.errors?.top) ? op.errors.top : [])
 
 const notes = [];
 if (topTopics.length) notes.push(`Erros ativos: ${topTopics.join(" · ")}`);
+if (latestStarted && latestStarted?.d0 !== true) {
+  notes.push(`${latestStarted.code} em execução; sem crédito de tempo até a conclusão do D0.`);
+}
 if (operationalStatus !== "live") notes.push("Execução ou trilha operacional não estão integralmente atualizadas pelo Notion.");
 if (!editorialHealthy) {
   const readyLabel = Number.isFinite(editorialReady) ? editorialReady : "?";
@@ -130,7 +135,7 @@ const contract = {
   state: {
     phase: snapshot?.dashboard?.phase || "Preparação",
     cycle: "Português Primeiro + RLM Preventivo",
-    currentUnit: latest?.code || null,
+    currentUnit: next?.code || latestStarted?.code || null,
     nextAction: next ? `${next.code} — ${next.title.replace(/^\S+\s+—\s+/, "")}` : null,
     nextActionKind: next ? "operational" : "none",
     alerts,
@@ -140,9 +145,9 @@ const contract = {
     sourceRef: "data/tjdft-snapshot.json#operational",
     updatedAt: syncedAt,
     trail: next?.track || latest?.track || "Português Primeiro + RLM Preventivo",
-    lastCompletedUnit: latest?.code || null,
+    lastCompletedUnit: latestCompleted?.code || null,
     nextUnit: next?.code || null,
-    lastStudiedAt: latest?.last_execution || null,
+    lastStudiedAt: latestStarted?.last_execution || null,
     questionsDone: Number.isFinite(questions?.total) ? questions.total : null,
     correct: Number.isFinite(questions?.correct) ? questions.correct : null,
     errors: Number.isFinite(questions?.errors) ? questions.errors : null,
@@ -151,9 +156,7 @@ const contract = {
     reviewsDue,
     nextReviewAt: reviewDates[0] || null,
     activeErrors: Number.isFinite(op?.errors?.active_count) ? op.errors.active_count : null,
-    completedSessions: Number.isFinite(op?.continuity?.activities_with_evidence)
-      ? op.continuity.activities_with_evidence
-      : studied.length,
+    completedSessions: completed.length,
     totalSessions: Number.isFinite(trail?.total) ? trail.total : null,
     timeCredits,
     notes,
@@ -162,5 +165,5 @@ const contract = {
 
 await writeFile(new URL("public/central-status.json", ROOT), `${JSON.stringify(contract, null, 2)}\n`, "utf8");
 console.log(
-  `TJDFT central-status: ${latest?.code || "sem execução"} -> ${next?.code || "sem próxima unidade"} · ${contractStatus}.`,
+  `TJDFT central-status: concluída ${latestCompleted?.code || "nenhuma"} · atual ${next?.code || latestStarted?.code || "nenhuma"} · ${contractStatus}.`,
 );
