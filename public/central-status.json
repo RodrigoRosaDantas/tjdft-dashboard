@@ -65,26 +65,6 @@
     ],
     "notes": [
       "Erros ativos: Particípio e formas nominais · Indicativo × subjuntivo · Pretérito perfeito × pretérito imperfeito"
-    ],
-    "timeCredits": [
-      {
-        "id": "tjdft:study:P01:2026-09-28",
-        "date": "2026-09-28",
-        "kind": "study",
-        "unit": "P01",
-        "trail": "Português Primeiro",
-        "minutes": 60,
-        "sourceRef": "data/tjdft-snapshot.json#operational.trail.items"
-      },
-      {
-        "id": "tjdft:study:P02:2026-09-29",
-        "date": "2026-09-29",
-        "kind": "study",
-        "unit": "P02",
-        "trail": "Português Primeiro",
-        "minutes": 60,
-        "sourceRef": "data/tjdft-snapshot.json#operational.trail.items"
-      }
     ]
   }
 }
