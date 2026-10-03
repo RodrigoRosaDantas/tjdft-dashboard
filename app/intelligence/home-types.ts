@@ -16,6 +16,7 @@ export type HomeIntelligenceState = {
 };
 
 export type StudyOsClientSeed = {
+  laws: { laws: Array<{ code: string }> };
   portuguese: {
     sequence: string[];
     units: Array<{
