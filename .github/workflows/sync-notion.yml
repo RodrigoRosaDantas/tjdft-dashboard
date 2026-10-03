@@ -22,6 +22,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: tjdft-notion-sync-v2
@@ -128,3 +129,9 @@ jobs:
           git commit -m "Sync TJDFT snapshots from Notion"
           git pull --rebase origin main
           git push origin HEAD:main
+
+      - name: Publicar site atualizado no GitHub Pages
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-pages.yml --ref main --repo "$GITHUB_REPOSITORY"
