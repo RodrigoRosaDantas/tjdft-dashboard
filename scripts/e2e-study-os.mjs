@@ -116,6 +116,25 @@ const sequenceHref = await page.locator("#sequence-materials .text-button").firs
 const plannedHref = await page.locator("#future-materials .text-button").first().getAttribute("href");
 assert.ok(sequenceHref, "fonte da Biblioteca sequencial ausente");
 assert.equal(plannedHref, sequenceHref, "o plano de ciclos deve abrir a Biblioteca sequencial que o originou");
+const liveApiPattern = "**/functions/v1/tjdft-notion**";
+await context.route(liveApiPattern, (route) => route.abort());
+await open("painel-legado");
+await page.waitForFunction(() => /GitHub · backup/.test(document.querySelector(".sync-label")?.textContent || ""), { timeout:10000 });
+await page.waitForFunction(() => !document.querySelector(".refresh-button")?.disabled, { timeout:10000 });
+assert.equal(await page.locator(".sync-error").count(),0,"painel legado deve carregar o backup quando a API ao vivo falha");
+const legacyRouteHrefs = await page.locator(".sidebar-route-links a[href]").evaluateAll((links) => links.map((link) => link.href));
+assert.ok(legacyRouteHrefs.length > 0,"rotas de estudo ausentes no painel legado");
+for (const href of legacyRouteHrefs) {
+  const target = new URL(href);
+  assert.equal(target.origin,new URL(baseUrl).origin);
+  assert.ok(target.pathname.startsWith(basePath),`rota fora do site: ${href}`);
+  assert.equal(target.pathname.startsWith(`${basePath}painel-legado/`),false,`rota indevidamente aninhada no painel legado: ${href}`);
+}
+const legacyMentorLink = page.getByRole("link", { name:/Ver explicação no Mentor/i });
+assert.equal(new URL(await legacyMentorLink.getAttribute("href"),page.url()).pathname,`${basePath}mentor/`);
+await followLink(legacyMentorLink,`${basePath}mentor/`);
+assert.match(await page.locator("h1").first().innerText(),/Mentor/i);
+await context.unroute(liveApiPattern);
 await open("");
 await clickDestination("hoje");
 assert.match(await page.locator("h1").first().innerText(), /Hoje/i);
@@ -123,16 +142,27 @@ assert.ok(await page.getByRole("link", { name:/Executar agora/i }).count());
 await clickDestination("mentor");
 assert.match(await page.locator("h1").first().innerText(), /Mentor/i);
 assert.ok(await page.getByText(/Por que esta decisão/i).count());
-const mentorTrailLinks = page.locator("a[href*='/portugues-rlm/']");
-let mentorTrailHref = null;
-for (let index = 0; index < await mentorTrailLinks.count(); index++) {
-  const candidate = mentorTrailLinks.nth(index);
-  if (await candidate.isVisible()) {
-    mentorTrailHref = await candidate.getAttribute("href");
-    if (mentorTrailHref && /\/portugues-rlm\/(?:p|rl|rev)\d{2}\/?$/i.test(new URL(mentorTrailHref, page.url()).pathname)) break;
-  }
+const mentorAction = page.locator(".os-action .os-cta");
+assert.ok(await mentorAction.isVisible(),"ação principal do Mentor deve estar acessível");
+const mentorHref = await mentorAction.getAttribute("href");
+assert.ok(mentorHref,"ação principal do Mentor sem destino");
+const mentorTarget = new URL(mentorHref,page.url());
+const mentorLabel = await page.locator(".os-action .os-pill").innerText();
+const mentorTitle = await page.locator(".os-action h2").innerText();
+const mentorUnitCode = mentorTitle.match(/(?:^|[^A-Z0-9])((?:REV|RL|P|L)\d{2})(?=$|[^A-Z0-9])/i)?.[1]?.toUpperCase();
+if (/RETOMAR|PRÓXIMA AÇÃO/i.test(mentorLabel) && mentorUnitCode) {
+  const section = mentorUnitCode.startsWith("L") ? "leis" : "portugues-rlm";
+  assert.equal(mentorTarget.pathname,`${basePath}${section}/${mentorUnitCode.toLowerCase()}/`,"Mentor deve abrir o conteúdo correspondente à sessão ou unidade recomendada");
 }
-assert.ok(mentorTrailHref && /\/portugues-rlm\/(?:p|rl|rev)\d{2}\/?$/i.test(new URL(mentorTrailHref, page.url()).pathname), "Mentor não aponta para uma unidade válida da esteira");
+if (mentorTarget.origin === new URL(baseUrl).origin) {
+  assert.ok(mentorTarget.pathname.startsWith(basePath),"Mentor aponta para fora do base path do site");
+  const destination = mentorTarget.pathname.slice(basePath.length);
+  assert.match(destination,/^(?:portugues-rlm\/(?:p|rl|rev)\d{2}|leis\/l\d{2}|painel-legado|erros|revisoes|desempenho|qualidade-dados|trilha)\/$/,"Mentor deve apontar para um destino de estudo ou diagnóstico válido");
+  await followLink(mentorAction,mentorTarget.pathname);
+  assert.doesNotMatch(await page.locator("h1").first().innerText(),/404|not found|não encontrad/i);
+} else {
+  assert.equal(mentorTarget.protocol,"https:","fontes externas de retomada devem usar HTTPS");
+}
 await open("portugues-rlm");
 await page.waitForFunction(() => {
   const node = document.querySelector(".laws-sync[data-operational-source]");

@@ -27,6 +27,7 @@ export function getStudyOsHomeData(): { initialHomeState: HomeIntelligenceState;
       sequenceValid: model.sequence.valid,
     },
     intelligenceSeed: {
+      laws: { laws: laws.laws.map((law) => ({ code: law.code })) },
       portuguese: {
         sequence: portuguese.sequence,
         units: portuguese.units.map((unit) => ({

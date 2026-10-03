@@ -66,7 +66,10 @@ export default function StudyOsPage({view,root=false}:{view:View;root?:boolean})
       <span className="os-nav-symbol" aria-hidden="true">{item.symbol}</span><span>{item.label}</span>
     </a>)}
   </section>);
-  const actionHref = m.nextAction?.href ? (root ? `./${m.nextAction.href}` : `../${m.nextAction.href}`) : route(root,"portugues-rlm");
+  const actionTarget = m.nextAction?.href;
+  const actionHref = actionTarget
+    ? /^https?:\/\//i.test(actionTarget) ? actionTarget : `${root ? "./" : "../"}${actionTarget}`
+    : route(root,"portugues-rlm");
   const sourceUpdated=m.quality.sourceSyncedAt?new Date(m.quality.sourceSyncedAt).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo"}):"atualização não informada";
   const sourceWarning = m.quality.sourceStatus==="partial"
     ? `Dados parciais: ${m.quality.partialComponents.length ? m.quality.partialComponents.join(", ") : "alguns componentes"} não foram atualizados integralmente pelo Notion. Confira a sincronização antes de seguir esta prioridade.`

@@ -13,6 +13,16 @@ const n = (value) => {
 const pct = (correct,total) => total > 0 && correct != null ? correct / total : null;
 const unique = (items) => [...new Set(items.filter(Boolean))];
 
+function sessionContentHref(day, units, laws) {
+  const codes = unique(String(day || "").toUpperCase().split(/[^A-Z0-9]+/)
+    .filter((code) => /^(?:P|RL|REV|L)\d{2}$/.test(code)));
+  if (codes.length !== 1) return null;
+  const code = codes[0];
+  if (units.some((unit) => unit.code === code)) return `portugues-rlm/${code.toLowerCase()}/`;
+  if (laws.some((law) => law.code === code)) return `leis/${code.toLowerCase()}/`;
+  return null;
+}
+
 const sumKnown = (values) => {
   if (!values.length) return null;
   const parsed = values.map(n);
@@ -229,7 +239,7 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   const resumeAction = activeActivity ? {
     kind:"resume", label:"RETOMAR SESSÃO", code:activeActivity.day || null,
     title:activeActivity.next_action || activeActivity.activity || "Retomar atividade em andamento",
-    href:"painel-legado/",
+    href:sessionContentHref(activeActivity.day, editorialUnits, laws.laws || []) || "painel-legado/",
     reason:"Existe uma atividade marcada como em andamento no Notion. Conclua esta sessão antes de abrir conteúdo novo.",
     confidence:"alta",
     evidence:[activeActivity.state || activeActivity.status || "atividade em andamento", activeActivity.date || "sem data real de execução"],
@@ -237,7 +247,7 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
     after_action:"Depois da sessão: registrar o resultado e retomar a unidade canônica.",
   } : partial ? {
     kind:"resume", label:"RETOMAR UNIDADE", code:partial.day,
-    title:partial.title, href:partial.href || "painel-legado/",
+    title:partial.title, href:sessionContentHref(partial.day, editorialUnits, laws.laws || []) || partial.href || "painel-legado/",
     reason:"Há execução parcial registrada. Continuidade prevalece sobre abrir conteúdo novo.",
     confidence:"alta",
     evidence:[partial.status || "registro parcial", n(partial.done) == null ? "questões feitas —" : n(partial.done)+" questões"],
@@ -592,8 +602,8 @@ export function buildTJDFTIntelligence({ dashboard = {}, portuguese = {}, laws =
   };
 }
 
-export function buildTJDFTHomeState(dashboard = {}, portuguese = {}) {
-  const model = buildTJDFTIntelligence({ dashboard, portuguese });
+export function buildTJDFTHomeState(dashboard = {}, portuguese = {}, laws = {}) {
+  const model = buildTJDFTIntelligence({ dashboard, portuguese, laws });
   return {
     nextAction: {
       kind: model.nextAction.kind,

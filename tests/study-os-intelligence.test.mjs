@@ -15,7 +15,7 @@ test("60 questões e três sessões produzem amostra forte",()=>assert.equal(evi
 test("material pronto não vira estudado",()=>{const m=buildTJDFTIntelligence(base());assert.equal(m.meta.editorialReady,1);assert.equal(m.coverage.tecnico.studied,null);});
 test("ordem 1–37 é validada",()=>assert.equal(buildTJDFTIntelligence(base()).sequence.valid,true));
 test("ordem divergente é risco de qualidade",()=>{const x=base();x.portuguese.sequence=[...seq].reverse();const m=buildTJDFTIntelligence(x);assert.equal(m.sequence.valid,false);assert.ok(m.quality.issues.some(i=>i.code==="sequence-divergence"));});
-test("sessão parcial volta como RETOMAR",()=>{const x=base();x.dashboard.execution.c01.days=[{day:"P01",title:"P01",done:5,correct:4,errors:1,progress:.5,executed_at:"2026-09-24T10:00:00Z"}];const m=buildTJDFTIntelligence(x);assert.equal(m.nextAction.kind,"resume");});
+test("sessão parcial volta como RETOMAR na unidade publicada",()=>{const x=base();x.dashboard.execution.c01.days=[{day:"P01",title:"P01",href:"https://www.notion.so/p01",done:5,correct:4,errors:1,progress:.5,executed_at:"2026-09-24T10:00:00Z"}];const m=buildTJDFTIntelligence(x);assert.equal(m.nextAction.kind,"resume");assert.equal(m.nextAction.href,"portugues-rlm/p01/");});
 test("amostra robusta pode sustentar força sem 100% quando a série confirma consistência",()=>{
   const x=base();
   x.dashboard.execution.c01.totals={done:60,correct:54,errors:6,annulled:0,doubts:0,minutes:null};
@@ -96,6 +96,35 @@ test("atividade em andamento prevalece sobre próxima unidade",()=>{
   const m=buildTJDFTIntelligence(x);
   assert.equal(m.nextAction.kind,"resume");
   assert.equal(m.nextAction.code,"D01");
+  assert.equal(m.nextAction.href,"painel-legado/");
+});
+
+test("sessão LPD retoma a lei publicada no Mentor e após sincronização da Home",()=>{
+  const x=operationalBase();
+  x.laws.laws=[{code:"L01",record_kind:"active"}];
+  x.dashboard.operational.continuity.active={day:"LPD-TJDFT-20261002-L01-NC",state:"Em andamento",next_action:"Responder os 30 itens C/E da L01"};
+  const m=buildTJDFTIntelligence(x);
+  assert.equal(m.nextAction.kind,"resume");
+  assert.equal(m.nextAction.href,"leis/l01/");
+  const home=buildTJDFTHomeState(x.dashboard,x.portuguese,{laws:[{code:"L01"}]});
+  assert.equal(home.nextAction.href,m.nextAction.href);
+  assert.equal(home.nextAction.code,"LPD-TJDFT-20261002-L01-NC");
+});
+
+test("retomada identifica unidades e revisões publicadas pelo código da sessão",()=>{
+  for (const code of ["P02","RL01","REV01"]) {
+    const x=operationalBase();
+    x.dashboard.operational.continuity.active={day:`TJDFT-${code}-D0`,state:"Em andamento"};
+    assert.equal(buildTJDFTIntelligence(x).nextAction.href,`portugues-rlm/${code.toLowerCase()}/`);
+  }
+});
+
+test("sessões sem unidade publicada ou com códigos ambíguos preservam o painel legado",()=>{
+  for (const day of ["LPD-TJDFT-L99-NC","TJDFT-P99-D0","TJDFT-P01-P02-D0"]) {
+    const x=operationalBase();
+    x.dashboard.operational.continuity.active={day,state:"Em andamento"};
+    assert.equal(buildTJDFTIntelligence(x).nextAction.href,"painel-legado/");
+  }
 });
 
 test("ausência de registros no Caderno não vira zero erro ativo",()=>{
