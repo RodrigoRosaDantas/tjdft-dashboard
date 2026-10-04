@@ -209,7 +209,11 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(syncRunner, /stableSnapshotFingerprint/);
   assert.match(syncRunner, /component_synced_at/);
   assert.doesNotMatch(syncRunner, /existing\?\.source\?\.content_hash === snapshot\.source\.content_hash/);
-  assert.match(workflow, /cron: "\*\/15 \* \* \* \*"/);
+  assert.match(workflow, /cron: "8,38 \* \* \* \*"/);
+  assert.match(workflow, /timeout-minutes: 45/);
+  assert.match(workflow, /Aguardar janela da API antes das trilhas pesadas/);
+  assert.match(workflow, /Sincronizar Leis Primeiro[\s\S]*timeout-minutes: 20/);
+  assert.match(workflow, /Sincronizar Português \+ RLM[\s\S]*timeout-minutes: 12/);
   assert.match(workflow, /group: tjdft-notion-sync-v2/);
   assert.match(workflow, /cancel-in-progress: false/);
   assert.match(workflow, /git pull --rebase origin main/);
@@ -233,8 +237,9 @@ test("mantém a sincronização viva com fallback e publicação controlada", as
   assert.match(workflow, /Gerar snapshot operacional TJDFT/);
   assert.match(workflow, /Exportar edital verticalizado/);
   assert.match(workflow, /timeout-minutes: 10/);
-  assert.match(workflow, /Sincronizar Leis Primeiro[\s\S]*timeout-minutes: 6/);
-  assert.match(workflow, /Sincronizar Português \+ RLM[\s\S]*timeout-minutes: 8/);
+  assert.match(workflow, /Sincronizar Leis Primeiro[\s\S]*timeout-minutes: 20/);
+  assert.match(workflow, /Sincronizar Português \+ RLM[\s\S]*timeout-minutes: 12/);
+  assert.match(workflow, /Sincronizar banco legislativo[\s\S]*timeout-minutes: 6/);
   assert.match(workflow, /deno run --allow-net --allow-env --allow-read --allow-write scripts\/export-edital-verticalizado\.ts/);
 });
 

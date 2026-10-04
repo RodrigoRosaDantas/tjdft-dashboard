@@ -18,7 +18,7 @@ on:
       - "scripts/build-central-status.mjs"
       - ".github/workflows/sync-notion.yml"
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "8,38 * * * *"
 
 permissions:
   contents: write
@@ -31,7 +31,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,22 +74,25 @@ jobs:
           TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
           NOTION_VERSION: "2026-03-11"
 
+      - name: Aguardar janela da API antes das trilhas pesadas
+        run: sleep 10
+
       - name: Sincronizar Leis Primeiro
-        timeout-minutes: 6
+        timeout-minutes: 20
         run: node scripts/sync-leis-primeiro.mjs
         env:
           TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
           NOTION_VERSION: "2026-03-11"
 
       - name: Sincronizar Português + RLM
-        timeout-minutes: 8
+        timeout-minutes: 12
         run: node scripts/sync-portugues-rlm.mjs
         env:
           TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
           NOTION_VERSION: "2026-03-11"
 
       - name: Sincronizar banco legislativo
-        timeout-minutes: 4
+        timeout-minutes: 6
         run: node scripts/sync-legislation-bank.mjs
         env:
           TJDFT_NOTION_TOKEN: ${{ secrets.TJDFT_NOTION_TOKEN }}
